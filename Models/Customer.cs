@@ -1,18 +1,18 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using FactoriesGateSystem.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace FactoriesGateSystem.Models
 {
-    public class Customer
+    public class Customer : User
     {
-        [Key]
-        public int CustomerId { get; set; }
-        [Required]
-        public string CustomerName { get; set; }
         [Required]
         public string PhoneNumber { get; set; }
-        [Required]
-        public string Address { get; set; }
+
         public int CurrentBalance { get; set; } = 0;
-        public DateTime? CreateAt { get; set; }
+
+        public override UserType access() => UserType.Customer;
+         
+
+        public ICollection<Order> Orders { get; set; }
     }
 }

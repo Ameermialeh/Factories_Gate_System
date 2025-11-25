@@ -16,5 +16,7 @@ namespace FactoriesGateSystem.Models
 
         [Required]
         public int ProductPrice { get; set; }
+
+        public ICollection<OrderProduct> OrderProducts { get; set; }
     }
 }
