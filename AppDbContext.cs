@@ -9,8 +9,6 @@ namespace FactoriesGateSystem
         public AppDbContext (DbContextOptions<AppDbContext> options):base(options) { 
              
         }
-
-        public DbSet<User> users { get; set; }
         public DbSet<Order> orders { get; set; }
         public DbSet<Vacation> vacations { get; set; }
         public DbSet<WorkPlan> workPlans { get; set; }

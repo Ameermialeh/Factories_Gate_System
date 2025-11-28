@@ -5,12 +5,15 @@ namespace FactoriesGateSystem.Models
 {
     public class EmployeeMaterial
     {
-        [Required]
+        [Key]
+        public int EmployeeMaterialId { get; set; } 
+
+
         public int EmployeeId { get; set; }
         [ForeignKey(nameof(EmployeeId))]
         public Employee Employee { get; set; }
 
-        [Required]
+
         public int MaterialId { get; set; }
         [ForeignKey(nameof(MaterialId))]
         public Material Material { get; set; }

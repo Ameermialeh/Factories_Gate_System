@@ -5,6 +5,9 @@ namespace FactoriesGateSystem.Models
 {
     public class SupplierMaterial
     {
+        [Key]
+        public int SupplierMaterialId { get; set; }
+
         [Required]
         public int SupplierId { get; set; }
         [ForeignKey(nameof(SupplierId))]

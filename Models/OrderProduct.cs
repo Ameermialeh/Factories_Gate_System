@@ -5,6 +5,9 @@ namespace FactoriesGateSystem.Models
 {
     public class OrderProduct
     {
+        [Key]
+        public int OrderProductId { get; set; }
+
         [Required]
         public int OrderId  { get; set; }
         [Required]

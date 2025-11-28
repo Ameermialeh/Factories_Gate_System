@@ -1,9 +1,10 @@
-﻿using FactoriesGateSystem.Enums;
+﻿/*
+ using FactoriesGateSystem.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace FactoriesGateSystem.Models
 {
-    public abstract class User
+    public class User
     {
         [Key]
         public int UserId { get; set; }
@@ -17,7 +18,6 @@ namespace FactoriesGateSystem.Models
         public string Address { get; set; }
         public bool IsActive { get; set; } = true;
         public DateTime? CreateAt { get; set; }
-
-        public abstract UserType access();
     }
 }
+*/
