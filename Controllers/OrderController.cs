@@ -1,4 +1,5 @@
 ﻿using FactoriesGateSystem.Models;
+using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FactoriesGateSystem.Controllers
@@ -7,16 +8,17 @@ namespace FactoriesGateSystem.Controllers
     public class OrderController : Controller
     {
         private readonly AppDbContext _appDbContext;
-
-        public OrderController(AppDbContext appDbContext)
+        private readonly OrderRepo _orderRepo;
+        public OrderController(AppDbContext appDbContext, OrderRepo orderRepo)
         {
+            _orderRepo = orderRepo;
             _appDbContext = appDbContext;
         }
 
         [HttpGet("GetAllOrders")]
         public IActionResult GetAllOrders()
         {
-            var orders = _appDbContext.orders.ToList();
+            var orders = _orderRepo.GetOrders();
             if(orders == null)
             {
                 return BadRequest("No order here!!");
@@ -27,7 +29,7 @@ namespace FactoriesGateSystem.Controllers
         [HttpGet("GetOrderByID/{id}")]
         public IActionResult GetOrderByID(int id)
         {
-            var order = _appDbContext.orders.FirstOrDefault(o => o.OrderId == id);
+            var order = _orderRepo.GetOrderById(id);
             if(order == null)
             {
                 return BadRequest($"No order with id = {id}. Try again");
@@ -36,11 +38,11 @@ namespace FactoriesGateSystem.Controllers
         }
 
         [HttpPost("AddNewOrder")]
-        public IActionResult AddNewOrder([FromBody] Order Order)
+        public IActionResult AddNewOrder([FromBody] Order order)
         {
-            _appDbContext.orders.Add(Order);
-            _appDbContext.SaveChanges();
-            return Ok();
+           var isAdded = _orderRepo.AddOrder(order);
+            if (!isAdded) { return BadRequest("Somthing went wrong!"); }
+            return Ok(order);
         }
     }
 }

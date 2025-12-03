@@ -1,5 +1,6 @@
 ﻿using FactoriesGateSystem.DTOs;
 using FactoriesGateSystem.Models;
+using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FactoriesGateSystem.Controllers
@@ -8,16 +9,17 @@ namespace FactoriesGateSystem.Controllers
     public class CustomerController : Controller
     {
         private readonly AppDbContext _appDbContext;
-
-        public CustomerController(AppDbContext appDbContext)
+        private readonly CustomerRepo _customerRepo;
+        public CustomerController(AppDbContext appDbContext, CustomerRepo customerRepo)
         {
+            _customerRepo = customerRepo;
             _appDbContext = appDbContext;
         }
 
         [HttpGet("GetAllCustomers")]
         public IActionResult GetAllCustomers()
         {
-            var customers = _appDbContext.customer.ToList();
+            var customers = _customerRepo.GetCustomers();
             if(customers == null)
             {
                 return BadRequest("There is no customers here. Add new customer");
@@ -34,7 +36,7 @@ namespace FactoriesGateSystem.Controllers
         [HttpGet("GetCustomerByID/{id}")]
         public IActionResult GetCustomerByID(int id)
         {
-            var customer = _appDbContext.customer.FirstOrDefault(c=>c.CustomerId == id);
+            var customer = _customerRepo.GetCustomerById(id);
             if(customer == null)
             {
                 return BadRequest($"No customer with id = {id}. Try again");
@@ -51,8 +53,8 @@ namespace FactoriesGateSystem.Controllers
         [HttpPost("AddNewCustomer")]
         public IActionResult AddNewCustomer([FromBody]Customer customer)
         {
-            _appDbContext.customer.Add(customer);
-            _appDbContext.SaveChanges();
+            var isAdded = _customerRepo.AddCustomer(customer);
+            if (!isAdded) { return BadRequest("Somthing went wrong!"); }
 
             var customerDto = new CustomerDTO()
             {
@@ -63,42 +65,25 @@ namespace FactoriesGateSystem.Controllers
             return Ok(customerDto);
         }
 
-        [HttpPut("UpdateCustomer/{id}")]
-        public IActionResult UpdateCustomer(int id, [FromBody] Customer customer)
+        [HttpPut("UpdateCustomer")]
+        public IActionResult UpdateCustomer([FromBody] Customer customer)
         {
-            var newCustomer = _appDbContext.customer.FirstOrDefault(c=>c.CustomerId == id );
+            var newCustomer = _customerRepo.UpdateCustomer(customer);
             if (newCustomer == null)
             {
-                return BadRequest($"No customer with id = {id}. Try again");
+                return BadRequest($"Somthing went wrong. Try again");
             }
-            newCustomer.PhoneNumber = customer.PhoneNumber;
-            newCustomer.Address = customer.Address;
-            newCustomer.CustomerName = customer.CustomerName;
-            newCustomer.CurrentBalance = customer.CurrentBalance;
-            _appDbContext.SaveChanges();
             return Ok(newCustomer);
-
         }
 
         [HttpDelete("DeleteCustomer/{id}")]
         public IActionResult DeleteCustomer(int id)
         {
-            var customer = _appDbContext.customer.FirstOrDefault(c => c.CustomerId == id);
+            var customer = _customerRepo.DeleteCustomer(id);
             if (customer == null)
             {
                 return BadRequest($"No customer with id = {id}. Try again");
             }
-            var orders = customer.Orders;
-            if(orders != null )
-            {
-                foreach( var order in orders )
-                {
-                    _appDbContext.orders.Remove(order);
-
-                }
-            }
-            _appDbContext.customer.Remove(customer);
-            _appDbContext.SaveChanges();
             return Ok(customer);
         }
     }

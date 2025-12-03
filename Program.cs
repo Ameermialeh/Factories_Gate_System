@@ -1,4 +1,5 @@
 
+using FactoriesGateSystem.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -21,7 +22,8 @@ namespace FactoriesGateSystem
             .UseMySql(builder.Configuration.GetConnectionString("Connection"),
             new MySqlServerVersion(new Version(8, 2, 12))));
 
-
+            builder.Services.AddScoped<CustomerRepo>();
+            builder.Services.AddScoped<OrderRepo>();
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
