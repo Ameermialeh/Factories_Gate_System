@@ -1,4 +1,5 @@
-﻿using FactoriesGateSystem.Models;
+﻿using FactoriesGateSystem.DTOs;
+using FactoriesGateSystem.Models;
 
 namespace FactoriesGateSystem.Repositories
 {
@@ -28,17 +29,91 @@ namespace FactoriesGateSystem.Repositories
             return order;
         }
 
-        public bool AddOrder(Order order)
+        public List<OrderProductsDTO> GetProductsForOrder(int orderID)
+        {
+            var products =_appDbContext.orderProducts.Where(op=> op.OrderId == orderID).Select(op => new OrderProductsDTO
+            {
+                ProductID = op.ProductId,
+                ProductQuantity = op.Quantity
+            }).ToList();
+            
+            return products;
+        }
+
+        public bool CreateOrder(OrderWithProductsDTO OrderWithProductsDto)
         {
             try
             {
+                Order order = new Order()
+                {
+                    OrderName = OrderWithProductsDto.Name,
+                    OrderDate = OrderWithProductsDto.OrderDate,
+                    OrderDescription = OrderWithProductsDto.Description,
+                    CustomerId = OrderWithProductsDto.CustomerID
+                };
+
                 _appDbContext.orders.Add(order);
+                _appDbContext.SaveChanges();
+
+                 
+
+                foreach(var product in OrderWithProductsDto.Products)
+                {
+                    var orderProduct = new OrderProduct()
+                    {
+                        OrderId = order.OrderId,
+                        ProductId = product.ProductID,
+                        Quantity = product.ProductQuantity
+                    };
+
+                    _appDbContext.orderProducts.Add(orderProduct);
+                }
                 _appDbContext.SaveChanges();
                 return true;
             }
             catch { 
                 return false;
             }
+        }
+
+        public OrderDTO? UpdateOrder(OrderDTO orderdto)
+        {
+            var newOrder = GetOrderById(orderdto.ID);
+            if (newOrder == null) { return null; }
+
+            try
+            {
+                newOrder.OrderId = orderdto.ID;
+                newOrder.OrderName = orderdto.Name;
+                newOrder.OrderDate = orderdto.OrderDate;
+                newOrder.OrderDescription = orderdto.Description;
+                newOrder.CustomerId = orderdto.CustomerID;
+                _appDbContext.SaveChanges();
+                return orderdto;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
+        }
+
+        public Order? DeleteOrder(int id)
+        {
+            var order = GetOrderById(id);
+            if (order == null) { return null; }
+            try
+            {
+                _appDbContext.orders.Remove(order);
+                _appDbContext.SaveChanges();
+                return order;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
+
         }
     }
 }

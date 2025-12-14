@@ -1,4 +1,5 @@
-﻿using FactoriesGateSystem.Models;
+﻿using FactoriesGateSystem.DTOs;
+using FactoriesGateSystem.Models;
 using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,12 +8,10 @@ namespace FactoriesGateSystem.Controllers
     [ApiController]
     public class OrderController : Controller
     {
-        private readonly AppDbContext _appDbContext;
         private readonly OrderRepo _orderRepo;
-        public OrderController(AppDbContext appDbContext, OrderRepo orderRepo)
+        public OrderController(OrderRepo orderRepo)
         {
             _orderRepo = orderRepo;
-            _appDbContext = appDbContext;
         }
 
         [HttpGet("GetAllOrders")]
@@ -23,7 +22,15 @@ namespace FactoriesGateSystem.Controllers
             {
                 return BadRequest("No order here!!");
             }
-            return Ok(orders);
+            var corderDto = orders.Select(o => new OrderDTO()
+            {
+                ID = o.OrderId,
+                Name = o.OrderName,
+                Description = o.OrderDescription,
+                OrderDate = o.OrderDate,
+                CustomerID = o.CustomerId
+            });
+            return Ok(corderDto);
         }
 
         [HttpGet("GetOrderByID/{id}")]
@@ -34,15 +41,56 @@ namespace FactoriesGateSystem.Controllers
             {
                 return BadRequest($"No order with id = {id}. Try again");
             }
+            var products = _orderRepo.GetProductsForOrder(id);
+
+            var OrderWithProductsDto = new OrderWithProductsDTO()
+            {
+                ID = order.OrderId,
+                Name = order.OrderName,
+                Description = order.OrderDescription,
+                OrderDate = order.OrderDate,
+                CustomerID = order.CustomerId,
+                Products = products,
+            };
+
+            return Ok(OrderWithProductsDto);
+        }
+
+        [HttpPost("CreateOrder")]
+        public IActionResult CreateOrder([FromBody] OrderWithProductsDTO order)
+        {
+           var isAdded = _orderRepo.CreateOrder(order);
+            if (!isAdded) { return BadRequest("Somthing went wrong!"); }
             return Ok(order);
         }
 
-        [HttpPost("AddNewOrder")]
-        public IActionResult AddNewOrder([FromBody] Order order)
+        [HttpPut("UpdateOrder")] // Here
+        public IActionResult UpdateOrder([FromBody] OrderDTO orderdto)
         {
-           var isAdded = _orderRepo.AddOrder(order);
-            if (!isAdded) { return BadRequest("Somthing went wrong!"); }
-            return Ok(order);
+            var newOrder = _orderRepo.UpdateOrder(orderdto);
+            if (newOrder == null)
+            {
+                return BadRequest($"Somthing went wrong. Try again");
+            }
+            return Ok(newOrder);
+        }
+
+        [HttpDelete("DeleteOrder/{id}")]
+        public IActionResult DeleteOrder(int id)
+        {
+            var order = _orderRepo.DeleteOrder(id);
+            if (order == null)
+            {
+                return BadRequest($"No customer with id = {id}. Try again");
+            }
+            var orderdto = new OrderDTO()
+            {
+                ID = order.OrderId,
+                Name = order.OrderName,
+                OrderDate = order.OrderDate,
+                CustomerID = order.CustomerId
+            };
+            return Ok(orderdto);
         }
     }
 }

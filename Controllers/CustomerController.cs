@@ -8,12 +8,10 @@ namespace FactoriesGateSystem.Controllers
     [ApiController]
     public class CustomerController : Controller
     {
-        private readonly AppDbContext _appDbContext;
         private readonly CustomerRepo _customerRepo;
-        public CustomerController(AppDbContext appDbContext, CustomerRepo customerRepo)
+        public CustomerController(CustomerRepo customerRepo)
         {
             _customerRepo = customerRepo;
-            _appDbContext = appDbContext;
         }
 
         [HttpGet("GetAllCustomers")]
@@ -26,6 +24,7 @@ namespace FactoriesGateSystem.Controllers
             }
             var customerDto = customers.Select(c => new CustomerDTO()
             {
+                ID = c.CustomerId,
                 Name = c.CustomerName,
                 Address = c.Address,
                 Phone = c.PhoneNumber
@@ -43,6 +42,7 @@ namespace FactoriesGateSystem.Controllers
             }
             var customerDto = new CustomerDTO()
             {
+                ID = customer.CustomerId,
                 Name = customer.CustomerName,
                 Address = customer.Address,
                 Phone = customer.PhoneNumber
@@ -51,29 +51,33 @@ namespace FactoriesGateSystem.Controllers
         }
 
         [HttpPost("AddNewCustomer")]
-        public IActionResult AddNewCustomer([FromBody]Customer customer)
+        public IActionResult AddNewCustomer([FromBody]CustomerDTO customer)
         {
             var isAdded = _customerRepo.AddCustomer(customer);
             if (!isAdded) { return BadRequest("Somthing went wrong!"); }
 
-            var customerDto = new CustomerDTO()
-            {
-                Name = customer.CustomerName,
-                Address = customer.Address,
-                Phone = customer.PhoneNumber
-            };
-            return Ok(customerDto);
+            return Ok(customer);
         }
 
         [HttpPut("UpdateCustomer")]
-        public IActionResult UpdateCustomer([FromBody] Customer customer)
+        public IActionResult UpdateCustomer([FromBody] CustomerDTO customer)
         {
-            var newCustomer = _customerRepo.UpdateCustomer(customer);
-            if (newCustomer == null)
+            if (customer == null)
+                return BadRequest("Invalid customer data.");
+            try
             {
-                return BadRequest($"Somthing went wrong. Try again");
+                var result = _customerRepo.UpdateCustomer(customer);
+                if (result == null)
+                {
+                    return BadRequest($"No Customer with id: {customer.ID}. Try again");
+                }
+
+                return Ok(result);
             }
-            return Ok(newCustomer);
+            catch(Exception)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpDelete("DeleteCustomer/{id}")]
@@ -84,7 +88,12 @@ namespace FactoriesGateSystem.Controllers
             {
                 return BadRequest($"No customer with id = {id}. Try again");
             }
-            return Ok(customer);
+            var customerdto = new CustomerDTO()
+            {
+                ID=customer.CustomerId,
+                Name=customer.CustomerName,
+            };
+            return Ok(customerdto);
         }
     }
 }

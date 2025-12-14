@@ -24,6 +24,7 @@ namespace FactoriesGateSystem
 
             builder.Services.AddScoped<CustomerRepo>();
             builder.Services.AddScoped<OrderRepo>();
+            builder.Services.AddScoped<ProductRepo>();
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

@@ -1,4 +1,5 @@
-﻿using FactoriesGateSystem.Models;
+﻿using FactoriesGateSystem.DTOs;
+using FactoriesGateSystem.Models;
 
 namespace FactoriesGateSystem.Repositories
 {
@@ -29,10 +30,20 @@ namespace FactoriesGateSystem.Repositories
             return customer;
         }
 
-        public bool AddCustomer(Customer customer)
+        public bool AddCustomer(CustomerDTO customerdto)
         {
             try
             {
+                var customer = new Customer()
+                {
+                    CustomerId = customerdto.ID,
+                    CustomerName = customerdto.Name,
+                    Address = customerdto.Address,
+                    PhoneNumber = customerdto.Phone,
+                    CurrentBalance = customerdto.CurrentBalance,
+                };
+                 
+
                 _appDbContext.customer.Add(customer);
                 _appDbContext.SaveChanges();
                 return true;
@@ -41,24 +52,21 @@ namespace FactoriesGateSystem.Repositories
                 return false;
             }
         }
-        public Customer? UpdateCustomer(Customer customer)
+        public CustomerDTO? UpdateCustomer(CustomerDTO customer)
         {
-            var newCustomer = GetCustomerById(customer.CustomerId);
-            if (newCustomer == null) { return null; }
-            try
-            {
-                newCustomer.PhoneNumber = customer.PhoneNumber;
-                newCustomer.Address = customer.Address;
-                newCustomer.CustomerName = customer.CustomerName;
-                newCustomer.CurrentBalance = customer.CurrentBalance;
-                _appDbContext.SaveChanges();
-                return newCustomer;
-            }
-            catch (Exception ex)
-            {
+            var existingCustomer = GetCustomerById(customer.ID);
+            if (existingCustomer == null)
                 return null;
-            }
 
+
+            existingCustomer.CustomerName = customer.Name;
+            existingCustomer.PhoneNumber = customer.Phone;
+            existingCustomer.Address = customer.Address;
+            existingCustomer.CurrentBalance = customer.CurrentBalance;
+
+            _appDbContext.SaveChanges();
+
+            return customer;
         }
 
         public Customer? DeleteCustomer(int id)
@@ -78,9 +86,10 @@ namespace FactoriesGateSystem.Repositories
                 }
                 _appDbContext.customer.Remove(customer);
                 _appDbContext.SaveChanges();
+                
                 return customer;
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 return null;            
             }
 
