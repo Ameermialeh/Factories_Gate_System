@@ -20,7 +20,7 @@ namespace FactoriesGateSystem.Controllers
             var customers = _customerRepo.GetCustomers();
             if(customers == null)
             {
-                return BadRequest("There is no customers here. Add new customer");
+                return BadRequest("There is no customers here.");
             }
             var customerDto = customers.Select(c => new CustomerDTO()
             {
@@ -50,13 +50,13 @@ namespace FactoriesGateSystem.Controllers
             return Ok(customerDto);
         }
 
-        [HttpPost("AddNewCustomer")]
-        public IActionResult AddNewCustomer([FromBody]CustomerDTO customer)
+        [HttpPost("CreateCustomer")]
+        public IActionResult CreateCustomer([FromBody]CustomerDTO customerdto)
         {
-            var isAdded = _customerRepo.AddCustomer(customer);
-            if (!isAdded) { return BadRequest("Somthing went wrong!"); }
+            var customerResult = _customerRepo.AddCustomer(customerdto);
+            if (customerResult == null) { return BadRequest("Somthing went wrong!"); }
 
-            return Ok(customer);
+            return Ok(customerResult);
         }
 
         [HttpPut("UpdateCustomer")]

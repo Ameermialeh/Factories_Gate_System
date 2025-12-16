@@ -21,8 +21,6 @@ namespace FactoriesGateSystem.Models
 
         public UserType access() => UserType.Employee;
        
-
-        public ICollection<EmployeeMaterial> EmployeeMaterials { get; set; }
         public ICollection<Vacation> Vacations { get; set; }
     }
 }

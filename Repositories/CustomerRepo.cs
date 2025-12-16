@@ -30,13 +30,12 @@ namespace FactoriesGateSystem.Repositories
             return customer;
         }
 
-        public bool AddCustomer(CustomerDTO customerdto)
+        public CustomerDTO? AddCustomer(CustomerDTO customerdto)
         {
             try
             {
                 var customer = new Customer()
                 {
-                    CustomerId = customerdto.ID,
                     CustomerName = customerdto.Name,
                     Address = customerdto.Address,
                     PhoneNumber = customerdto.Phone,
@@ -46,10 +45,12 @@ namespace FactoriesGateSystem.Repositories
 
                 _appDbContext.customer.Add(customer);
                 _appDbContext.SaveChanges();
-                return true;
-            } catch (Exception ex)
+
+                customerdto.ID = customer.CustomerId;
+                return customerdto;
+            } catch (Exception)
             {
-                return false;
+                return null;
             }
         }
         public CustomerDTO? UpdateCustomer(CustomerDTO customer)
@@ -92,8 +93,6 @@ namespace FactoriesGateSystem.Repositories
             catch (Exception) {
                 return null;            
             }
-
-
         }
     }
 }

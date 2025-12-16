@@ -1,4 +1,4 @@
-﻿using FactoriesGateSystem.DTOs;
+﻿using FactoriesGateSystem.DTOs.OrderDTOs;
 using FactoriesGateSystem.Models;
 
 namespace FactoriesGateSystem.Repositories
@@ -40,7 +40,20 @@ namespace FactoriesGateSystem.Repositories
             return products;
         }
 
-        public bool CreateOrder(OrderWithProductsDTO OrderWithProductsDto)
+        public bool ChickIfAllProductsNotHide(OrderWithProductsDTO OrderWithProductsDto)
+        {
+            foreach (var product in OrderWithProductsDto.Products)
+            {
+                if (_appDbContext.products.Where(p => p.ProductId == product.ProductID && !p.Hide).FirstOrDefault() == null)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public OrderWithProductsDTO? CreateOrder(OrderWithProductsDTO OrderWithProductsDto)
         {
             try
             {
@@ -69,27 +82,46 @@ namespace FactoriesGateSystem.Repositories
                     _appDbContext.orderProducts.Add(orderProduct);
                 }
                 _appDbContext.SaveChanges();
-                return true;
+
+                OrderWithProductsDto.ID = order.OrderId;
+                return OrderWithProductsDto;
             }
-            catch { 
-                return false;
+            catch(Exception) { 
+                return null;
             }
         }
 
-        public OrderDTO? UpdateOrder(OrderDTO orderdto)
+        public OrderWithProductsDTO? UpdateOrder(OrderWithProductsDTO OrderWithProductsDto)
         {
-            var newOrder = GetOrderById(orderdto.ID);
-            if (newOrder == null) { return null; }
+            var order = GetOrderById(OrderWithProductsDto.ID)!;
 
             try
             {
-                newOrder.OrderId = orderdto.ID;
-                newOrder.OrderName = orderdto.Name;
-                newOrder.OrderDate = orderdto.OrderDate;
-                newOrder.OrderDescription = orderdto.Description;
-                newOrder.CustomerId = orderdto.CustomerID;
+                order.OrderName = OrderWithProductsDto.Name;
+                order.OrderDate = OrderWithProductsDto.OrderDate;
+                order.OrderDescription = OrderWithProductsDto.Description;
+                order.CustomerId = OrderWithProductsDto.CustomerID;
                 _appDbContext.SaveChanges();
-                return orderdto;
+
+                var orderProducts = _appDbContext.orderProducts.Where(op => op.OrderId == 2).ToList();
+
+                _appDbContext.orderProducts.RemoveRange(orderProducts);
+                _appDbContext.SaveChanges();
+
+                foreach (var product in OrderWithProductsDto.Products)
+                {
+                    var orderProduct = new OrderProduct()
+                    {
+                        OrderId = order.OrderId,
+                        ProductId = product.ProductID,
+                        Quantity = product.ProductQuantity
+                    };
+
+                    _appDbContext.orderProducts.Add(orderProduct);
+                }
+                _appDbContext.SaveChanges();
+
+                return OrderWithProductsDto;
             }
             catch (Exception)
             {

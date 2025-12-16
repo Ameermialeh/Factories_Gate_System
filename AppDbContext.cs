@@ -19,8 +19,7 @@ namespace FactoriesGateSystem
         public DbSet<Customer> customer { get; set; }
 
         public DbSet<OrderProduct> orderProducts { get; set; }  
-        public DbSet<EmployeeMaterial> employeeMaterials { get; set; }
-        public DbSet<SupplierMaterial> supplierMaterials { get; set; }
+        public DbSet<MaterialPurchase> MaterialPurchase { get; set; }
 
 
 

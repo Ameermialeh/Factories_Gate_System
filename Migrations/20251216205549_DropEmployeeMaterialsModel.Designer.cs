@@ -3,6 +3,7 @@ using System;
 using FactoriesGateSystem;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FactoriesGateSystem.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251216205549_DropEmployeeMaterialsModel")]
+    partial class DropEmployeeMaterialsModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -126,36 +129,6 @@ namespace FactoriesGateSystem.Migrations
                     b.ToTable("materials");
                 });
 
-            modelBuilder.Entity("FactoriesGateSystem.Models.MaterialPurchase", b =>
-                {
-                    b.Property<int>("MaterialPurchaseId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("Date")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("MaterialId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(65,30)");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SupplierId")
-                        .HasColumnType("int");
-
-                    b.HasKey("MaterialPurchaseId");
-
-                    b.HasIndex("MaterialId");
-
-                    b.HasIndex("SupplierId");
-
-                    b.ToTable("MaterialPurchase");
-                });
-
             modelBuilder.Entity("FactoriesGateSystem.Models.Order", b =>
                 {
                     b.Property<int>("OrderId")
@@ -266,6 +239,33 @@ namespace FactoriesGateSystem.Migrations
                     b.ToTable("suppliers");
                 });
 
+            modelBuilder.Entity("FactoriesGateSystem.Models.SupplierMaterial", b =>
+                {
+                    b.Property<int>("SupplierMaterialId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("Date")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("MaterialId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<int>("SupplierId")
+                        .HasColumnType("int");
+
+                    b.HasKey("SupplierMaterialId");
+
+                    b.HasIndex("MaterialId");
+
+                    b.HasIndex("SupplierId");
+
+                    b.ToTable("supplierMaterials");
+                });
+
             modelBuilder.Entity("FactoriesGateSystem.Models.Vacation", b =>
                 {
                     b.Property<int>("VacationId")
@@ -318,25 +318,6 @@ namespace FactoriesGateSystem.Migrations
                     b.ToTable("workPlans");
                 });
 
-            modelBuilder.Entity("FactoriesGateSystem.Models.MaterialPurchase", b =>
-                {
-                    b.HasOne("FactoriesGateSystem.Models.Material", "Material")
-                        .WithMany("MaterialPurchase")
-                        .HasForeignKey("MaterialId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FactoriesGateSystem.Models.Supplier", "Supplier")
-                        .WithMany("MaterialPurchase")
-                        .HasForeignKey("SupplierId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Material");
-
-                    b.Navigation("Supplier");
-                });
-
             modelBuilder.Entity("FactoriesGateSystem.Models.Order", b =>
                 {
                     b.HasOne("FactoriesGateSystem.Models.Customer", "Customer")
@@ -365,6 +346,25 @@ namespace FactoriesGateSystem.Migrations
                     b.Navigation("order");
 
                     b.Navigation("product");
+                });
+
+            modelBuilder.Entity("FactoriesGateSystem.Models.SupplierMaterial", b =>
+                {
+                    b.HasOne("FactoriesGateSystem.Models.Material", "Material")
+                        .WithMany("SupplierMaterials")
+                        .HasForeignKey("MaterialId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FactoriesGateSystem.Models.Supplier", "Supplier")
+                        .WithMany("SupplierMaterials")
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Material");
+
+                    b.Navigation("Supplier");
                 });
 
             modelBuilder.Entity("FactoriesGateSystem.Models.Vacation", b =>
@@ -401,7 +401,7 @@ namespace FactoriesGateSystem.Migrations
 
             modelBuilder.Entity("FactoriesGateSystem.Models.Material", b =>
                 {
-                    b.Navigation("MaterialPurchase");
+                    b.Navigation("SupplierMaterials");
                 });
 
             modelBuilder.Entity("FactoriesGateSystem.Models.Order", b =>
@@ -416,7 +416,7 @@ namespace FactoriesGateSystem.Migrations
 
             modelBuilder.Entity("FactoriesGateSystem.Models.Supplier", b =>
                 {
-                    b.Navigation("MaterialPurchase");
+                    b.Navigation("SupplierMaterials");
                 });
 #pragma warning restore 612, 618
         }

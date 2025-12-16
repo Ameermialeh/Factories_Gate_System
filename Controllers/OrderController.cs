@@ -1,4 +1,4 @@
-﻿using FactoriesGateSystem.DTOs;
+﻿using FactoriesGateSystem.DTOs.OrderDTOs;
 using FactoriesGateSystem.Models;
 using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -57,22 +57,33 @@ namespace FactoriesGateSystem.Controllers
         }
 
         [HttpPost("CreateOrder")]
-        public IActionResult CreateOrder([FromBody] OrderWithProductsDTO order)
+        public IActionResult CreateOrder([FromBody] OrderWithProductsDTO orderdto)
         {
-           var isAdded = _orderRepo.CreateOrder(order);
-            if (!isAdded) { return BadRequest("Somthing went wrong!"); }
-            return Ok(order);
+            var chickAllProductAvailable = _orderRepo.ChickIfAllProductsNotHide(orderdto);
+            if (!chickAllProductAvailable) { return BadRequest("Product not found!"); }
+
+           var orderResult = _orderRepo.CreateOrder(orderdto);
+            if (orderResult == null) { return BadRequest("Somthing went wrong!"); }
+            return Ok(orderResult);
         }
 
-        [HttpPut("UpdateOrder")] // Here
-        public IActionResult UpdateOrder([FromBody] OrderDTO orderdto)
+        [HttpPut("UpdateOrder")] 
+        public IActionResult UpdateOrder([FromBody] OrderWithProductsDTO orderdto)
         {
-            var newOrder = _orderRepo.UpdateOrder(orderdto);
-            if (newOrder == null)
+
+
+            var order = _orderRepo.GetOrderById(orderdto.ID);
+            if (order == null)
+            {
+                return BadRequest($"No order with id = {orderdto.ID}. Try again");
+            }
+
+            var orderWithProductsDto = _orderRepo.UpdateOrder(orderdto);
+            if (orderWithProductsDto == null)
             {
                 return BadRequest($"Somthing went wrong. Try again");
             }
-            return Ok(newOrder);
+            return Ok(orderWithProductsDto);
         }
 
         [HttpDelete("DeleteOrder/{id}")]
@@ -92,5 +103,7 @@ namespace FactoriesGateSystem.Controllers
             };
             return Ok(orderdto);
         }
+
+        
     }
 }

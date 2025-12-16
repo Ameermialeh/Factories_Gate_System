@@ -3,6 +3,7 @@ using System;
 using FactoriesGateSystem;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FactoriesGateSystem.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251216194124_AddHideToProduct")]
+    partial class AddHideToProduct
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -82,6 +85,33 @@ namespace FactoriesGateSystem.Migrations
                     b.ToTable("employees");
                 });
 
+            modelBuilder.Entity("FactoriesGateSystem.Models.EmployeeMaterial", b =>
+                {
+                    b.Property<int>("EmployeeMaterialId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MaterialId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("EmployeeMaterialId");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.HasIndex("MaterialId");
+
+                    b.ToTable("employeeMaterials");
+                });
+
             modelBuilder.Entity("FactoriesGateSystem.Models.Manager", b =>
                 {
                     b.Property<int>("ManagerId")
@@ -121,39 +151,15 @@ namespace FactoriesGateSystem.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<int>("MaterialPrice")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MaterialQuantity")
+                        .HasColumnType("int");
+
                     b.HasKey("MaterialId");
 
                     b.ToTable("materials");
-                });
-
-            modelBuilder.Entity("FactoriesGateSystem.Models.MaterialPurchase", b =>
-                {
-                    b.Property<int>("MaterialPurchaseId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("Date")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("MaterialId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(65,30)");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SupplierId")
-                        .HasColumnType("int");
-
-                    b.HasKey("MaterialPurchaseId");
-
-                    b.HasIndex("MaterialId");
-
-                    b.HasIndex("SupplierId");
-
-                    b.ToTable("MaterialPurchase");
                 });
 
             modelBuilder.Entity("FactoriesGateSystem.Models.Order", b =>
@@ -266,6 +272,33 @@ namespace FactoriesGateSystem.Migrations
                     b.ToTable("suppliers");
                 });
 
+            modelBuilder.Entity("FactoriesGateSystem.Models.SupplierMaterial", b =>
+                {
+                    b.Property<int>("SupplierMaterialId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("Date")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("MaterialId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<int>("SupplierId")
+                        .HasColumnType("int");
+
+                    b.HasKey("SupplierMaterialId");
+
+                    b.HasIndex("MaterialId");
+
+                    b.HasIndex("SupplierId");
+
+                    b.ToTable("supplierMaterials");
+                });
+
             modelBuilder.Entity("FactoriesGateSystem.Models.Vacation", b =>
                 {
                     b.Property<int>("VacationId")
@@ -318,23 +351,23 @@ namespace FactoriesGateSystem.Migrations
                     b.ToTable("workPlans");
                 });
 
-            modelBuilder.Entity("FactoriesGateSystem.Models.MaterialPurchase", b =>
+            modelBuilder.Entity("FactoriesGateSystem.Models.EmployeeMaterial", b =>
                 {
+                    b.HasOne("FactoriesGateSystem.Models.Employee", "Employee")
+                        .WithMany("EmployeeMaterials")
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("FactoriesGateSystem.Models.Material", "Material")
-                        .WithMany("MaterialPurchase")
+                        .WithMany("EmployeeMaterials")
                         .HasForeignKey("MaterialId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("FactoriesGateSystem.Models.Supplier", "Supplier")
-                        .WithMany("MaterialPurchase")
-                        .HasForeignKey("SupplierId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Employee");
 
                     b.Navigation("Material");
-
-                    b.Navigation("Supplier");
                 });
 
             modelBuilder.Entity("FactoriesGateSystem.Models.Order", b =>
@@ -367,6 +400,25 @@ namespace FactoriesGateSystem.Migrations
                     b.Navigation("product");
                 });
 
+            modelBuilder.Entity("FactoriesGateSystem.Models.SupplierMaterial", b =>
+                {
+                    b.HasOne("FactoriesGateSystem.Models.Material", "Material")
+                        .WithMany("SupplierMaterials")
+                        .HasForeignKey("MaterialId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FactoriesGateSystem.Models.Supplier", "Supplier")
+                        .WithMany("SupplierMaterials")
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Material");
+
+                    b.Navigation("Supplier");
+                });
+
             modelBuilder.Entity("FactoriesGateSystem.Models.Vacation", b =>
                 {
                     b.HasOne("FactoriesGateSystem.Models.Employee", "Employee")
@@ -396,12 +448,16 @@ namespace FactoriesGateSystem.Migrations
 
             modelBuilder.Entity("FactoriesGateSystem.Models.Employee", b =>
                 {
+                    b.Navigation("EmployeeMaterials");
+
                     b.Navigation("Vacations");
                 });
 
             modelBuilder.Entity("FactoriesGateSystem.Models.Material", b =>
                 {
-                    b.Navigation("MaterialPurchase");
+                    b.Navigation("EmployeeMaterials");
+
+                    b.Navigation("SupplierMaterials");
                 });
 
             modelBuilder.Entity("FactoriesGateSystem.Models.Order", b =>
@@ -416,7 +472,7 @@ namespace FactoriesGateSystem.Migrations
 
             modelBuilder.Entity("FactoriesGateSystem.Models.Supplier", b =>
                 {
-                    b.Navigation("MaterialPurchase");
+                    b.Navigation("SupplierMaterials");
                 });
 #pragma warning restore 612, 618
         }

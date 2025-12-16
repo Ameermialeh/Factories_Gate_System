@@ -14,7 +14,7 @@ namespace FactoriesGateSystem.Models
         [Required, StringLength(300)]
         public string Address { get; set; }
 
-        public DateTime? CreateAt { get; set; }
+        public DateTime? CreateAt { get; set; } = DateTime.UtcNow;
 
         [Required]
         public string SupplierPhone { get; set; }
@@ -24,6 +24,6 @@ namespace FactoriesGateSystem.Models
         public UserType access() => UserType.Supplier;
      
 
-        public ICollection<SupplierMaterial> SupplierMaterials { get; set; }
+        public ICollection<MaterialPurchase> MaterialPurchase { get; set; }
     }
 }   

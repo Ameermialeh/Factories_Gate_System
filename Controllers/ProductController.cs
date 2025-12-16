@@ -47,6 +47,7 @@ namespace FactoriesGateSystem.Controllers
                 Name = product.ProductName,
                 Description = product.ProductDescription,
                 Price = product.ProductPrice,
+                Quantity= product.ProductQuantity,
             };
             return Ok(productdto);
         }
@@ -54,8 +55,48 @@ namespace FactoriesGateSystem.Controllers
         [HttpPost("CreateProduct")]
         public IActionResult CreateProduct([FromBody] ProductDTO productdto)
         {
-            var isAdded = _productRepo.CreateProduct(productdto);
-            if (!isAdded) { return BadRequest("Somthing went wrong!"); }
+            var productResult = _productRepo.CreateProduct(productdto);
+            if (productResult == null) { return BadRequest("Somthing went wrong!"); }
+            return Ok(productResult);
+        }
+
+        [HttpPut("UpdateProduct")]
+        public IActionResult UpdateProduct([FromBody] ProductDTO productdto)
+        {
+            if (productdto == null)
+                return BadRequest("Invalid product data.");
+            try
+            {
+               var updatedProduct = _productRepo.UpdateProduct(productdto);
+                if(updatedProduct == null)
+                {
+                    return BadRequest($"No Product with id: {productdto.ID}. Try again");
+                }
+                return Ok(updatedProduct);
+
+            }catch (Exception)
+            {
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpDelete("DeleteProduct/{id}")]
+        public IActionResult DeleteProduct(int id)
+        {
+            var product = _productRepo.DeleteProduct(id);
+            if(product == null)
+            {
+                return BadRequest($"No Product with id: {id}. Try again");
+            }
+            var productdto = new ProductDTO()
+            {
+                ID = id,
+                Name = product.ProductName,
+                Description = product.ProductDescription,
+                Price = product.ProductPrice,
+                Quantity = product.ProductQuantity,
+                
+            };
             return Ok(productdto);
         }
     }
