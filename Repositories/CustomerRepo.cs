@@ -1,4 +1,4 @@
-﻿using FactoriesGateSystem.DTOs;
+﻿using FactoriesGateSystem.DTOs.CustomerDTOs;
 using FactoriesGateSystem.Models;
 
 namespace FactoriesGateSystem.Repositories
@@ -30,32 +30,27 @@ namespace FactoriesGateSystem.Repositories
             return customer;
         }
 
-        public CustomerDTO? AddCustomer(CustomerDTO customerdto)
+        public CustomerDTO AddCustomer(CustomerDTO customerdto)
         {
-            try
+           
+            var customer = new Customer()
             {
-                var customer = new Customer()
-                {
-                    CustomerName = customerdto.Name,
-                    Address = customerdto.Address,
-                    PhoneNumber = customerdto.Phone,
-                    CurrentBalance = customerdto.CurrentBalance,
-                };
-                 
+                CustomerName = customerdto.Name,
+                Address = customerdto.Address,
+                PhoneNumber = customerdto.Phone,
+                CurrentBalance = customerdto.CurrentBalance,
+            };
 
-                _appDbContext.customer.Add(customer);
-                _appDbContext.SaveChanges();
+            _appDbContext.customer.Add(customer);
+            _appDbContext.SaveChanges();
 
-                customerdto.ID = customer.CustomerId;
-                return customerdto;
-            } catch (Exception)
-            {
-                return null;
-            }
+            customerdto.ID = customer.CustomerId;
+            return customerdto;
+           
         }
-        public CustomerDTO? UpdateCustomer(CustomerDTO customer)
+        public UpdateCustomerDTO? UpdateCustomer(int id, UpdateCustomerDTO customer)
         {
-            var existingCustomer = GetCustomerById(customer.ID);
+            var existingCustomer = GetCustomerById(id);
             if (existingCustomer == null)
                 return null;
 
@@ -74,25 +69,20 @@ namespace FactoriesGateSystem.Repositories
         {
             var customer = GetCustomerById(id);
             if (customer == null) { return null; }
-            try
+           
+            var orders = customer.Orders;
+            if (orders != null)
             {
-                var orders = customer.Orders;
-                if (orders != null)
+                foreach (var order in orders)
                 {
-                    foreach (var order in orders)
-                    {
-                        _appDbContext.orders.Remove(order);
+                    _appDbContext.orders.Remove(order);
 
-                    }
                 }
-                _appDbContext.customer.Remove(customer);
-                _appDbContext.SaveChanges();
+            }
+            _appDbContext.customer.Remove(customer);
+            _appDbContext.SaveChanges();
                 
-                return customer;
-            }
-            catch (Exception) {
-                return null;            
-            }
+            return customer;
         }
     }
 }

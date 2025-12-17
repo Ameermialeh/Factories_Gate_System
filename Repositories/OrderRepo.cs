@@ -40,112 +40,83 @@ namespace FactoriesGateSystem.Repositories
             return products;
         }
 
-        public bool ChickIfAllProductsNotHide(OrderWithProductsDTO OrderWithProductsDto)
+        public bool ChickIfAllProductsNotHide(OrderWithProductsDTO dto)
         {
-            foreach (var product in OrderWithProductsDto.Products)
-            {
-                if (_appDbContext.products.Where(p => p.ProductId == product.ProductID && !p.Hide).FirstOrDefault() == null)
-                {
-                    return false;
-                }
-            }
+            var productIds = dto.Products.Select(p => p.ProductID).ToList();
 
-            return true;
+            return _appDbContext.products.Where(p => productIds.Contains(p.ProductId)).All(p => !p.Hide);
         }
 
-        public OrderWithProductsDTO? CreateOrder(OrderWithProductsDTO OrderWithProductsDto)
+        public OrderWithProductsDTO CreateOrder(OrderWithProductsDTO dto)
         {
-            try
+            Order order = new Order()
             {
-                Order order = new Order()
+                OrderName = dto.Name,
+                OrderDate = dto.OrderDate,
+                OrderDescription = dto.Description,
+                CustomerId = dto.CustomerID
+            };
+
+            _appDbContext.orders.Add(order);
+            _appDbContext.SaveChanges();
+
+            foreach(var product in dto.Products)
+            {
+                var orderProduct = new OrderProduct()
                 {
-                    OrderName = OrderWithProductsDto.Name,
-                    OrderDate = OrderWithProductsDto.OrderDate,
-                    OrderDescription = OrderWithProductsDto.Description,
-                    CustomerId = OrderWithProductsDto.CustomerID
+                    OrderId = order.OrderId,
+                    ProductId = product.ProductID,
+                    Quantity = product.ProductQuantity
                 };
 
-                _appDbContext.orders.Add(order);
-                _appDbContext.SaveChanges();
-
-                 
-
-                foreach(var product in OrderWithProductsDto.Products)
-                {
-                    var orderProduct = new OrderProduct()
-                    {
-                        OrderId = order.OrderId,
-                        ProductId = product.ProductID,
-                        Quantity = product.ProductQuantity
-                    };
-
-                    _appDbContext.orderProducts.Add(orderProduct);
-                }
-                _appDbContext.SaveChanges();
-
-                OrderWithProductsDto.ID = order.OrderId;
-                return OrderWithProductsDto;
+                _appDbContext.orderProducts.Add(orderProduct);
             }
-            catch(Exception) { 
-                return null;
-            }
+            _appDbContext.SaveChanges();
+
+            dto.ID = order.OrderId;
+            return dto;
         }
 
         public OrderWithProductsDTO? UpdateOrder(OrderWithProductsDTO OrderWithProductsDto)
         {
-            var order = GetOrderById(OrderWithProductsDto.ID)!;
+            var order = GetOrderById(OrderWithProductsDto.ID);
+            if (order == null) return null;
+           
+            order.OrderName = OrderWithProductsDto.Name;
+            order.OrderDate = OrderWithProductsDto.OrderDate;
+            order.OrderDescription = OrderWithProductsDto.Description;
+            order.CustomerId = OrderWithProductsDto.CustomerID;
+            _appDbContext.SaveChanges();
 
-            try
+            var orderProducts = _appDbContext.orderProducts.Where(op => op.OrderId == 2).ToList();
+
+            _appDbContext.orderProducts.RemoveRange(orderProducts);
+            _appDbContext.SaveChanges();
+
+            foreach (var product in OrderWithProductsDto.Products)
             {
-                order.OrderName = OrderWithProductsDto.Name;
-                order.OrderDate = OrderWithProductsDto.OrderDate;
-                order.OrderDescription = OrderWithProductsDto.Description;
-                order.CustomerId = OrderWithProductsDto.CustomerID;
-                _appDbContext.SaveChanges();
-
-                var orderProducts = _appDbContext.orderProducts.Where(op => op.OrderId == 2).ToList();
-
-                _appDbContext.orderProducts.RemoveRange(orderProducts);
-                _appDbContext.SaveChanges();
-
-                foreach (var product in OrderWithProductsDto.Products)
+                var orderProduct = new OrderProduct()
                 {
-                    var orderProduct = new OrderProduct()
-                    {
-                        OrderId = order.OrderId,
-                        ProductId = product.ProductID,
-                        Quantity = product.ProductQuantity
-                    };
+                    OrderId = order.OrderId,
+                    ProductId = product.ProductID,
+                    Quantity = product.ProductQuantity
+                };
 
-                    _appDbContext.orderProducts.Add(orderProduct);
-                }
-                _appDbContext.SaveChanges();
-
-                return OrderWithProductsDto;
+                _appDbContext.orderProducts.Add(orderProduct);
             }
-            catch (Exception)
-            {
-                return null;
-            }
+            _appDbContext.SaveChanges();
 
+            return OrderWithProductsDto;
         }
 
         public Order? DeleteOrder(int id)
         {
             var order = GetOrderById(id);
             if (order == null) { return null; }
-            try
-            {
-                _appDbContext.orders.Remove(order);
-                _appDbContext.SaveChanges();
-                return order;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
 
-
+            _appDbContext.orders.Remove(order);
+            _appDbContext.SaveChanges();
+            return order;
         }
     }
 }

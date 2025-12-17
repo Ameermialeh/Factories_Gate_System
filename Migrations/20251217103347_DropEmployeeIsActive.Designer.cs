@@ -3,6 +3,7 @@ using System;
 using FactoriesGateSystem;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FactoriesGateSystem.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251217103347_DropEmployeeIsActive")]
+    partial class DropEmployeeIsActive
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,6 +70,35 @@ namespace FactoriesGateSystem.Migrations
                     b.HasKey("EmployeeId");
 
                     b.ToTable("employees");
+                });
+
+            modelBuilder.Entity("FactoriesGateSystem.Models.Manager", b =>
+                {
+                    b.Property<int>("ManagerId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("ManagerEmail")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)");
+
+                    b.Property<string>("ManagerName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("ManagerPassword")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.HasKey("ManagerId");
+
+                    b.ToTable("Manager");
                 });
 
             modelBuilder.Entity("FactoriesGateSystem.Models.Material", b =>
@@ -250,6 +282,35 @@ namespace FactoriesGateSystem.Migrations
                     b.ToTable("vacations");
                 });
 
+            modelBuilder.Entity("FactoriesGateSystem.Models.WorkPlan", b =>
+                {
+                    b.Property<int>("PlaneId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("ManagerId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("PlanDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("PlanDescription")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("varchar(300)");
+
+                    b.Property<string>("PlanName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.HasKey("PlaneId");
+
+                    b.HasIndex("ManagerId");
+
+                    b.ToTable("workPlans");
+                });
+
             modelBuilder.Entity("FactoriesGateSystem.Models.MaterialPurchase", b =>
                 {
                     b.HasOne("FactoriesGateSystem.Models.Material", "Material")
@@ -308,6 +369,17 @@ namespace FactoriesGateSystem.Migrations
                         .IsRequired();
 
                     b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("FactoriesGateSystem.Models.WorkPlan", b =>
+                {
+                    b.HasOne("FactoriesGateSystem.Models.Manager", "Manager")
+                        .WithMany()
+                        .HasForeignKey("ManagerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Manager");
                 });
 
             modelBuilder.Entity("FactoriesGateSystem.Models.Customer", b =>

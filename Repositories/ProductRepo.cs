@@ -1,4 +1,4 @@
-﻿using FactoriesGateSystem.DTOs;
+﻿using FactoriesGateSystem.DTOs.ProductDTOs;
 using FactoriesGateSystem.Models;
 
 namespace FactoriesGateSystem.Repositories

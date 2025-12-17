@@ -1,4 +1,5 @@
 ﻿using FactoriesGateSystem.DTOs;
+using FactoriesGateSystem.DTOs.CustomerDTOs;
 using FactoriesGateSystem.Models;
 using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -17,62 +18,82 @@ namespace FactoriesGateSystem.Controllers
         [HttpGet("GetAllCustomers")]
         public IActionResult GetAllCustomers()
         {
-            var customers = _customerRepo.GetCustomers();
-            if(customers == null)
+            try
             {
-                return BadRequest("There is no customers here.");
+                var customers = _customerRepo.GetCustomers();
+                if (customers == null)
+                    return NotFound("There is no customers Found.");
+
+                var customerDto = customers.Select(c => new CustomerDTO()
+                {
+                    ID = c.CustomerId,
+                    Name = c.CustomerName,
+                    Address = c.Address,
+                    Phone = c.PhoneNumber,
+                    CurrentBalance = c.CurrentBalance,
+                });
+                return Ok(customerDto);
             }
-            var customerDto = customers.Select(c => new CustomerDTO()
+            catch (Exception)
             {
-                ID = c.CustomerId,
-                Name = c.CustomerName,
-                Address = c.Address,
-                Phone = c.PhoneNumber
-            });
-            return Ok(customerDto);
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpGet("GetCustomerByID/{id}")]
         public IActionResult GetCustomerByID(int id)
         {
-            var customer = _customerRepo.GetCustomerById(id);
-            if(customer == null)
+            if (id <= 0)
+                return BadRequest("Invalid customer id.");
+            try
             {
-                return BadRequest($"No customer with id = {id}. Try again");
+                var customer = _customerRepo.GetCustomerById(id);
+                if (customer == null)
+                    return NotFound($"No customer with id = {id}.");
+
+                var customerDto = new CustomerDTO()
+                {
+                    ID = customer.CustomerId,
+                    Name = customer.CustomerName,
+                    Address = customer.Address,
+                    Phone = customer.PhoneNumber,
+                    CurrentBalance = customer.CurrentBalance,
+                };
+                return Ok(customerDto);
             }
-            var customerDto = new CustomerDTO()
-            {
-                ID = customer.CustomerId,
-                Name = customer.CustomerName,
-                Address = customer.Address,
-                Phone = customer.PhoneNumber
-            };
-            return Ok(customerDto);
+            catch (Exception) {
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpPost("CreateCustomer")]
-        public IActionResult CreateCustomer([FromBody]CustomerDTO customerdto)
+        public IActionResult CreateCustomer([FromBody]CustomerDTO customerDto)
         {
-            var customerResult = _customerRepo.AddCustomer(customerdto);
-            if (customerResult == null) { return BadRequest("Somthing went wrong!"); }
-
-            return Ok(customerResult);
+            try
+            {
+                var customer = _customerRepo.AddCustomer(customerDto);
+                return Ok(customer);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
 
-        [HttpPut("UpdateCustomer")]
-        public IActionResult UpdateCustomer([FromBody] CustomerDTO customer)
+        [HttpPut("UpdateCustomer/{id}")]
+        public IActionResult UpdateCustomer(int id, [FromBody] UpdateCustomerDTO customerDto)
         {
-            if (customer == null)
+            if (id <= 0 || customerDto == null)
                 return BadRequest("Invalid customer data.");
             try
             {
-                var result = _customerRepo.UpdateCustomer(customer);
-                if (result == null)
+                var customer = _customerRepo.UpdateCustomer(id, customerDto);
+                if (customer == null)
                 {
-                    return BadRequest($"No Customer with id: {customer.ID}. Try again");
+                    return NotFound($"No Customer with id: {id}.");
                 }
 
-                return Ok(result);
+                return Ok(customer);
             }
             catch(Exception)
             {
@@ -83,17 +104,25 @@ namespace FactoriesGateSystem.Controllers
         [HttpDelete("DeleteCustomer/{id}")]
         public IActionResult DeleteCustomer(int id)
         {
-            var customer = _customerRepo.DeleteCustomer(id);
-            if (customer == null)
+            if (id <= 0)
+                return BadRequest("Invalid customer id.");
+            try
             {
-                return BadRequest($"No customer with id = {id}. Try again");
+                var customer = _customerRepo.DeleteCustomer(id);
+                if (customer == null)
+                    return NotFound($"No customer with id = {id}.");
+
+                var customerDto = new DeleteCustomerDTO()
+                {
+                    ID = customer.CustomerId,
+                    Name = customer.CustomerName,
+                };
+                return Ok(customerDto);
             }
-            var customerdto = new CustomerDTO()
+            catch (Exception)
             {
-                ID=customer.CustomerId,
-                Name=customer.CustomerName,
-            };
-            return Ok(customerdto);
+                return StatusCode(500, "Internal server error");
+            }
         }
     }
 }

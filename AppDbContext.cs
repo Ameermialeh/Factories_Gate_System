@@ -11,7 +11,6 @@ namespace FactoriesGateSystem
         }
         public DbSet<Order> orders { get; set; }
         public DbSet<Vacation> vacations { get; set; }
-        public DbSet<WorkPlan> workPlans { get; set; }
         public DbSet<Supplier> suppliers { get; set; }
         public DbSet<Product> products { get; set; }
         public DbSet<Material> materials { get; set; }

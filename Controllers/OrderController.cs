@@ -17,93 +17,109 @@ namespace FactoriesGateSystem.Controllers
         [HttpGet("GetAllOrders")]
         public IActionResult GetAllOrders()
         {
-            var orders = _orderRepo.GetOrders();
-            if(orders == null)
+            try
             {
-                return BadRequest("No order here!!");
+                var orders = _orderRepo.GetOrders();
+                if (orders == null) { return NotFound("No order here."); }
+                var orderDto = orders.Select(o => new OrderDTO()
+                {
+                    ID = o.OrderId,
+                    Name = o.OrderName,
+                    Description = o.OrderDescription,
+                    OrderDate = o.OrderDate,
+                    CustomerID = o.CustomerId
+                });
+                return Ok(orderDto);
             }
-            var corderDto = orders.Select(o => new OrderDTO()
-            {
-                ID = o.OrderId,
-                Name = o.OrderName,
-                Description = o.OrderDescription,
-                OrderDate = o.OrderDate,
-                CustomerID = o.CustomerId
-            });
-            return Ok(corderDto);
+            catch (Exception) {
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpGet("GetOrderByID/{id}")]
         public IActionResult GetOrderByID(int id)
         {
-            var order = _orderRepo.GetOrderById(id);
-            if(order == null)
+            if (id <= 0)
+                return BadRequest("Invalid order id.");
+            try
             {
-                return BadRequest($"No order with id = {id}. Try again");
+                var order = _orderRepo.GetOrderById(id);
+                if (order == null) { return NotFound($"No order with id = {id}."); }
+
+                var products = _orderRepo.GetProductsForOrder(id);
+
+                var dto = new OrderWithProductsDTO()
+                {
+                    ID = order.OrderId,
+                    Name = order.OrderName,
+                    Description = order.OrderDescription,
+                    OrderDate = order.OrderDate,
+                    CustomerID = order.CustomerId,
+                    Products = products,
+                };
+
+                return Ok(dto);
             }
-            var products = _orderRepo.GetProductsForOrder(id);
-
-            var OrderWithProductsDto = new OrderWithProductsDTO()
+            catch (Exception)
             {
-                ID = order.OrderId,
-                Name = order.OrderName,
-                Description = order.OrderDescription,
-                OrderDate = order.OrderDate,
-                CustomerID = order.CustomerId,
-                Products = products,
-            };
-
-            return Ok(OrderWithProductsDto);
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpPost("CreateOrder")]
-        public IActionResult CreateOrder([FromBody] OrderWithProductsDTO orderdto)
+        public IActionResult CreateOrder([FromBody] OrderWithProductsDTO orderDto)
         {
-            var chickAllProductAvailable = _orderRepo.ChickIfAllProductsNotHide(orderdto);
-            if (!chickAllProductAvailable) { return BadRequest("Product not found!"); }
+            try
+            {
+                var productAvailable = _orderRepo.ChickIfAllProductsNotHide(orderDto);
+                if (!productAvailable) { return BadRequest("Product not found!"); }
 
-           var orderResult = _orderRepo.CreateOrder(orderdto);
-            if (orderResult == null) { return BadRequest("Somthing went wrong!"); }
-            return Ok(orderResult);
+                var order = _orderRepo.CreateOrder(orderDto);
+                return Ok(order);
+            }
+            catch (Exception) {
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpPut("UpdateOrder")] 
-        public IActionResult UpdateOrder([FromBody] OrderWithProductsDTO orderdto)
+        public IActionResult UpdateOrder([FromBody] OrderWithProductsDTO orderDto)
         {
-
-
-            var order = _orderRepo.GetOrderById(orderdto.ID);
-            if (order == null)
+            try
             {
-                return BadRequest($"No order with id = {orderdto.ID}. Try again");
-            }
+                var orderWithProductsDto = _orderRepo.UpdateOrder(orderDto);
+                if (orderWithProductsDto == null) { return NotFound($"No order with id = {orderDto.ID}."); }
 
-            var orderWithProductsDto = _orderRepo.UpdateOrder(orderdto);
-            if (orderWithProductsDto == null)
-            {
-                return BadRequest($"Somthing went wrong. Try again");
+                return Ok(orderWithProductsDto);
             }
-            return Ok(orderWithProductsDto);
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpDelete("DeleteOrder/{id}")]
         public IActionResult DeleteOrder(int id)
         {
-            var order = _orderRepo.DeleteOrder(id);
-            if (order == null)
+            if (id <= 0)
+                return BadRequest("Invalid order id.");
+            try
             {
-                return BadRequest($"No customer with id = {id}. Try again");
+                var order = _orderRepo.DeleteOrder(id);
+                if (order == null) { return BadRequest($"No order with id = {id}."); }
+                var orderdto = new OrderDTO()
+                {
+                    ID = order.OrderId,
+                    Name = order.OrderName,
+                    OrderDate = order.OrderDate,
+                    CustomerID = order.CustomerId
+                };
+                return Ok(orderdto);
             }
-            var orderdto = new OrderDTO()
-            {
-                ID = order.OrderId,
-                Name = order.OrderName,
-                OrderDate = order.OrderDate,
-                CustomerID = order.CustomerId
-            };
-            return Ok(orderdto);
+            catch (Exception) {
+                return StatusCode(500, "Internal server error");
+            }
         }
 
-        
     }
 }

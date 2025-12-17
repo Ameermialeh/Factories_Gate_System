@@ -1,4 +1,4 @@
-﻿using FactoriesGateSystem.DTOs;
+﻿using FactoriesGateSystem.DTOs.ProductDTOs;
 using FactoriesGateSystem.Models;
 using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -18,60 +18,81 @@ namespace FactoriesGateSystem.Controllers
         [HttpGet("GetAllProducts")]
         public IActionResult GetAllProducts()
         {
-            var products = _productRepo.GetProducts();
-            if (products == null)
+            try
             {
-                return BadRequest("No Products here!!");
+                var products = _productRepo.GetProducts();
+
+                if (products == null || products.Count == 0) { return BadRequest("There is no products."); }
+
+                var productDto = products.Select(p => new ProductDTO()
+                {
+                    ID = p.ProductId,
+                    Name = p.ProductName,
+                    Description = p.ProductDescription,
+                    Price = p.ProductPrice,
+                    Quantity = p.ProductQuantity,
+                });
+                return Ok(productDto);
             }
-            var productDto = products.Select(p => new ProductDTO()
+            catch (Exception)
             {
-                ID = p.ProductId,
-                Name = p.ProductName,
-                Description = p.ProductDescription,
-                Price = p.ProductPrice,
-                Quantity = p.ProductQuantity,
-            });
-            return Ok(productDto);
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpGet("GetProductById/{id}")]
         public IActionResult GetProductById(int id) {
-            var product = _productRepo.GetProductById(id);
-            if (product == null)
+            if (id <= 0)
+                return BadRequest("Invalid product id.");
+            try
             {
-                return BadRequest($"No product with id = {id}. Try again");
+                var product = _productRepo.GetProductById(id);
+                if (product == null)
+                    return NotFound($"No product with id = {id}. Try again");
+
+                var productDto = new ProductDTO()
+                {
+                    ID = product.ProductId,
+                    Name = product.ProductName,
+                    Description = product.ProductDescription,
+                    Price = product.ProductPrice,
+                    Quantity = product.ProductQuantity,
+                };
+                return Ok(productDto);
             }
-            var productdto = new ProductDTO()
+            catch (Exception)
             {
-                ID = product.ProductId,
-                Name = product.ProductName,
-                Description = product.ProductDescription,
-                Price = product.ProductPrice,
-                Quantity= product.ProductQuantity,
-            };
-            return Ok(productdto);
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpPost("CreateProduct")]
-        public IActionResult CreateProduct([FromBody] ProductDTO productdto)
+        public IActionResult CreateProduct([FromBody] ProductDTO productDto)
         {
-            var productResult = _productRepo.CreateProduct(productdto);
-            if (productResult == null) { return BadRequest("Somthing went wrong!"); }
-            return Ok(productResult);
+            try
+            {
+                var product = _productRepo.CreateProduct(productDto);
+                if (product == null) { return BadRequest("Somthing went wrong!"); }
+                return Ok(product);
+
+            }catch (Exception)
+            {
+                return StatusCode(500, "Internal server error");
+            }
+           
         }
 
         [HttpPut("UpdateProduct")]
-        public IActionResult UpdateProduct([FromBody] ProductDTO productdto)
+        public IActionResult UpdateProduct([FromBody] ProductDTO productDto)
         {
-            if (productdto == null)
+            if (productDto == null)
                 return BadRequest("Invalid product data.");
             try
             {
-               var updatedProduct = _productRepo.UpdateProduct(productdto);
+               var updatedProduct = _productRepo.UpdateProduct(productDto);
                 if(updatedProduct == null)
-                {
-                    return BadRequest($"No Product with id: {productdto.ID}. Try again");
-                }
+                    return NotFound($"No Product with id: {productDto.ID}. Try again");
+               
                 return Ok(updatedProduct);
 
             }catch (Exception)
@@ -83,21 +104,26 @@ namespace FactoriesGateSystem.Controllers
         [HttpDelete("DeleteProduct/{id}")]
         public IActionResult DeleteProduct(int id)
         {
-            var product = _productRepo.DeleteProduct(id);
-            if(product == null)
+            if (id <= 0)
+                return BadRequest("Invalid product id.");
+            try
             {
-                return BadRequest($"No Product with id: {id}. Try again");
+                var product = _productRepo.DeleteProduct(id);
+                if (product == null)
+                    return BadRequest($"No Product with id: {id}. Try again");
+
+                var productDto = new DeleteProductDTO()
+                {
+                    ID = id,
+                    Name = product.ProductName,
+                };
+                return Ok(productDto);
             }
-            var productdto = new ProductDTO()
+            catch (Exception)
             {
-                ID = id,
-                Name = product.ProductName,
-                Description = product.ProductDescription,
-                Price = product.ProductPrice,
-                Quantity = product.ProductQuantity,
-                
-            };
-            return Ok(productdto);
+                return StatusCode(500, "Internal server error");
+            }
+           
         }
     }
 }

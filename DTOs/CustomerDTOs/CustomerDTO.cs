@@ -1,4 +1,4 @@
-﻿namespace FactoriesGateSystem.DTOs
+﻿namespace FactoriesGateSystem.DTOs.CustomerDTOs
 {
     public class CustomerDTO
     {
