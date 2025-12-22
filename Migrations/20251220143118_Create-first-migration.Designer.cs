@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FactoriesGateSystem.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251217102310_AddHideToMaterial")]
-    partial class AddHideToMaterial
+    [Migration("20251220143118_Create-first-migration")]
+    partial class Createfirstmigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -56,29 +56,13 @@ namespace FactoriesGateSystem.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("CreateAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("EmployeeEmail")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("varchar(150)");
-
                     b.Property<string>("EmployeeName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
-                    b.Property<string>("EmployeePassword")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)");
-
                     b.Property<int>("EmployeeSalary")
                         .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("tinyint(1)");
 
                     b.HasKey("EmployeeId");
 
@@ -90,9 +74,6 @@ namespace FactoriesGateSystem.Migrations
                     b.Property<int>("ManagerId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("ManagerEmail")
                         .IsRequired()
@@ -111,7 +92,7 @@ namespace FactoriesGateSystem.Migrations
 
                     b.HasKey("ManagerId");
 
-                    b.ToTable("Manager");
+                    b.ToTable("manager");
                 });
 
             modelBuilder.Entity("FactoriesGateSystem.Models.Material", b =>
@@ -252,9 +233,6 @@ namespace FactoriesGateSystem.Migrations
                         .HasMaxLength(300)
                         .HasColumnType("varchar(300)");
 
-                    b.Property<DateTime?>("CreateAt")
-                        .HasColumnType("datetime(6)");
-
                     b.Property<int>("CurrentBalance")
                         .HasColumnType("int");
 
@@ -293,35 +271,6 @@ namespace FactoriesGateSystem.Migrations
                     b.HasIndex("EmployeeId");
 
                     b.ToTable("vacations");
-                });
-
-            modelBuilder.Entity("FactoriesGateSystem.Models.WorkPlan", b =>
-                {
-                    b.Property<int>("PlaneId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<int>("ManagerId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("PlanDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("PlanDescription")
-                        .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("varchar(300)");
-
-                    b.Property<string>("PlanName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.HasKey("PlaneId");
-
-                    b.HasIndex("ManagerId");
-
-                    b.ToTable("workPlans");
                 });
 
             modelBuilder.Entity("FactoriesGateSystem.Models.MaterialPurchase", b =>
@@ -382,17 +331,6 @@ namespace FactoriesGateSystem.Migrations
                         .IsRequired();
 
                     b.Navigation("Employee");
-                });
-
-            modelBuilder.Entity("FactoriesGateSystem.Models.WorkPlan", b =>
-                {
-                    b.HasOne("FactoriesGateSystem.Models.Manager", "Manager")
-                        .WithMany()
-                        .HasForeignKey("ManagerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Manager");
                 });
 
             modelBuilder.Entity("FactoriesGateSystem.Models.Customer", b =>

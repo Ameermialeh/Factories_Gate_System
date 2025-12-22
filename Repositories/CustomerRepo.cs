@@ -1,5 +1,7 @@
 ﻿using FactoriesGateSystem.DTOs.CustomerDTOs;
 using FactoriesGateSystem.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace FactoriesGateSystem.Repositories
 {
@@ -12,65 +14,71 @@ namespace FactoriesGateSystem.Repositories
             this._appDbContext = appDbContext;
         }
 
-        public List<Customer> GetCustomers(Func<Customer, bool>? func = null)
+        public async Task<List<CustomerDTO>> GetCustomersAsync(Expression<Func<Customer, bool>>? filter = null)
         {
-            var customers = _appDbContext.customer.ToList();
-            if (func == null)
+            IQueryable<Customer> query = _appDbContext.customer;
+            if (filter != null)
             {
-                return customers;
+                query = query.Where(filter);
             }
-            customers = customers.Where(func).ToList();
 
-            return customers;
+            return await query.Select(c => new CustomerDTO
+            {
+                ID = c.CustomerId,
+                Name = c.CustomerName,
+                Address = c.Address,
+                Phone = c.PhoneNumber,
+                CurrentBalance = c.CurrentBalance,
+            }).ToListAsync();
         }
 
-        public Customer? GetCustomerById(int id)
+        public async Task<Customer?> GetCustomerByIdAsync(int id)
         {
-            var customer = _appDbContext.customer.FirstOrDefault(c => c.CustomerId == id);
-            return customer;
+            return await _appDbContext.customer.FirstOrDefaultAsync(c => c.CustomerId == id);
         }
 
-        public CustomerDTO AddCustomer(CustomerDTO customerdto)
+        public async Task<CustomerDTO> AddCustomerAsync(CustomerDTO customerdto)
         {
            
             var customer = new Customer()
             {
-                CustomerName = customerdto.Name,
-                Address = customerdto.Address,
-                PhoneNumber = customerdto.Phone,
+                CustomerName = customerdto.Name!,
+                Address = customerdto.Address!,
+                PhoneNumber = customerdto.Phone!,
                 CurrentBalance = customerdto.CurrentBalance,
             };
 
-            _appDbContext.customer.Add(customer);
-            _appDbContext.SaveChanges();
+            await _appDbContext.customer.AddAsync(customer);
+            await _appDbContext.SaveChangesAsync();
 
             customerdto.ID = customer.CustomerId;
             return customerdto;
            
         }
-        public UpdateCustomerDTO? UpdateCustomer(int id, UpdateCustomerDTO customer)
+        public async Task<UpdateCustomerDTO?> UpdateCustomerAsync(int id, UpdateCustomerDTO customer)
         {
-            var existingCustomer = GetCustomerById(id);
-            if (existingCustomer == null)
+            var existing = await _appDbContext.customer.FindAsync(id);
+            if (existing == null)
                 return null;
 
 
-            existingCustomer.CustomerName = customer.Name;
-            existingCustomer.PhoneNumber = customer.Phone;
-            existingCustomer.Address = customer.Address;
-            existingCustomer.CurrentBalance = customer.CurrentBalance;
+            existing.CustomerName = customer.Name!;
+            existing.PhoneNumber = customer.Phone!;
+            existing.Address = customer.Address!;
+            existing.CurrentBalance = customer.CurrentBalance;
 
-            _appDbContext.SaveChanges();
+            await _appDbContext.SaveChangesAsync();
 
             return customer;
         }
 
-        public Customer? DeleteCustomer(int id)
+        public async Task<Customer?> DeleteCustomerAsync(int id)
         {
-            var customer = GetCustomerById(id);
-            if (customer == null) { return null; }
-           
-            var orders = customer.Orders;
+            var existing = await _appDbContext.customer.FindAsync(id);
+            if (existing == null)
+                return null;
+
+            var orders = existing.Orders;
             if (orders != null)
             {
                 foreach (var order in orders)
@@ -79,10 +87,10 @@ namespace FactoriesGateSystem.Repositories
 
                 }
             }
-            _appDbContext.customer.Remove(customer);
-            _appDbContext.SaveChanges();
+            _appDbContext.customer.Remove(existing);
+            await _appDbContext.SaveChangesAsync();
                 
-            return customer;
+            return existing;
         }
     }
 }

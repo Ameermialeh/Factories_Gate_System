@@ -9,21 +9,19 @@ namespace FactoriesGateSystem.Models
         public int SupplierId { get; set; }
 
         [Required, StringLength(100)]
-        public string SupplierName { get; set; }
+        public required string SupplierName { get; set; }
 
         [Required, StringLength(300)]
-        public string Address { get; set; }
-
-        public DateTime? CreateAt { get; set; } = DateTime.UtcNow;
+        public required string Address { get; set; }
 
         [Required]
-        public string SupplierPhone { get; set; }
+        public required string SupplierPhone { get; set; }
 
         public int CurrentBalance { get; set; } = 0;
 
         public UserType access() => UserType.Supplier;
      
 
-        public ICollection<MaterialPurchase> MaterialPurchase { get; set; }
+        public ICollection<MaterialPurchase>? MaterialPurchase { get; set; }
     }
 }   

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FactoriesGateSystem.Migrations
 {
     /// <inheritdoc />
-    public partial class CreateFirstmigration : Migration
+    public partial class Createfirstmigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -43,13 +43,7 @@ namespace FactoriesGateSystem.Migrations
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     EmployeeName = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    EmployeeEmail = table.Column<string>(type: "varchar(150)", maxLength: 150, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    EmployeePassword = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    EmployeeSalary = table.Column<int>(type: "int", nullable: false),
-                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    CreateAt = table.Column<DateTime>(type: "datetime(6)", nullable: true)
+                    EmployeeSalary = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -58,7 +52,7 @@ namespace FactoriesGateSystem.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Manager",
+                name: "manager",
                 columns: table => new
                 {
                     ManagerId = table.Column<int>(type: "int", nullable: false)
@@ -68,12 +62,11 @@ namespace FactoriesGateSystem.Migrations
                     ManagerEmail = table.Column<string>(type: "varchar(150)", maxLength: 150, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     ManagerPassword = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Manager", x => x.ManagerId);
+                    table.PrimaryKey("PK_manager", x => x.ManagerId);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -85,8 +78,7 @@ namespace FactoriesGateSystem.Migrations
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     MaterialName = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    MaterialQuantity = table.Column<int>(type: "int", nullable: false),
-                    MaterialPrice = table.Column<int>(type: "int", nullable: false)
+                    Hide = table.Column<bool>(type: "tinyint(1)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -105,7 +97,8 @@ namespace FactoriesGateSystem.Migrations
                     ProductDescription = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     ProductQuantity = table.Column<int>(type: "int", nullable: false),
-                    ProductPrice = table.Column<int>(type: "int", nullable: false)
+                    ProductPrice = table.Column<int>(type: "int", nullable: false),
+                    Hide = table.Column<bool>(type: "tinyint(1)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -123,7 +116,6 @@ namespace FactoriesGateSystem.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Address = table.Column<string>(type: "varchar(300)", maxLength: 300, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    CreateAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     SupplierPhone = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CurrentBalance = table.Column<int>(type: "int", nullable: false)
@@ -183,81 +175,28 @@ namespace FactoriesGateSystem.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "workPlans",
+                name: "MaterialPurchase",
                 columns: table => new
                 {
-                    PlaneId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    PlanName = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    PlanDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    PlanDescription = table.Column<string>(type: "varchar(300)", maxLength: 300, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    ManagerId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_workPlans", x => x.PlaneId);
-                    table.ForeignKey(
-                        name: "FK_workPlans_Manager_ManagerId",
-                        column: x => x.ManagerId,
-                        principalTable: "Manager",
-                        principalColumn: "ManagerId",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "employeeMaterials",
-                columns: table => new
-                {
-                    EmployeeMaterialId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    EmployeeId = table.Column<int>(type: "int", nullable: false),
-                    MaterialId = table.Column<int>(type: "int", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    Date = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_employeeMaterials", x => x.EmployeeMaterialId);
-                    table.ForeignKey(
-                        name: "FK_employeeMaterials_employees_EmployeeId",
-                        column: x => x.EmployeeId,
-                        principalTable: "employees",
-                        principalColumn: "EmployeeId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_employeeMaterials_materials_MaterialId",
-                        column: x => x.MaterialId,
-                        principalTable: "materials",
-                        principalColumn: "MaterialId",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "supplierMaterials",
-                columns: table => new
-                {
-                    SupplierMaterialId = table.Column<int>(type: "int", nullable: false)
+                    MaterialPurchaseId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     SupplierId = table.Column<int>(type: "int", nullable: false),
                     MaterialId = table.Column<int>(type: "int", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
-                    Date = table.Column<DateTime>(type: "datetime(6)", nullable: true)
+                    Date = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    Quantity = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_supplierMaterials", x => x.SupplierMaterialId);
+                    table.PrimaryKey("PK_MaterialPurchase", x => x.MaterialPurchaseId);
                     table.ForeignKey(
-                        name: "FK_supplierMaterials_materials_MaterialId",
+                        name: "FK_MaterialPurchase_materials_MaterialId",
                         column: x => x.MaterialId,
                         principalTable: "materials",
                         principalColumn: "MaterialId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_supplierMaterials_suppliers_SupplierId",
+                        name: "FK_MaterialPurchase_suppliers_SupplierId",
                         column: x => x.SupplierId,
                         principalTable: "suppliers",
                         principalColumn: "SupplierId",
@@ -294,14 +233,14 @@ namespace FactoriesGateSystem.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateIndex(
-                name: "IX_employeeMaterials_EmployeeId",
-                table: "employeeMaterials",
-                column: "EmployeeId");
+                name: "IX_MaterialPurchase_MaterialId",
+                table: "MaterialPurchase",
+                column: "MaterialId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_employeeMaterials_MaterialId",
-                table: "employeeMaterials",
-                column: "MaterialId");
+                name: "IX_MaterialPurchase_SupplierId",
+                table: "MaterialPurchase",
+                column: "SupplierId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_orderProducts_OrderId",
@@ -319,49 +258,25 @@ namespace FactoriesGateSystem.Migrations
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_supplierMaterials_MaterialId",
-                table: "supplierMaterials",
-                column: "MaterialId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_supplierMaterials_SupplierId",
-                table: "supplierMaterials",
-                column: "SupplierId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_vacations_EmployeeId",
                 table: "vacations",
                 column: "EmployeeId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_workPlans_ManagerId",
-                table: "workPlans",
-                column: "ManagerId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "employeeMaterials");
+                name: "manager");
+
+            migrationBuilder.DropTable(
+                name: "MaterialPurchase");
 
             migrationBuilder.DropTable(
                 name: "orderProducts");
 
             migrationBuilder.DropTable(
-                name: "supplierMaterials");
-
-            migrationBuilder.DropTable(
                 name: "vacations");
-
-            migrationBuilder.DropTable(
-                name: "workPlans");
-
-            migrationBuilder.DropTable(
-                name: "orders");
-
-            migrationBuilder.DropTable(
-                name: "products");
 
             migrationBuilder.DropTable(
                 name: "materials");
@@ -370,10 +285,13 @@ namespace FactoriesGateSystem.Migrations
                 name: "suppliers");
 
             migrationBuilder.DropTable(
-                name: "employees");
+                name: "orders");
 
             migrationBuilder.DropTable(
-                name: "Manager");
+                name: "products");
+
+            migrationBuilder.DropTable(
+                name: "employees");
 
             migrationBuilder.DropTable(
                 name: "customer");

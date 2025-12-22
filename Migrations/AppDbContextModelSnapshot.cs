@@ -53,9 +53,6 @@ namespace FactoriesGateSystem.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("CreateAt")
-                        .HasColumnType("datetime(6)");
-
                     b.Property<string>("EmployeeName")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -67,6 +64,32 @@ namespace FactoriesGateSystem.Migrations
                     b.HasKey("EmployeeId");
 
                     b.ToTable("employees");
+                });
+
+            modelBuilder.Entity("FactoriesGateSystem.Models.Manager", b =>
+                {
+                    b.Property<int>("ManagerId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("ManagerEmail")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)");
+
+                    b.Property<string>("ManagerName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("ManagerPassword")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.HasKey("ManagerId");
+
+                    b.ToTable("manager");
                 });
 
             modelBuilder.Entity("FactoriesGateSystem.Models.Material", b =>
@@ -206,9 +229,6 @@ namespace FactoriesGateSystem.Migrations
                         .IsRequired()
                         .HasMaxLength(300)
                         .HasColumnType("varchar(300)");
-
-                    b.Property<DateTime?>("CreateAt")
-                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("CurrentBalance")
                         .HasColumnType("int");

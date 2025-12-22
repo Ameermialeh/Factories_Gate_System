@@ -7,9 +7,9 @@ namespace FactoriesGateSystem.Models
         [Key]
         public int MaterialId { get; set; }
         [Required]
-        public string MaterialName { get; set; }
+        public required string MaterialName { get; set; }
 
         public bool Hide { get; set; } = false;
-        public ICollection<MaterialPurchase> MaterialPurchase { get; set; }
+        public ICollection<MaterialPurchase>? MaterialPurchase { get; set; }
     }
 }

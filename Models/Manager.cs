@@ -10,15 +10,13 @@ namespace FactoriesGateSystem.Models
         public int ManagerId { get; set; }
 
         [Required, StringLength(100)]
-        public string ManagerName { get; set; }
+        public required string ManagerName { get; set; }
 
         [Required, EmailAddress, StringLength(150)]
-        public string ManagerEmail { get; set; }
+        public required string ManagerEmail { get; set; }
 
         [StringLength(200)]
-        public string ManagerPassword { get; set; }
-
-        public bool IsActive { get; set; } = true;
+        public required string ManagerPassword { get; set; }
 
         public UserType access() => UserType.Manager;  
  

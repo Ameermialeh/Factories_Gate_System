@@ -1,10 +1,12 @@
-﻿using FactoriesGateSystem.DTOs.ProductDTOs;
+﻿using FactoriesGateSystem.DTOs.MaterialDTOs;
+using FactoriesGateSystem.DTOs.ProductDTOs;
 using FactoriesGateSystem.Models;
 using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FactoriesGateSystem.Controllers
 {
+    [Route("api/[controller]")]
     [ApiController]
     public class ProductController : Controller
     {
@@ -15,23 +17,17 @@ namespace FactoriesGateSystem.Controllers
         }
 
 
-        [HttpGet("GetAllProducts")]
-        public IActionResult GetAllProducts()
+        [HttpGet]
+        [ProducesResponseType(typeof(ProductDTO), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> GetAllProducts()
         {
             try
             {
-                var products = _productRepo.GetProducts();
+                var productDto = await _productRepo.GetProductsAsync();
+                if (productDto == null || productDto.Count == 0) { return NotFound("There is no products."); }
 
-                if (products == null || products.Count == 0) { return BadRequest("There is no products."); }
-
-                var productDto = products.Select(p => new ProductDTO()
-                {
-                    ID = p.ProductId,
-                    Name = p.ProductName,
-                    Description = p.ProductDescription,
-                    Price = p.ProductPrice,
-                    Quantity = p.ProductQuantity,
-                });
                 return Ok(productDto);
             }
             catch (Exception)
@@ -40,13 +36,17 @@ namespace FactoriesGateSystem.Controllers
             }
         }
 
-        [HttpGet("GetProductById/{id}")]
-        public IActionResult GetProductById(int id) {
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(ProductDTO), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> GetProductById(int id) {
             if (id <= 0)
                 return BadRequest("Invalid product id.");
             try
             {
-                var product = _productRepo.GetProductById(id);
+                var product = await _productRepo.GetProductByIdAsync(id);
                 if (product == null)
                     return NotFound($"No product with id = {id}. Try again");
 
@@ -66,12 +66,15 @@ namespace FactoriesGateSystem.Controllers
             }
         }
 
-        [HttpPost("CreateProduct")]
-        public IActionResult CreateProduct([FromBody] ProductDTO productDto)
+        [HttpPost]
+        [ProducesResponseType(typeof(ProductDTO), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> CreateProduct([FromBody] ProductDTO productDto)
         {
             try
             {
-                var product = _productRepo.CreateProduct(productDto);
+                var product =await _productRepo.CreateProductAsync(productDto);
                 if (product == null) { return BadRequest("Somthing went wrong!"); }
                 return Ok(product);
 
@@ -82,14 +85,18 @@ namespace FactoriesGateSystem.Controllers
            
         }
 
-        [HttpPut("UpdateProduct")]
-        public IActionResult UpdateProduct([FromBody] ProductDTO productDto)
+        [HttpPut]
+        [ProducesResponseType(typeof(ProductDTO), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> UpdateProduct([FromBody] ProductDTO productDto)
         {
             if (productDto == null)
                 return BadRequest("Invalid product data.");
             try
             {
-               var updatedProduct = _productRepo.UpdateProduct(productDto);
+               var updatedProduct = await _productRepo.UpdateProductAsync(productDto);
                 if(updatedProduct == null)
                     return NotFound($"No Product with id: {productDto.ID}. Try again");
                
@@ -101,16 +108,20 @@ namespace FactoriesGateSystem.Controllers
             }
         }
 
-        [HttpDelete("DeleteProduct/{id}")]
-        public IActionResult DeleteProduct(int id)
+        [HttpDelete("{id}")]
+        [ProducesResponseType(typeof(DeleteProductDTO), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> DeleteProduct(int id)
         {
             if (id <= 0)
                 return BadRequest("Invalid product id.");
             try
             {
-                var product = _productRepo.DeleteProduct(id);
+                var product = await _productRepo.DeleteProductAsync(id);
                 if (product == null)
-                    return BadRequest($"No Product with id: {id}. Try again");
+                    return NotFound($"No Product with id: {id}. Try again");
 
                 var productDto = new DeleteProductDTO()
                 {

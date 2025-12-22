@@ -1,5 +1,7 @@
 ﻿using FactoriesGateSystem.DTOs.OrderDTOs;
 using FactoriesGateSystem.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace FactoriesGateSystem.Repositories
 {
@@ -12,55 +14,57 @@ namespace FactoriesGateSystem.Repositories
             _appDbContext = appDbContext;
         }
 
-        public List<Order> GetOrders(Func<Order,bool> func = null)
+        public async Task<List<OrderDTO>> GetOrdersAsync(Expression<Func<Order,bool>>? filter = null)
         {
-            var orders = _appDbContext.orders.ToList();
-            if(func == null)
+            IQueryable<Order> query = _appDbContext.orders;
+            if (filter != null)
+                query = query.Where(filter);
+            return await query.Select(o => new OrderDTO()
             {
-                return orders;
-            }
-            orders = orders.Where(func).ToList();
-            return orders;
+                ID = o.OrderId,
+                Name = o.OrderName,
+                Description = o.OrderDescription,
+                OrderDate = o.OrderDate,
+                CustomerID = o.CustomerId
+            }).ToListAsync();
         }
 
-
-        public Order? GetOrderById(int id) {
-            var order = _appDbContext.orders.FirstOrDefault(o => o.OrderId == id);
-            return order;
+        public async Task<Order?> GetOrderByIdAsync(int id) {
+            return await _appDbContext.orders.FirstOrDefaultAsync(o => o.OrderId == id);
         }
 
-        public List<OrderProductsDTO> GetProductsForOrder(int orderID)
+        public async Task<List<OrderProductsDTO>> GetProductsForOrderAsync(int orderID)
         {
-            var products =_appDbContext.orderProducts.Where(op=> op.OrderId == orderID).Select(op => new OrderProductsDTO
+            var products =await _appDbContext.orderProducts.Where(op=> op.OrderId == orderID).Select(op => new OrderProductsDTO
             {
                 ProductID = op.ProductId,
                 ProductQuantity = op.Quantity
-            }).ToList();
+            }).ToListAsync();
             
             return products;
         }
 
-        public bool ChickIfAllProductsNotHide(OrderWithProductsDTO dto)
+        public async Task<bool> ChickIfAllProductsNotHideAsync(OrderWithProductsDTO dto)
         {
-            var productIds = dto.Products.Select(p => p.ProductID).ToList();
+            var productIds = dto.Products!.Select(p => p.ProductID).ToList();
 
-            return _appDbContext.products.Where(p => productIds.Contains(p.ProductId)).All(p => !p.Hide);
+            return await _appDbContext.products.Where(p => productIds.Contains(p.ProductId)).AllAsync(p => !p.Hide);
         }
 
-        public OrderWithProductsDTO CreateOrder(OrderWithProductsDTO dto)
+        public async Task<OrderWithProductsDTO> CreateOrderAsync(OrderWithProductsDTO dto)
         {
             Order order = new Order()
             {
-                OrderName = dto.Name,
+                OrderName = dto.Name!,
                 OrderDate = dto.OrderDate,
-                OrderDescription = dto.Description,
+                OrderDescription = dto.Description!,
                 CustomerId = dto.CustomerID
             };
 
-            _appDbContext.orders.Add(order);
-            _appDbContext.SaveChanges();
+            await _appDbContext.orders.AddAsync(order);
+            await _appDbContext.SaveChangesAsync();
 
-            foreach(var product in dto.Products)
+            foreach(var product in dto.Products!)
             {
                 var orderProduct = new OrderProduct()
                 {
@@ -69,31 +73,31 @@ namespace FactoriesGateSystem.Repositories
                     Quantity = product.ProductQuantity
                 };
 
-                _appDbContext.orderProducts.Add(orderProduct);
+                await _appDbContext.orderProducts.AddAsync(orderProduct);
             }
-            _appDbContext.SaveChanges();
+            await _appDbContext.SaveChangesAsync();
 
             dto.ID = order.OrderId;
             return dto;
         }
 
-        public OrderWithProductsDTO? UpdateOrder(OrderWithProductsDTO OrderWithProductsDto)
+        public async Task<OrderWithProductsDTO?> UpdateOrderAsync(OrderWithProductsDTO OrderWithProductsDto)
         {
-            var order = GetOrderById(OrderWithProductsDto.ID);
+            var order = await _appDbContext.orders.FindAsync(OrderWithProductsDto.ID);
             if (order == null) return null;
            
-            order.OrderName = OrderWithProductsDto.Name;
+            order.OrderName = OrderWithProductsDto.Name!;
             order.OrderDate = OrderWithProductsDto.OrderDate;
-            order.OrderDescription = OrderWithProductsDto.Description;
+            order.OrderDescription = OrderWithProductsDto.Description!;
             order.CustomerId = OrderWithProductsDto.CustomerID;
-            _appDbContext.SaveChanges();
+            await _appDbContext.SaveChangesAsync();
 
-            var orderProducts = _appDbContext.orderProducts.Where(op => op.OrderId == 2).ToList();
+            var orderProducts =await _appDbContext.orderProducts.Where(op => op.OrderId == 2).ToListAsync();
 
             _appDbContext.orderProducts.RemoveRange(orderProducts);
-            _appDbContext.SaveChanges();
+            await _appDbContext.SaveChangesAsync();
 
-            foreach (var product in OrderWithProductsDto.Products)
+            foreach (var product in OrderWithProductsDto.Products!)
             {
                 var orderProduct = new OrderProduct()
                 {
@@ -102,20 +106,20 @@ namespace FactoriesGateSystem.Repositories
                     Quantity = product.ProductQuantity
                 };
 
-                _appDbContext.orderProducts.Add(orderProduct);
+                await _appDbContext.orderProducts.AddAsync(orderProduct);
             }
-            _appDbContext.SaveChanges();
+            await _appDbContext.SaveChangesAsync();
 
             return OrderWithProductsDto;
         }
 
-        public Order? DeleteOrder(int id)
+        public async Task<Order?> DeleteOrderAsync(int id)
         {
-            var order = GetOrderById(id);
+            var order = await _appDbContext.orders.FindAsync(id);
             if (order == null) { return null; }
 
             _appDbContext.orders.Remove(order);
-            _appDbContext.SaveChanges();
+            await _appDbContext.SaveChangesAsync();
             return order;
         }
     }

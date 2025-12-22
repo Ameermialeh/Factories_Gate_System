@@ -7,9 +7,9 @@ namespace FactoriesGateSystem.Models
         [Key]
         public int ProductId { get; set; }
         [Required]
-        public string ProductName { get; set; }
+        public required string ProductName { get; set; }
 
-        public string ProductDescription { get; set; }
+        public string? ProductDescription { get; set; }
 
         [Required]
         public int ProductQuantity { get; set; }
@@ -19,6 +19,6 @@ namespace FactoriesGateSystem.Models
 
         public bool Hide { get; set; } = false;
 
-        public ICollection<OrderProduct> OrderProducts { get; set; }
+        public ICollection<OrderProduct>? OrderProducts { get; set; }
     }
 }

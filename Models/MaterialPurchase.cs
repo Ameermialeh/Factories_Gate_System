@@ -21,10 +21,10 @@ namespace FactoriesGateSystem.Models
         public int Quantity { get; set; }
 
         [ForeignKey(nameof(SupplierId))]
-        public Supplier Supplier { get; set; }
+        public Supplier? Supplier { get; set; }
 
         [ForeignKey(nameof(MaterialId))]
-        public Material Material { get; set; }
+        public Material? Material { get; set; }
 
 
     }

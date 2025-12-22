@@ -1,5 +1,7 @@
 ﻿using FactoriesGateSystem.DTOs.MaterialDTOs;
 using FactoriesGateSystem.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace FactoriesGateSystem.Repositories
 {
@@ -12,60 +14,61 @@ namespace FactoriesGateSystem.Repositories
             this._appDbContext = appDbContext;
         }
 
-        public List<Material> GetMaterial(Func<Material, bool>? func = null)
+        public async Task<List<MaterialDTO>> GetMaterialAsync(Expression< Func<Material, bool>>? filter = null)
         {
-            var material = _appDbContext.materials.Where(m => !m.Hide).ToList();
-            if(func == null)
+            IQueryable<Material> query = _appDbContext.materials.Where(m=> !m.Hide);
+            if (filter != null) 
+                query = query.Where(filter);
+            return await query.Select(m => new MaterialDTO()
             {
-                return material;
-            }
-            material = material.Where(func).ToList();
-            return material;
+                ID = m.MaterialId,
+                Name = m.MaterialName,
+            }).ToListAsync();
         }
 
-        public Material? GetMaterialById(int id)
+        public async Task<Material?> GetMaterialByIdAsync(int id)
         {
-            var material = _appDbContext.materials.FirstOrDefault(m => m.MaterialId == id && !m.Hide);
-            return material;
+            return await _appDbContext.materials.FirstOrDefaultAsync(m => m.MaterialId == id && !m.Hide);
         }
 
-        public Material CreateMaterial(string name)
+        public async Task<Material> CreateMaterialAsync(string name)
         {
             var material = new Material()
             {
                 MaterialName = name
             };
 
-            _appDbContext.materials.Add(material);
-            _appDbContext.SaveChanges();
+            await _appDbContext.materials.AddAsync(material);
+            await _appDbContext.SaveChangesAsync();
 
             return material;
         }
 
-        public Material? UpdateMaterial(int id, string name)
+        public async Task<Material?> UpdateMaterialAsync(int id, string name)
         {
-            var material = _appDbContext.materials.Where(m=>m.MaterialId == id).FirstOrDefault();
+            var material =await _appDbContext.materials.FindAsync(id);
             if (material == null) return null;
 
             material.MaterialName = name;
-            _appDbContext.SaveChanges();
+            await _appDbContext.SaveChangesAsync();
 
             return material;
         }
 
-        public Material? DeleteMaterial(int id)
+        public async Task<Material?> DeleteMaterialAsync(int id)
         {
-            var material = GetMaterialById(id);
+            var material = await _appDbContext.materials.FindAsync(id);
             if (material == null) return null;
-            if (_appDbContext.MaterialPurchase.Where(mp => mp.MaterialId == material.MaterialId).FirstOrDefault() == null)
+
+            if (await _appDbContext.MaterialPurchase.Where(mp => mp.MaterialId == material.MaterialId).FirstOrDefaultAsync() == null)
             {
                 _appDbContext.materials.Remove(material);
-                _appDbContext.SaveChanges();
+                await _appDbContext.SaveChangesAsync();
                 return material;
             }
 
             material.Hide = true;
-            _appDbContext.SaveChanges();
+            await _appDbContext.SaveChangesAsync();
             return material;
         }
     }

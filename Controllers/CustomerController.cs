@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FactoriesGateSystem.Controllers
 {
+    [Route("api/[controller]")]
     [ApiController]
     public class CustomerController : Controller
     {
@@ -15,23 +16,17 @@ namespace FactoriesGateSystem.Controllers
             _customerRepo = customerRepo;
         }
 
-        [HttpGet("GetAllCustomers")]
-        public IActionResult GetAllCustomers()
+        [HttpGet]
+        [ProducesResponseType(typeof(List<CustomerDTO>), 200)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> GetAllCustomers()
         {
             try
             {
-                var customers = _customerRepo.GetCustomers();
-                if (customers == null)
+                var customerDto = await _customerRepo.GetCustomersAsync();
+                if (customerDto == null)
                     return NotFound("There is no customers Found.");
 
-                var customerDto = customers.Select(c => new CustomerDTO()
-                {
-                    ID = c.CustomerId,
-                    Name = c.CustomerName,
-                    Address = c.Address,
-                    Phone = c.PhoneNumber,
-                    CurrentBalance = c.CurrentBalance,
-                });
                 return Ok(customerDto);
             }
             catch (Exception)
@@ -40,14 +35,18 @@ namespace FactoriesGateSystem.Controllers
             }
         }
 
-        [HttpGet("GetCustomerByID/{id}")]
-        public IActionResult GetCustomerByID(int id)
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(CustomerDTO), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> GetCustomerByID(int id)
         {
             if (id <= 0)
                 return BadRequest("Invalid customer id.");
             try
             {
-                var customer = _customerRepo.GetCustomerById(id);
+                var customer =await _customerRepo.GetCustomerByIdAsync(id);
                 if (customer == null)
                     return NotFound($"No customer with id = {id}.");
 
@@ -66,12 +65,14 @@ namespace FactoriesGateSystem.Controllers
             }
         }
 
-        [HttpPost("CreateCustomer")]
-        public IActionResult CreateCustomer([FromBody]CustomerDTO customerDto)
+        [HttpPost]
+        [ProducesResponseType(typeof(CustomerDTO), 200)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> CreateCustomer([FromBody]CustomerDTO customerDto)
         {
             try
             {
-                var customer = _customerRepo.AddCustomer(customerDto);
+                var customer = await _customerRepo.AddCustomerAsync(customerDto);
                 return Ok(customer);
             }
             catch (Exception)
@@ -80,14 +81,18 @@ namespace FactoriesGateSystem.Controllers
             }
         }
 
-        [HttpPut("UpdateCustomer/{id}")]
-        public IActionResult UpdateCustomer(int id, [FromBody] UpdateCustomerDTO customerDto)
+        [HttpPut("{id}")]
+        [ProducesResponseType(typeof(UpdateCustomerDTO), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> UpdateCustomer(int id, [FromBody] UpdateCustomerDTO customerDto)
         {
             if (id <= 0 || customerDto == null)
                 return BadRequest("Invalid customer data.");
             try
             {
-                var customer = _customerRepo.UpdateCustomer(id, customerDto);
+                var customer =await _customerRepo.UpdateCustomerAsync(id, customerDto);
                 if (customer == null)
                 {
                     return NotFound($"No Customer with id: {id}.");
@@ -101,14 +106,18 @@ namespace FactoriesGateSystem.Controllers
             }
         }
 
-        [HttpDelete("DeleteCustomer/{id}")]
-        public IActionResult DeleteCustomer(int id)
+        [HttpDelete("{id}")]
+        [ProducesResponseType(typeof(DeleteCustomerDTO), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> DeleteCustomer(int id)
         {
             if (id <= 0)
                 return BadRequest("Invalid customer id.");
             try
             {
-                var customer = _customerRepo.DeleteCustomer(id);
+                var customer = await _customerRepo.DeleteCustomerAsync(id);
                 if (customer == null)
                     return NotFound($"No customer with id = {id}.");
 

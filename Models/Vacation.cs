@@ -12,9 +12,9 @@ namespace FactoriesGateSystem.Models
         [Required]
         public DateTime VacationDate { get; set; }
         [Required]
-        public string VacationReason { get; set; }
+        public required string VacationReason { get; set; }
 
         [ForeignKey(nameof(EmployeeId))]
-        public Employee Employee { get; set; }
+        public Employee? Employee { get; set; }
     }
 }

@@ -1,10 +1,12 @@
-﻿using FactoriesGateSystem.DTOs.OrderDTOs;
+﻿using FactoriesGateSystem.DTOs.MaterialDTOs;
+using FactoriesGateSystem.DTOs.OrderDTOs;
 using FactoriesGateSystem.Models;
 using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FactoriesGateSystem.Controllers
 {
+    [Route("api/[controller]")]
     [ApiController]
     public class OrderController : Controller
     {
@@ -14,21 +16,17 @@ namespace FactoriesGateSystem.Controllers
             _orderRepo = orderRepo;
         }
 
-        [HttpGet("GetAllOrders")]
-        public IActionResult GetAllOrders()
+        [HttpGet]
+        [ProducesResponseType(typeof(OrderDTO), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> GetAllOrders()
         {
             try
             {
-                var orders = _orderRepo.GetOrders();
-                if (orders == null) { return NotFound("No order here."); }
-                var orderDto = orders.Select(o => new OrderDTO()
-                {
-                    ID = o.OrderId,
-                    Name = o.OrderName,
-                    Description = o.OrderDescription,
-                    OrderDate = o.OrderDate,
-                    CustomerID = o.CustomerId
-                });
+                var orderDto = await _orderRepo.GetOrdersAsync();
+                if (orderDto == null) { return NotFound("No order here."); }
+                 
                 return Ok(orderDto);
             }
             catch (Exception) {
@@ -36,17 +34,21 @@ namespace FactoriesGateSystem.Controllers
             }
         }
 
-        [HttpGet("GetOrderByID/{id}")]
-        public IActionResult GetOrderByID(int id)
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(OrderWithProductsDTO), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> GetOrderByID(int id)
         {
             if (id <= 0)
                 return BadRequest("Invalid order id.");
             try
             {
-                var order = _orderRepo.GetOrderById(id);
+                var order = await _orderRepo.GetOrderByIdAsync(id);
                 if (order == null) { return NotFound($"No order with id = {id}."); }
 
-                var products = _orderRepo.GetProductsForOrder(id);
+                var products = await _orderRepo.GetProductsForOrderAsync(id);
 
                 var dto = new OrderWithProductsDTO()
                 {
@@ -66,15 +68,18 @@ namespace FactoriesGateSystem.Controllers
             }
         }
 
-        [HttpPost("CreateOrder")]
-        public IActionResult CreateOrder([FromBody] OrderWithProductsDTO orderDto)
+        [HttpPost]
+        [ProducesResponseType(typeof(OrderWithProductsDTO), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> CreateOrder([FromBody] OrderWithProductsDTO orderDto)
         {
             try
             {
-                var productAvailable = _orderRepo.ChickIfAllProductsNotHide(orderDto);
-                if (!productAvailable) { return BadRequest("Product not found!"); }
+                var productAvailable = await _orderRepo.ChickIfAllProductsNotHideAsync(orderDto);
+                if (!productAvailable) { return NotFound("Product not found!"); }
 
-                var order = _orderRepo.CreateOrder(orderDto);
+                var order =await _orderRepo.CreateOrderAsync(orderDto);
                 return Ok(order);
             }
             catch (Exception) {
@@ -82,12 +87,15 @@ namespace FactoriesGateSystem.Controllers
             }
         }
 
-        [HttpPut("UpdateOrder")] 
-        public IActionResult UpdateOrder([FromBody] OrderWithProductsDTO orderDto)
+        [HttpPut]
+        [ProducesResponseType(typeof(OrderWithProductsDTO), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> UpdateOrder([FromBody] OrderWithProductsDTO orderDto)
         {
             try
             {
-                var orderWithProductsDto = _orderRepo.UpdateOrder(orderDto);
+                var orderWithProductsDto =await _orderRepo.UpdateOrderAsync(orderDto);
                 if (orderWithProductsDto == null) { return NotFound($"No order with id = {orderDto.ID}."); }
 
                 return Ok(orderWithProductsDto);
@@ -98,15 +106,19 @@ namespace FactoriesGateSystem.Controllers
             }
         }
 
-        [HttpDelete("DeleteOrder/{id}")]
-        public IActionResult DeleteOrder(int id)
+        [HttpDelete("{id}")]
+        [ProducesResponseType(typeof(OrderDTO), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> DeleteOrder(int id)
         {
             if (id <= 0)
                 return BadRequest("Invalid order id.");
             try
             {
-                var order = _orderRepo.DeleteOrder(id);
-                if (order == null) { return BadRequest($"No order with id = {id}."); }
+                var order = await _orderRepo.DeleteOrderAsync(id);
+                if (order == null) { return NotFound($"No order with id = {id}."); }
                 var orderdto = new OrderDTO()
                 {
                     ID = order.OrderId,

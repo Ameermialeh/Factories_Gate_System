@@ -22,11 +22,14 @@ namespace FactoriesGateSystem
             .UseMySql(builder.Configuration.GetConnectionString("Connection"),
             new MySqlServerVersion(new Version(8, 2, 12))));
 
+
             builder.Services.AddScoped<CustomerRepo>();
             builder.Services.AddScoped<OrderRepo>();
             builder.Services.AddScoped<ProductRepo>();
             builder.Services.AddScoped<MaterialRepo>();
             builder.Services.AddScoped<EmployeeRepo>();
+
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
