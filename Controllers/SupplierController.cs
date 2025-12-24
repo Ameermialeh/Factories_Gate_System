@@ -1,4 +1,6 @@
 ﻿using FactoriesGateSystem.DTOs;
+using FactoriesGateSystem.DTOs.MaterialDTOs;
+using FactoriesGateSystem.DTOs.ProductDTOs;
 using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,5 +32,32 @@ namespace FactoriesGateSystem.Controllers
             catch (Exception) { return StatusCode(500, "Internal server error."); }
         }
 
+        [HttpGet("/id")]
+        [ProducesResponseType(typeof(SupplierDTO), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> GetSupplierByIdAsync(int id)
+        {
+            if (id <= 0)
+                return BadRequest("Invalid supplier id.");
+            try
+            {
+                var supplier = await _supplierRepo.GetSupplierByIdAsync(id);
+                if (supplier == null)
+                    return NotFound($"Supplier with id {id} not found.");
+
+                var supplierDto = new SupplierDTO()
+                {
+                    SupplierId = id,
+                    SupplierName = supplier.SupplierName,
+                    Address = supplier.Address,
+                    SupplierPhone = supplier.SupplierPhone,
+                    CurrentBalance = supplier.CurrentBalance
+                };
+                return Ok(supplierDto);
+            }
+            catch (Exception) { return StatusCode(500, "Internal server error."); }
+        }
     }
 }

@@ -30,5 +30,10 @@ namespace FactoriesGateSystem.Repositories
                 SupplierPhone = s.SupplierPhone,
             }).ToListAsync();
         }
+
+        public async Task<Supplier?> GetSupplierByIdAsync(int id)
+        {
+            return await _appDbContext.suppliers.FirstOrDefaultAsync(s => s.SupplierId == id);
+        }
     }
 }
