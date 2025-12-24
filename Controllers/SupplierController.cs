@@ -32,7 +32,7 @@ namespace FactoriesGateSystem.Controllers
             catch (Exception) { return StatusCode(500, "Internal server error."); }
         }
 
-        [HttpGet("/id")]
+        [HttpGet("id")]
         [ProducesResponseType(typeof(SupplierDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -72,5 +72,24 @@ namespace FactoriesGateSystem.Controllers
             }
             catch (Exception) { return StatusCode(500, "Internal server error."); }
         }
+
+        [HttpPut("id")]
+        [ProducesResponseType(typeof(SupplierDTO), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> UpdateSupplier(int id, [FromBody] UpdateSupplierDTO supplierDto)
+        {
+            if (id <= 0 || supplierDto == null)
+                return BadRequest("Invalid supplier data.");
+            try
+            {
+                var supplier = await _supplierRepo.UpdateSupplierAsync(id, supplierDto);
+                if (supplier == null) { return NotFound($"No Supplier with id: {id}."); }
+                return Ok(supplier);
+            }
+            catch (Exception)
+            { return StatusCode(500, "Internal server error"); }
+        }
     }
-}
+} 
