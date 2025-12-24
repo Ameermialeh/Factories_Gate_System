@@ -23,17 +23,33 @@ namespace FactoriesGateSystem.Repositories
 
             return await supplier.Select(s => new SupplierDTO()
             {
-                SupplierId = s.SupplierId,
-                SupplierName = s.SupplierName,
+                Id = s.SupplierId,
+                Name = s.SupplierName,
                 Address = s.Address,
                 CurrentBalance = s.CurrentBalance,
-                SupplierPhone = s.SupplierPhone,
+                Phone = s.SupplierPhone,
             }).ToListAsync();
         }
 
         public async Task<Supplier?> GetSupplierByIdAsync(int id)
         {
             return await _appDbContext.suppliers.FirstOrDefaultAsync(s => s.SupplierId == id);
+        }
+
+        public async Task<SupplierDTO> AddSupplierAsync(SupplierDTO supplierDto)
+        {
+            var supplier = new Supplier()
+            {
+                SupplierName= supplierDto.Name,
+                Address=supplierDto.Address,
+                SupplierPhone = supplierDto.Phone,
+                CurrentBalance = supplierDto.CurrentBalance,
+            };
+
+            await _appDbContext.suppliers.AddAsync(supplier);
+            await _appDbContext.SaveChangesAsync();
+            supplierDto.Id = supplier.SupplierId;
+            return supplierDto;
         }
     }
 }

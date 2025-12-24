@@ -49,13 +49,26 @@ namespace FactoriesGateSystem.Controllers
 
                 var supplierDto = new SupplierDTO()
                 {
-                    SupplierId = id,
-                    SupplierName = supplier.SupplierName,
+                    Id = id,
+                    Name = supplier.SupplierName,
                     Address = supplier.Address,
-                    SupplierPhone = supplier.SupplierPhone,
+                    Phone = supplier.SupplierPhone,
                     CurrentBalance = supplier.CurrentBalance
                 };
                 return Ok(supplierDto);
+            }
+            catch (Exception) { return StatusCode(500, "Internal server error."); }
+        }
+
+        [HttpPost]
+        [ProducesResponseType(typeof(SupplierDTO), 200)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> AddSupplier([FromBody] SupplierDTO supplierDto)
+        {
+            try
+            {
+                var supplier = await _supplierRepo.AddSupplierAsync(supplierDto);
+                return Ok(supplier);
             }
             catch (Exception) { return StatusCode(500, "Internal server error."); }
         }
