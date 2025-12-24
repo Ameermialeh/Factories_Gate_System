@@ -75,5 +75,16 @@ namespace FactoriesGateSystem.Repositories
             };
             return supplierDto;
         }
+
+        public async Task<Supplier?> DeleteSupplierAsync(int id)
+        {
+            var supplier = await _appDbContext.suppliers.FindAsync(id);
+            if (supplier == null)
+                return null;
+
+            _appDbContext.Remove(supplier);
+            await _appDbContext.SaveChangesAsync();
+            return supplier;
+        }
     }
 }

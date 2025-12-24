@@ -1,4 +1,5 @@
 ﻿using FactoriesGateSystem.DTOs;
+using FactoriesGateSystem.DTOs.EmployeeDTOs;
 using FactoriesGateSystem.DTOs.MaterialDTOs;
 using FactoriesGateSystem.DTOs.ProductDTOs;
 using FactoriesGateSystem.Repositories;
@@ -90,6 +91,30 @@ namespace FactoriesGateSystem.Controllers
             }
             catch (Exception)
             { return StatusCode(500, "Internal server error"); }
+        }
+
+        [HttpDelete("id")]
+        [ProducesResponseType(typeof(DeleteSupplierDTO), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> DeleteSupplier(int id)
+        {
+            if (id <= 0)
+                return BadRequest("Invalid supplier id.");
+            try
+            {
+                var supplier = await _supplierRepo.DeleteSupplierAsync(id);
+                if (supplier == null) { return NotFound($"No Supplier with id: {id}."); }
+
+                var supplierDto = new DeleteSupplierDTO()
+                {
+                    Id = id,
+                    Name = supplier.SupplierName,
+                };
+                return Ok(supplierDto);
+            }
+            catch (Exception) { return StatusCode(500, "Internal server error"); }
         }
     }
 } 
