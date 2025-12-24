@@ -13,7 +13,7 @@ namespace FactoriesGateSystem.Controllers
             _supplierRepo = supplierRepo;
         }
 
-        
+      
 
     }
 }
