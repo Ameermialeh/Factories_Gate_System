@@ -28,7 +28,7 @@ namespace FactoriesGateSystem
             builder.Services.AddScoped<ProductRepo>();
             builder.Services.AddScoped<MaterialRepo>();
             builder.Services.AddScoped<EmployeeRepo>();
-
+            builder.Services.AddScoped<SupplierRepo>();
 
             var app = builder.Build();
 
