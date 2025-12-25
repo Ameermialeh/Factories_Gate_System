@@ -27,13 +27,12 @@ Vacation | Employee leave | (1) Employee → (many) vacations
 Salary | Employee payroll | (1) Employee → (many) Monthly salary
 Expense | Tracks factory expenses | linked to Factory
 
-### Admin Capabilities
+### **UML Diagram**
+![alt text](https://github.com/Ameermialeh/Factories_Gate_System/blob/main/UML_Diagram/Factories_Managment_System_UML.jpg)
+
+### **Admin Capabilities**
 * Create factories
 * Assign manager to factory
 * View system statistics:
   - Total Factories
   - Total Managers
-
-### UML Diagram:
-![alt text](https://github.com/Ameermialeh/Factories_Gate_System/blob/main/UML_Diagram/Factories_Managment_System_UML.jpg)
-
