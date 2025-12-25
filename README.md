@@ -32,8 +32,8 @@ User | Authentication & roles | Linked to Admin / Manager
 * Create factories
 * Assign manager to factory
 * View system statistics:
- - Total Factories
- - Total Managers
+  - Total Factories
+  - Total Managers
 
 ### Relationships
 
