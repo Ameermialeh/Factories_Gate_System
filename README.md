@@ -28,6 +28,12 @@ Salary | Employee payroll | Linked to Employee
 Expense | Tracks factory expenses | linked to Factory
 User | Authentication & roles | Linked to Admin / Manager
 
+### Admin Capabilities
+* Create factories
+* Assign manager to factory
+* View system statistics:
+ - Total Factories
+ - Total Managers
 
-
+### Relationships
 
