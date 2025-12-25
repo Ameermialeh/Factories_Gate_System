@@ -35,5 +35,5 @@ Expense | Tracks factory expenses | linked to Factory
   - Total Managers
 
 ### UML Diagram:
-!(https://github.com/Ameermialeh/Factories_Gate_System/blob/main/UML_Diagram/Factories_Managment_System_UML.jpg)
+![alt text](https://github.com/Ameermialeh/Factories_Gate_System/blob/main/UML_Diagram/Factories_Managment_System_UML.jpg)
 
