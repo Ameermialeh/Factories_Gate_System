@@ -13,7 +13,7 @@ Entity | Description | Key Relationships |
 ---|---|---|
 Admin | Controls system, adds factories and managers, views stats | 1 Admin → Many Factories
 Factory | Represents a factory | 1 Factory → 1 Manager, 1 Factory → Many Employees / Products / Orders / Materials / Suppliers / Expense
-Manager | Manages a factory | 1 Manager → 1 Factory, manages Employees, Orders, Products
+Manager | Manages a factory | 1 Manager → 1 Factory, manages Employees, Orders, Products, Materials, Suppliers and Expense
 Employee | Works in factory | Belongs to Factory
 Customer | Places orders | 1 Customer → Many Orders
 Supplier | Supplies materials | Many-to-Many with Materials (via SupplierMaterial)
