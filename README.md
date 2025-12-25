@@ -36,3 +36,13 @@ Expense | Tracks factory expenses | linked to Factory
 * View system statistics:
   - Total Factories
   - Total Managers
+
+### **Manager Capabilities** (Add/Update/Delete)
+* Manage Employees
+* Manage Customers
+* Manage Products
+* Manage Orders
+* Manage Suppliers
+* Manage Materials
+* Manage vacations
+* Manage Expense
