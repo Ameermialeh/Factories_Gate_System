@@ -48,10 +48,9 @@ namespace FactoriesGateSystem.Controllers
                 var supplierDto = new SupplierDTO()
                 {
                     Id = id,
-                    Name = supplier.SupplierName,
+                    Name = supplier.Name,
                     Address = supplier.Address,
-                    Phone = supplier.SupplierPhone,
-                    CurrentBalance = supplier.CurrentBalance
+                    Phone = supplier.Phone,
                 };
                 return Ok(supplierDto);
             }
@@ -107,7 +106,7 @@ namespace FactoriesGateSystem.Controllers
                 var supplierDto = new DeleteSupplierDTO()
                 {
                     Id = id,
-                    Name = supplier.SupplierName,
+                    Name = supplier.Name,
                 };
                 return Ok(supplierDto);
             }

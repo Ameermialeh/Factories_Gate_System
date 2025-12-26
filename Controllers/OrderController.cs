@@ -53,10 +53,10 @@ namespace FactoriesGateSystem.Controllers
                 var dto = new OrderWithProductsDTO()
                 {
                     ID = order.OrderId,
-                    Name = order.OrderName,
-                    Description = order.OrderDescription,
+                    Name = order.Name,
                     OrderDate = order.OrderDate,
                     CustomerID = order.CustomerId,
+                    FactoryId = order.FactoryId,
                     Products = products,
                 };
 
@@ -76,9 +76,6 @@ namespace FactoriesGateSystem.Controllers
         {
             try
             {
-                var productAvailable = await _orderRepo.ChickIfAllProductsNotHideAsync(orderDto);
-                if (!productAvailable) { return NotFound("Product not found!"); }
-
                 var order =await _orderRepo.CreateOrderAsync(orderDto);
                 return Ok(order);
             }
@@ -122,9 +119,10 @@ namespace FactoriesGateSystem.Controllers
                 var orderdto = new OrderDTO()
                 {
                     ID = order.OrderId,
-                    Name = order.OrderName,
+                    Name = order.Name,
                     OrderDate = order.OrderDate,
-                    CustomerID = order.CustomerId
+                    CustomerID = order.CustomerId,
+                    FactoryId = order.FactoryId,
                 };
                 return Ok(orderdto);
             }

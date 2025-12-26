@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FactoriesGateSystem.Models
 {
@@ -7,18 +8,19 @@ namespace FactoriesGateSystem.Models
         [Key]
         public int ProductId { get; set; }
         [Required]
-        public required string ProductName { get; set; }
-
-        public string? ProductDescription { get; set; }
+        public required string Name { get; set; }
 
         [Required]
-        public int ProductQuantity { get; set; }
+        public int StockQuantity { get; set; }
 
         [Required]
-        public int ProductPrice { get; set; }
+        public int Price { get; set; }
 
-        public bool Hide { get; set; } = false;
+        public int FactoryId { get; set; }
 
-        public ICollection<OrderProduct>? OrderProducts { get; set; }
+        [ForeignKey(nameof(FactoryId))]
+        public Factory? Factory { get; set; }
+
+        public ICollection<OrderItem>? OrderProducts { get; set; }
     }
 }

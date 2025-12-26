@@ -53,10 +53,10 @@ namespace FactoriesGateSystem.Controllers
                 var productDto = new ProductDTO()
                 {
                     ID = product.ProductId,
-                    Name = product.ProductName,
-                    Description = product.ProductDescription,
-                    Price = product.ProductPrice,
-                    Quantity = product.ProductQuantity,
+                    Name = product.Name,
+                    Price = product.Price,
+                    Quantity = product.StockQuantity,
+                    FactoryId = product.FactoryId,
                 };
                 return Ok(productDto);
             }
@@ -126,7 +126,7 @@ namespace FactoriesGateSystem.Controllers
                 var productDto = new DeleteProductDTO()
                 {
                     ID = id,
-                    Name = product.ProductName,
+                    Name = product.Name,
                 };
                 return Ok(productDto);
             }

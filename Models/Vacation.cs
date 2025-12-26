@@ -10,7 +10,10 @@ namespace FactoriesGateSystem.Models
         [Required]
         public int EmployeeId { get; set; }
         [Required]
-        public DateTime VacationDate { get; set; }
+        public DateTime FromDate { get; set; }
+        [Required]
+        public DateTime ToDate { get; set; }
+
         [Required]
         public required string VacationReason { get; set; }
 

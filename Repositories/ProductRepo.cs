@@ -16,23 +16,23 @@ namespace FactoriesGateSystem.Repositories
 
         public async Task<List<ProductDTO>> GetProductsAsync(Expression<Func<Product,bool>>? filter = null)
         {
-            IQueryable<Product> query = _appDbContext.products.Where(p => !p.Hide);
+            IQueryable<Product> query = _appDbContext.products;
             if (filter != null)
                 query = query.Where(filter);
 
             return await query.Select(p => new ProductDTO()
             {
                 ID = p.ProductId,
-                Name = p.ProductName,
-                Description = p.ProductDescription,
-                Price = p.ProductPrice,
-                Quantity = p.ProductQuantity,
+                Name = p.Name,
+                Price = p.Price,
+                Quantity = p.StockQuantity,
+                FactoryId = p.FactoryId,
             }).ToListAsync();
         }
 
         public async Task<Product?> GetProductByIdAsync(int id)
         {
-            return await _appDbContext.products.FirstOrDefaultAsync(p => p.ProductId == id && !p.Hide);
+            return await _appDbContext.products.FirstOrDefaultAsync(p => p.ProductId == id);
         }
 
         public async Task<ProductDTO?> CreateProductAsync(ProductDTO productdto)
@@ -41,10 +41,9 @@ namespace FactoriesGateSystem.Repositories
             {
                 Product product = new Product()
                 {
-                    ProductName = productdto.Name!,
-                    ProductDescription = productdto.Description,
-                    ProductPrice = productdto.Price,
-                    ProductQuantity = productdto.Quantity,
+                    Name = productdto.Name!,
+                    Price = productdto.Price,
+                    StockQuantity = productdto.Quantity,
                 };
 
                 await _appDbContext.products.AddAsync(product);
@@ -65,10 +64,9 @@ namespace FactoriesGateSystem.Repositories
             if (existingproduct == null)
                 return null;
 
-            existingproduct.ProductName = productdto.Name!;
-            existingproduct.ProductDescription = productdto.Description;
-            existingproduct.ProductPrice = productdto.Price;
-            existingproduct.ProductQuantity = productdto.Quantity;
+            existingproduct.Name = productdto.Name!;
+            existingproduct.Price = productdto.Price;
+            existingproduct.StockQuantity = productdto.Quantity;
             await _appDbContext.SaveChangesAsync();
 
             return productdto;
@@ -79,15 +77,11 @@ namespace FactoriesGateSystem.Repositories
             var product = await _appDbContext.products.FindAsync(id);
             if(product == null) { return null; }
 
-            if(await _appDbContext.orderProducts.Where(op=> op.ProductId == product.ProductId).FirstOrDefaultAsync() == null)
-            {
-                _appDbContext.products.Remove(product);
-                await _appDbContext.SaveChangesAsync();
-                return product;
-            }
-            product.Hide = true;
+
+            _appDbContext.products.Remove(product);
             await _appDbContext.SaveChangesAsync();
             return product;
+    
         }
     }
 }

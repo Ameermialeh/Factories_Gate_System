@@ -3,10 +3,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FactoriesGateSystem.Models
 {
-    public class OrderProduct
+    public class OrderItem
     {
         [Key]
-        public int OrderProductId { get; set; }
+        public int OrderItemId { get; set; }
 
         [Required]
         public int OrderId  { get; set; }
@@ -20,5 +20,7 @@ namespace FactoriesGateSystem.Models
         public Product? product { get; set; }
         
         public int Quantity { get; set; }
+
+        public decimal Price { get; set; }
     }
 }

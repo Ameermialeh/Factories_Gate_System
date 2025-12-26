@@ -14,7 +14,7 @@ namespace FactoriesGateSystem.Models
         public int MaterialId { get; set; }
 
         [Range(0.01, 999999)]
-        public decimal Price { get; set; }
+        public decimal PricePerUnit { get; set; }
         public DateTime? Date { get; set; } = DateTime.UtcNow;
 
         [Required]

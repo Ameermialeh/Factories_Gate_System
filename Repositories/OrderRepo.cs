@@ -22,10 +22,10 @@ namespace FactoriesGateSystem.Repositories
             return await query.Select(o => new OrderDTO()
             {
                 ID = o.OrderId,
-                Name = o.OrderName,
-                Description = o.OrderDescription,
+                Name = o.Name,
                 OrderDate = o.OrderDate,
-                CustomerID = o.CustomerId
+                CustomerID = o.CustomerId,
+                FactoryId = o.FactoryId,
             }).ToListAsync();
         }
 
@@ -35,7 +35,7 @@ namespace FactoriesGateSystem.Repositories
 
         public async Task<List<OrderProductsDTO>> GetProductsForOrderAsync(int orderID)
         {
-            var products =await _appDbContext.orderProducts.Where(op=> op.OrderId == orderID).Select(op => new OrderProductsDTO
+            var products =await _appDbContext.OrderItem.Where(op=> op.OrderId == orderID).Select(op => new OrderProductsDTO
             {
                 ProductID = op.ProductId,
                 ProductQuantity = op.Quantity
@@ -44,21 +44,14 @@ namespace FactoriesGateSystem.Repositories
             return products;
         }
 
-        public async Task<bool> ChickIfAllProductsNotHideAsync(OrderWithProductsDTO dto)
-        {
-            var productIds = dto.Products!.Select(p => p.ProductID).ToList();
-
-            return await _appDbContext.products.Where(p => productIds.Contains(p.ProductId)).AllAsync(p => !p.Hide);
-        }
-
         public async Task<OrderWithProductsDTO> CreateOrderAsync(OrderWithProductsDTO dto)
         {
             Order order = new Order()
             {
-                OrderName = dto.Name!,
+                Name = dto.Name!,
                 OrderDate = dto.OrderDate,
-                OrderDescription = dto.Description!,
-                CustomerId = dto.CustomerID
+                CustomerId = dto.CustomerID,
+                FactoryId = dto.FactoryId
             };
 
             await _appDbContext.orders.AddAsync(order);
@@ -66,14 +59,14 @@ namespace FactoriesGateSystem.Repositories
 
             foreach(var product in dto.Products!)
             {
-                var orderProduct = new OrderProduct()
+                var orderProduct = new OrderItem()
                 {
                     OrderId = order.OrderId,
                     ProductId = product.ProductID,
                     Quantity = product.ProductQuantity
                 };
 
-                await _appDbContext.orderProducts.AddAsync(orderProduct);
+                await _appDbContext.OrderItem.AddAsync(orderProduct);
             }
             await _appDbContext.SaveChangesAsync();
 
@@ -86,27 +79,26 @@ namespace FactoriesGateSystem.Repositories
             var order = await _appDbContext.orders.FindAsync(OrderWithProductsDto.ID);
             if (order == null) return null;
            
-            order.OrderName = OrderWithProductsDto.Name!;
+            order.Name = OrderWithProductsDto.Name!;
             order.OrderDate = OrderWithProductsDto.OrderDate;
-            order.OrderDescription = OrderWithProductsDto.Description!;
             order.CustomerId = OrderWithProductsDto.CustomerID;
             await _appDbContext.SaveChangesAsync();
 
-            var orderProducts =await _appDbContext.orderProducts.Where(op => op.OrderId == 2).ToListAsync();
+            var orderProducts =await _appDbContext.OrderItem.Where(op => op.OrderId == 2).ToListAsync();
 
-            _appDbContext.orderProducts.RemoveRange(orderProducts);
+            _appDbContext.OrderItem.RemoveRange(orderProducts);
             await _appDbContext.SaveChangesAsync();
 
             foreach (var product in OrderWithProductsDto.Products!)
             {
-                var orderProduct = new OrderProduct()
+                var orderProduct = new OrderItem()
                 {
                     OrderId = order.OrderId,
                     ProductId = product.ProductID,
                     Quantity = product.ProductQuantity
                 };
 
-                await _appDbContext.orderProducts.AddAsync(orderProduct);
+                await _appDbContext.OrderItem.AddAsync(orderProduct);
             }
             await _appDbContext.SaveChangesAsync();
 

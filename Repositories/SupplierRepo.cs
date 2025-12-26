@@ -24,10 +24,9 @@ namespace FactoriesGateSystem.Repositories
             return await supplier.Select(s => new SupplierDTO()
             {
                 Id = s.SupplierId,
-                Name = s.SupplierName,
+                Name = s.Name,
                 Address = s.Address,
-                CurrentBalance = s.CurrentBalance,
-                Phone = s.SupplierPhone,
+                Phone = s.Phone,
             }).ToListAsync();
         }
 
@@ -40,10 +39,9 @@ namespace FactoriesGateSystem.Repositories
         {
             var supplier = new Supplier()
             {
-                SupplierName= supplierDto.Name,
-                Address= supplierDto.Address,
-                SupplierPhone = supplierDto.Phone,
-                CurrentBalance = supplierDto.CurrentBalance,
+                Name= supplierDto.Name,
+                Address= supplierDto.Address!,
+                Phone = supplierDto.Phone!,
             };
 
             await _appDbContext.suppliers.AddAsync(supplier);
@@ -58,10 +56,9 @@ namespace FactoriesGateSystem.Repositories
             if (supplier == null)
                 return null;
 
-            supplier.SupplierName = UpdateSupplierDto.Name;
-            supplier.SupplierPhone = UpdateSupplierDto.Phone;
-            supplier.Address = UpdateSupplierDto.Address;
-            supplier.CurrentBalance = UpdateSupplierDto.CurrentBalance;
+            supplier.Name = UpdateSupplierDto.Name;
+            supplier.Phone = UpdateSupplierDto.Phone!;
+            supplier.Address = UpdateSupplierDto.Address!;
 
             await _appDbContext.SaveChangesAsync();
 
@@ -70,7 +67,6 @@ namespace FactoriesGateSystem.Repositories
                 Id = id,
                 Name = UpdateSupplierDto.Name,
                 Address = UpdateSupplierDto.Address,
-                CurrentBalance= UpdateSupplierDto.CurrentBalance,
                 Phone = UpdateSupplierDto.Phone
             };
             return supplierDto;

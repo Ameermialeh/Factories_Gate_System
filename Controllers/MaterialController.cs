@@ -51,7 +51,8 @@ namespace FactoriesGateSystem.Controllers
                 var materialdto = new MaterialDTO()
                 {
                     ID = material.MaterialId,
-                    Name = material.MaterialName,
+                    Name = material.Name,
+                    Unit = material.Unit,
                 };
                 return Ok(materialdto);
             }
@@ -65,16 +66,17 @@ namespace FactoriesGateSystem.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> CreateMaterial([FromBody] CreateMaterialDTO dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.Name))
+            if (string.IsNullOrWhiteSpace(dto.Name) || string.IsNullOrWhiteSpace(dto.Unit))
                 return BadRequest("Material name is required.");
             try
             {
-                var material = await _materialRepo.CreateMaterialAsync(dto.Name);
+                var material = await _materialRepo.CreateMaterialAsync(dto);
 
                 var materialDto = new MaterialDTO()
                 {
                     ID = material.MaterialId,
-                    Name = material.MaterialName,
+                    Name = material.Name,
+                    Unit = material.Unit,
                 };
                 return Ok(materialDto);
             }
@@ -88,17 +90,18 @@ namespace FactoriesGateSystem.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> UpdateMaterial(int id,[FromBody] CreateMaterialDTO dto)
         {
-            if (id <= 0 || string.IsNullOrWhiteSpace(dto.Name))
+            if (id <= 0 || string.IsNullOrWhiteSpace(dto.Name) || string.IsNullOrWhiteSpace(dto.Unit))
                 return BadRequest("Invalid material data.");
             try
             {
-                var material = await _materialRepo.UpdateMaterialAsync(id, dto.Name);
+                var material = await _materialRepo.UpdateMaterialAsync(id, dto);
                 if (material == null) return NotFound($"Material with id {id} not found.");
 
                 var materialDto = new MaterialDTO()
                 {
                     ID = material.MaterialId,
-                    Name = material.MaterialName,
+                    Name = material.Name,
+                    Unit = material.Unit,
                 };
                 return Ok(materialDto);
             }
@@ -125,7 +128,8 @@ namespace FactoriesGateSystem.Controllers
                 var materialDto = new MaterialDTO()
                 {
                     ID = material.MaterialId,
-                    Name = material.MaterialName,
+                    Name = material.Name,
+                    Unit = material.Unit,
                 };
                 return Ok(materialDto);
             }

@@ -19,6 +19,33 @@ namespace FactoriesGateSystem.Migrations
                 .HasAnnotation("ProductVersion", "8.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
+            modelBuilder.Entity("FactoriesGateSystem.Models.Admin", b =>
+                {
+                    b.Property<int>("AdminId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("AdminId");
+
+                    b.ToTable("admins");
+                });
+
             modelBuilder.Entity("FactoriesGateSystem.Models.Customer", b =>
                 {
                     b.Property<int>("CustomerId")
@@ -64,18 +91,116 @@ namespace FactoriesGateSystem.Migrations
                     b.ToTable("employees");
                 });
 
+            modelBuilder.Entity("FactoriesGateSystem.Models.Expense", b =>
+                {
+                    b.Property<int>("ExpenseId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("FactoryId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ExpenseId");
+
+                    b.HasIndex("FactoryId");
+
+                    b.ToTable("expenses");
+                });
+
+            modelBuilder.Entity("FactoriesGateSystem.Models.Factory", b =>
+                {
+                    b.Property<int>("FactoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Address")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("ManagerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("FactoryId");
+
+                    b.HasIndex("ManagerId");
+
+                    b.ToTable("factory");
+                });
+
+            modelBuilder.Entity("FactoriesGateSystem.Models.Inventory", b =>
+                {
+                    b.Property<int>("InventoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("LastUpdated")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("MaterialId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("InventoryId");
+
+                    b.HasIndex("MaterialId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("inventories");
+                });
+
+            modelBuilder.Entity("FactoriesGateSystem.Models.Invoice", b =>
+                {
+                    b.Property<int>("InvoiceId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Total")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.HasKey("InvoiceId");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("invoices");
+                });
+
             modelBuilder.Entity("FactoriesGateSystem.Models.Manager", b =>
                 {
                     b.Property<int>("ManagerId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<string>("ManagerEmail")
+                    b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("varchar(150)");
 
-                    b.Property<string>("ManagerName")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
@@ -84,6 +209,9 @@ namespace FactoriesGateSystem.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)");
+
+                    b.Property<string>("Role")
+                        .HasColumnType("longtext");
 
                     b.HasKey("ManagerId");
 
@@ -96,14 +224,20 @@ namespace FactoriesGateSystem.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<bool>("Hide")
-                        .HasColumnType("tinyint(1)");
+                    b.Property<int>("FactoryId")
+                        .HasColumnType("int");
 
-                    b.Property<string>("MaterialName")
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Unit")
                         .IsRequired()
                         .HasColumnType("longtext");
 
                     b.HasKey("MaterialId");
+
+                    b.HasIndex("FactoryId");
 
                     b.ToTable("materials");
                 });
@@ -120,7 +254,7 @@ namespace FactoriesGateSystem.Migrations
                     b.Property<int>("MaterialId")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("Price")
+                    b.Property<decimal>("PricePerUnit")
                         .HasColumnType("decimal(65,30)");
 
                     b.Property<int>("Quantity")
@@ -147,32 +281,36 @@ namespace FactoriesGateSystem.Migrations
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
 
+                    b.Property<int>("FactoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime(6)");
-
-                    b.Property<string>("OrderDescription")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("OrderName")
-                        .IsRequired()
-                        .HasColumnType("longtext");
 
                     b.HasKey("OrderId");
 
                     b.HasIndex("CustomerId");
 
+                    b.HasIndex("FactoryId");
+
                     b.ToTable("orders");
                 });
 
-            modelBuilder.Entity("FactoriesGateSystem.Models.OrderProduct", b =>
+            modelBuilder.Entity("FactoriesGateSystem.Models.OrderItem", b =>
                 {
-                    b.Property<int>("OrderProductId")
+                    b.Property<int>("OrderItemId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(65,30)");
 
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
@@ -180,13 +318,13 @@ namespace FactoriesGateSystem.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.HasKey("OrderProductId");
+                    b.HasKey("OrderItemId");
 
                     b.HasIndex("OrderId");
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("orderProducts");
+                    b.ToTable("OrderItem");
                 });
 
             modelBuilder.Entity("FactoriesGateSystem.Models.Product", b =>
@@ -195,23 +333,22 @@ namespace FactoriesGateSystem.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<bool>("Hide")
-                        .HasColumnType("tinyint(1)");
+                    b.Property<int>("FactoryId")
+                        .HasColumnType("int");
 
-                    b.Property<string>("ProductDescription")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("ProductName")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int>("ProductPrice")
+                    b.Property<int>("Price")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProductQuantity")
+                    b.Property<int>("StockQuantity")
                         .HasColumnType("int");
 
                     b.HasKey("ProductId");
+
+                    b.HasIndex("FactoryId");
 
                     b.ToTable("products");
                 });
@@ -242,6 +379,34 @@ namespace FactoriesGateSystem.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
+            modelBuilder.Entity("FactoriesGateSystem.Models.Salary", b =>
+                {
+                    b.Property<int>("SalaryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("BaseSalary")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<decimal>("Bonus")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<decimal>("Deductions")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Month")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("SalaryId");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("salaries");
+                });
+
             modelBuilder.Entity("FactoriesGateSystem.Models.Supplier", b =>
                 {
                     b.Property<int>("SupplierId")
@@ -253,19 +418,21 @@ namespace FactoriesGateSystem.Migrations
                         .HasMaxLength(300)
                         .HasColumnType("varchar(300)");
 
-                    b.Property<int>("CurrentBalance")
+                    b.Property<int>("FactoryId")
                         .HasColumnType("int");
 
-                    b.Property<string>("SupplierName")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
-                    b.Property<string>("SupplierPhone")
+                    b.Property<string>("Phone")
                         .IsRequired()
                         .HasColumnType("longtext");
 
                     b.HasKey("SupplierId");
+
+                    b.HasIndex("FactoryId");
 
                     b.ToTable("suppliers");
                 });
@@ -279,7 +446,10 @@ namespace FactoriesGateSystem.Migrations
                     b.Property<int>("EmployeeId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("VacationDate")
+                    b.Property<DateTime>("FromDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("ToDate")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("VacationReason")
@@ -291,6 +461,69 @@ namespace FactoriesGateSystem.Migrations
                     b.HasIndex("EmployeeId");
 
                     b.ToTable("vacations");
+                });
+
+            modelBuilder.Entity("FactoriesGateSystem.Models.Expense", b =>
+                {
+                    b.HasOne("FactoriesGateSystem.Models.Factory", "Factory")
+                        .WithMany()
+                        .HasForeignKey("FactoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Factory");
+                });
+
+            modelBuilder.Entity("FactoriesGateSystem.Models.Factory", b =>
+                {
+                    b.HasOne("FactoriesGateSystem.Models.Manager", "Manager")
+                        .WithMany()
+                        .HasForeignKey("ManagerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Manager");
+                });
+
+            modelBuilder.Entity("FactoriesGateSystem.Models.Inventory", b =>
+                {
+                    b.HasOne("FactoriesGateSystem.Models.Material", "Material")
+                        .WithMany()
+                        .HasForeignKey("MaterialId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FactoriesGateSystem.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Material");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("FactoriesGateSystem.Models.Invoice", b =>
+                {
+                    b.HasOne("FactoriesGateSystem.Models.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("FactoriesGateSystem.Models.Material", b =>
+                {
+                    b.HasOne("FactoriesGateSystem.Models.Factory", "Factory")
+                        .WithMany()
+                        .HasForeignKey("FactoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Factory");
                 });
 
             modelBuilder.Entity("FactoriesGateSystem.Models.MaterialPurchase", b =>
@@ -320,10 +553,18 @@ namespace FactoriesGateSystem.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("FactoriesGateSystem.Models.Factory", "Factory")
+                        .WithMany()
+                        .HasForeignKey("FactoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Customer");
+
+                    b.Navigation("Factory");
                 });
 
-            modelBuilder.Entity("FactoriesGateSystem.Models.OrderProduct", b =>
+            modelBuilder.Entity("FactoriesGateSystem.Models.OrderItem", b =>
                 {
                     b.HasOne("FactoriesGateSystem.Models.Order", "order")
                         .WithMany("OrderProducts")
@@ -342,6 +583,17 @@ namespace FactoriesGateSystem.Migrations
                     b.Navigation("product");
                 });
 
+            modelBuilder.Entity("FactoriesGateSystem.Models.Product", b =>
+                {
+                    b.HasOne("FactoriesGateSystem.Models.Factory", "Factory")
+                        .WithMany()
+                        .HasForeignKey("FactoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Factory");
+                });
+
             modelBuilder.Entity("FactoriesGateSystem.Models.RefreshToken", b =>
                 {
                     b.HasOne("FactoriesGateSystem.Models.Manager", "Manager")
@@ -351,6 +603,28 @@ namespace FactoriesGateSystem.Migrations
                         .IsRequired();
 
                     b.Navigation("Manager");
+                });
+
+            modelBuilder.Entity("FactoriesGateSystem.Models.Salary", b =>
+                {
+                    b.HasOne("FactoriesGateSystem.Models.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("FactoriesGateSystem.Models.Supplier", b =>
+                {
+                    b.HasOne("FactoriesGateSystem.Models.Factory", "Factory")
+                        .WithMany()
+                        .HasForeignKey("FactoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Factory");
                 });
 
             modelBuilder.Entity("FactoriesGateSystem.Models.Vacation", b =>

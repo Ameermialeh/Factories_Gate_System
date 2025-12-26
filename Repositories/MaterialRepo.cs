@@ -16,26 +16,28 @@ namespace FactoriesGateSystem.Repositories
 
         public async Task<List<MaterialDTO>> GetMaterialAsync(Expression< Func<Material, bool>>? filter = null)
         {
-            IQueryable<Material> query = _appDbContext.materials.Where(m=> !m.Hide);
+            IQueryable<Material> query = _appDbContext.materials;
             if (filter != null) 
                 query = query.Where(filter);
             return await query.Select(m => new MaterialDTO()
             {
                 ID = m.MaterialId,
-                Name = m.MaterialName,
+                Name = m.Name,
+                Unit = m.Unit,
             }).ToListAsync();
         }
 
         public async Task<Material?> GetMaterialByIdAsync(int id)
         {
-            return await _appDbContext.materials.FirstOrDefaultAsync(m => m.MaterialId == id && !m.Hide);
+            return await _appDbContext.materials.FirstOrDefaultAsync(m => m.MaterialId == id);
         }
 
-        public async Task<Material> CreateMaterialAsync(string name)
+        public async Task<Material> CreateMaterialAsync(CreateMaterialDTO dto)
         {
             var material = new Material()
             {
-                MaterialName = name
+                Name = dto.Name!,
+                Unit = dto.Unit!
             };
 
             await _appDbContext.materials.AddAsync(material);
@@ -44,12 +46,13 @@ namespace FactoriesGateSystem.Repositories
             return material;
         }
 
-        public async Task<Material?> UpdateMaterialAsync(int id, string name)
+        public async Task<Material?> UpdateMaterialAsync(int id, CreateMaterialDTO dto)
         {
             var material =await _appDbContext.materials.FindAsync(id);
             if (material == null) return null;
 
-            material.MaterialName = name;
+            material.Name = dto.Name!;
+            material.Unit = dto.Unit!;
             await _appDbContext.SaveChangesAsync();
 
             return material;
@@ -60,14 +63,7 @@ namespace FactoriesGateSystem.Repositories
             var material = await _appDbContext.materials.FindAsync(id);
             if (material == null) return null;
 
-            if (await _appDbContext.MaterialPurchase.Where(mp => mp.MaterialId == material.MaterialId).FirstOrDefaultAsync() == null)
-            {
-                _appDbContext.materials.Remove(material);
-                await _appDbContext.SaveChangesAsync();
-                return material;
-            }
-
-            material.Hide = true;
+            _appDbContext.materials.Remove(material);
             await _appDbContext.SaveChangesAsync();
             return material;
         }

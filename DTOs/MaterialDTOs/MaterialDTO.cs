@@ -6,5 +6,7 @@ namespace FactoriesGateSystem.DTOs.MaterialDTOs
     {
         public int ID { get; set; }
         public string? Name { get; set; }
+
+        public string? Unit { get; set; }
     }
 }
