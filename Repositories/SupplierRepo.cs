@@ -1,4 +1,4 @@
-﻿using FactoriesGateSystem.DTOs;
+﻿using FactoriesGateSystem.DTOs.SupplierDTOs;
 using FactoriesGateSystem.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;

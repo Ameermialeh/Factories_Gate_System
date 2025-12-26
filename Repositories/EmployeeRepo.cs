@@ -23,8 +23,8 @@ namespace FactoriesGateSystem.Repositories
             return await query.Select(e=>new EmployeeDTO
             {
                 Id = e.EmployeeId,
-                Name = e.EmployeeName,
-                Salary = e.EmployeeSalary
+                Name = e.Name,
+                Phone = e.Phone,
             }).ToListAsync();
         }
        
@@ -38,8 +38,8 @@ namespace FactoriesGateSystem.Repositories
        {
             var employee = new Employee()
             {
-                EmployeeName = employeeDto.Name!,
-                EmployeeSalary = employeeDto.Salary,
+                Name = employeeDto.Name!,
+                Phone = employeeDto.Phone!
             };
             await _appDbContext.employees.AddAsync(employee);
             await _appDbContext.SaveChangesAsync();
@@ -53,15 +53,14 @@ namespace FactoriesGateSystem.Repositories
             if (employee == null)
                 return null;
 
-            employee.EmployeeName = dto.Name!;
-            employee.EmployeeSalary = dto.Salary;
-
+            employee.Name = dto.Name!;
+            employee.Phone = dto.Phone!;
             await _appDbContext.SaveChangesAsync();
             var employeeDto = new EmployeeDTO()
             {
                 Id = id,
                 Name = dto.Name,
-                Salary = dto.Salary,
+                Phone = dto.Phone,
             };
             return employeeDto;
         }

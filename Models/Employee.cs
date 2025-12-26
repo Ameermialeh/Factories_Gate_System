@@ -8,13 +8,11 @@ namespace FactoriesGateSystem.Models
         [Key]
         public int EmployeeId { get; set; }
         [Required, StringLength(100)]
-        public required string EmployeeName { get; set; }
+        public required string Name { get; set; }
 
         [Required]
-        public int EmployeeSalary { get; set; }
+        public required string Phone { get; set; }
 
-        public UserType access() => UserType.Employee;
-       
         public ICollection<Vacation>? Vacations { get; set; }
     }
 }

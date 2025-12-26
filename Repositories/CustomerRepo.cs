@@ -25,10 +25,9 @@ namespace FactoriesGateSystem.Repositories
             return await query.Select(c => new CustomerDTO
             {
                 ID = c.CustomerId,
-                Name = c.CustomerName,
+                Name = c.Name,
                 Address = c.Address,
-                Phone = c.PhoneNumber,
-                CurrentBalance = c.CurrentBalance,
+                Phone = c.Phone,
             }).ToListAsync();
         }
 
@@ -42,10 +41,9 @@ namespace FactoriesGateSystem.Repositories
            
             var customer = new Customer()
             {
-                CustomerName = customerdto.Name!,
+                Name = customerdto.Name!,
                 Address = customerdto.Address!,
-                PhoneNumber = customerdto.Phone!,
-                CurrentBalance = customerdto.CurrentBalance,
+                Phone = customerdto.Phone!,
             };
 
             await _appDbContext.customer.AddAsync(customer);
@@ -62,10 +60,9 @@ namespace FactoriesGateSystem.Repositories
                 return null;
 
 
-            existing.CustomerName = customer.Name!;
-            existing.PhoneNumber = customer.Phone!;
+            existing.Name = customer.Name!;
+            existing.Phone = customer.Phone!;
             existing.Address = customer.Address!;
-            existing.CurrentBalance = customer.CurrentBalance;
 
             await _appDbContext.SaveChangesAsync();
 

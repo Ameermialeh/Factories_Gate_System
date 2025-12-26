@@ -53,10 +53,9 @@ namespace FactoriesGateSystem.Controllers
                 var customerDto = new CustomerDTO()
                 {
                     ID = customer.CustomerId,
-                    Name = customer.CustomerName,
+                    Name = customer.Name,
                     Address = customer.Address,
-                    Phone = customer.PhoneNumber,
-                    CurrentBalance = customer.CurrentBalance,
+                    Phone = customer.Phone,
                 };
                 return Ok(customerDto);
             }
@@ -124,7 +123,7 @@ namespace FactoriesGateSystem.Controllers
                 var customerDto = new DeleteCustomerDTO()
                 {
                     ID = customer.CustomerId,
-                    Name = customer.CustomerName,
+                    Name = customer.Name,
                 };
                 return Ok(customerDto);
             }

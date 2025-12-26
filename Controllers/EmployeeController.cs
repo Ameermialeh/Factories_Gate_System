@@ -50,8 +50,7 @@ namespace FactoriesGateSystem.Controllers
                 var employeeDto = new EmployeeDTO()
                 {
                     Id = employee.EmployeeId,
-                    Name = employee.EmployeeName,
-                    Salary = employee.EmployeeSalary
+                    Name = employee.Name,
                 };
                 return Ok(employeeDto);
             }
@@ -114,8 +113,8 @@ namespace FactoriesGateSystem.Controllers
                 var employeeDto = new EmployeeDTO()
                 {
                     Id = id,
-                    Name = employee.EmployeeName,
-                    Salary = employee.EmployeeSalary,
+                    Name = employee.Name,  
+                    Phone = employee.Phone,
                 };
                 return Ok(employeeDto);
             }

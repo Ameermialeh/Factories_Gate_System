@@ -1,7 +1,4 @@
-﻿using FactoriesGateSystem.DTOs;
-using FactoriesGateSystem.DTOs.EmployeeDTOs;
-using FactoriesGateSystem.DTOs.MaterialDTOs;
-using FactoriesGateSystem.DTOs.ProductDTOs;
+﻿using FactoriesGateSystem.DTOs.SupplierDTOs;
 using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Mvc;
 

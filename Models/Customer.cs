@@ -8,19 +8,14 @@ namespace FactoriesGateSystem.Models
         [Key]
         public int CustomerId { get; set; }
         [Required, StringLength(100)]
-        public required string CustomerName { get; set; }
+        public required string Name { get; set; }
 
         [Required, StringLength(300)]
         public required string Address { get; set; }
 
         [Required]
-        public required string PhoneNumber { get; set; }
-
-        public int CurrentBalance { get; set; } = 0;
-
-        public UserType access() => UserType.Customer;
+        public required string Phone { get; set; }
          
-
         public ICollection<Order>? Orders { get; set; }
     }
 }

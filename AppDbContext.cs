@@ -19,8 +19,7 @@ namespace FactoriesGateSystem
         public DbSet<Manager> manager { get; set; }
         public DbSet<OrderProduct> orderProducts { get; set; }  
         public DbSet<MaterialPurchase> MaterialPurchase { get; set; }
-
-
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
 
     }
 }
