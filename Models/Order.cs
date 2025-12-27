@@ -20,6 +20,6 @@ namespace FactoriesGateSystem.Models
         [ForeignKey(nameof(FactoryId))]
         public Factory? Factory { get; set; }
 
-        public ICollection<OrderItem>? OrderProducts { get; set; }
+        public ICollection<OrderItem>? OrderItem { get; set; }
     }
 }
