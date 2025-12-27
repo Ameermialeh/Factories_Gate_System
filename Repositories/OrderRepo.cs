@@ -33,9 +33,9 @@ namespace FactoriesGateSystem.Repositories
             return await _appDbContext.orders.FirstOrDefaultAsync(o => o.OrderId == id);
         }
 
-        public async Task<List<OrderProductsDTO>> GetProductsForOrderAsync(int orderID)
+        public async Task<List<OrderItemDTO>> GetProductsForOrderAsync(int orderID)
         {
-            var products =await _appDbContext.OrderItem.Where(op=> op.OrderId == orderID).Select(op => new OrderProductsDTO
+            var products =await _appDbContext.OrderItem.Where(op=> op.OrderId == orderID).Select(op => new OrderItemDTO
             {
                 ProductID = op.ProductId,
                 ProductQuantity = op.Quantity

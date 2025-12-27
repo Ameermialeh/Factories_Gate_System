@@ -11,6 +11,6 @@
         public int CustomerID { get; set; }
 
         public int FactoryId { get; set; }
-        public ICollection<OrderProductsDTO>? Products { get; set; }
+        public ICollection<OrderItemDTO>? Products { get; set; }
     }
 }
