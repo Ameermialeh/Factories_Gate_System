@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FactoriesGateSystem")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+55eee2b4d38bf62f87fe4ef481b88ae16bb51013")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ae15e5721347154106a39a03d8791cb5f3a4f9c3")]
 [assembly: System.Reflection.AssemblyProductAttribute("FactoriesGateSystem")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FactoriesGateSystem")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

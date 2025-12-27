@@ -19,33 +19,6 @@ namespace FactoriesGateSystem.Migrations
                 .HasAnnotation("ProductVersion", "8.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            modelBuilder.Entity("FactoriesGateSystem.Models.Admin", b =>
-                {
-                    b.Property<int>("AdminId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("AdminId");
-
-                    b.ToTable("admins");
-                });
-
             modelBuilder.Entity("FactoriesGateSystem.Models.Customer", b =>
                 {
                     b.Property<int>("CustomerId")
@@ -131,16 +104,16 @@ namespace FactoriesGateSystem.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("longtext");
 
-                    b.Property<int>("ManagerId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("FactoryId");
 
-                    b.HasIndex("ManagerId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("factory");
                 });
@@ -192,35 +165,6 @@ namespace FactoriesGateSystem.Migrations
                     b.HasIndex("OrderId");
 
                     b.ToTable("invoices");
-                });
-
-            modelBuilder.Entity("FactoriesGateSystem.Models.Manager", b =>
-                {
-                    b.Property<int>("ManagerId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("varchar(150)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)");
-
-                    b.Property<string>("Role")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("ManagerId");
-
-                    b.ToTable("manager");
                 });
 
             modelBuilder.Entity("FactoriesGateSystem.Models.Material", b =>
@@ -370,18 +314,18 @@ namespace FactoriesGateSystem.Migrations
                     b.Property<bool>("IsRevoked")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<int>("ManagerId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Token")
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("ManagerId");
+                    b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("refreshtokens");
                 });
 
             modelBuilder.Entity("FactoriesGateSystem.Models.Salary", b =>
@@ -442,6 +386,36 @@ namespace FactoriesGateSystem.Migrations
                     b.ToTable("suppliers");
                 });
 
+            modelBuilder.Entity("FactoriesGateSystem.Models.User", b =>
+                {
+                    b.Property<int>("UserId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("users");
+                });
+
             modelBuilder.Entity("FactoriesGateSystem.Models.Vacation", b =>
                 {
                     b.Property<int>("VacationId")
@@ -492,13 +466,13 @@ namespace FactoriesGateSystem.Migrations
 
             modelBuilder.Entity("FactoriesGateSystem.Models.Factory", b =>
                 {
-                    b.HasOne("FactoriesGateSystem.Models.Manager", "Manager")
+                    b.HasOne("FactoriesGateSystem.Models.User", "User")
                         .WithMany()
-                        .HasForeignKey("ManagerId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Manager");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("FactoriesGateSystem.Models.Inventory", b =>
@@ -612,13 +586,13 @@ namespace FactoriesGateSystem.Migrations
 
             modelBuilder.Entity("FactoriesGateSystem.Models.RefreshToken", b =>
                 {
-                    b.HasOne("FactoriesGateSystem.Models.Manager", "Manager")
+                    b.HasOne("FactoriesGateSystem.Models.User", "User")
                         .WithMany("RefreshTokens")
-                        .HasForeignKey("ManagerId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Manager");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("FactoriesGateSystem.Models.Salary", b =>
@@ -664,11 +638,6 @@ namespace FactoriesGateSystem.Migrations
                     b.Navigation("Vacations");
                 });
 
-            modelBuilder.Entity("FactoriesGateSystem.Models.Manager", b =>
-                {
-                    b.Navigation("RefreshTokens");
-                });
-
             modelBuilder.Entity("FactoriesGateSystem.Models.Material", b =>
                 {
                     b.Navigation("MaterialPurchase");
@@ -687,6 +656,11 @@ namespace FactoriesGateSystem.Migrations
             modelBuilder.Entity("FactoriesGateSystem.Models.Supplier", b =>
                 {
                     b.Navigation("MaterialPurchase");
+                });
+
+            modelBuilder.Entity("FactoriesGateSystem.Models.User", b =>
+                {
+                    b.Navigation("RefreshTokens");
                 });
 #pragma warning restore 612, 618
         }

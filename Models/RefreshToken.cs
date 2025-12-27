@@ -14,9 +14,9 @@ namespace FactoriesGateSystem.Models
 
         public bool IsRevoked { get; set; }
 
-        public int ManagerId { get; set; }
+        public int UserId { get; set; }
 
-        [ForeignKey(nameof(ManagerId))]
-        public Manager Manager { get; set; }
+        [ForeignKey(nameof(UserId))]
+        public User? User { get; set; }
     }
 }
