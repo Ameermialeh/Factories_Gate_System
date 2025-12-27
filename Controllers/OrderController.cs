@@ -1,13 +1,13 @@
-﻿using FactoriesGateSystem.DTOs.MaterialDTOs;
-using FactoriesGateSystem.DTOs.OrderDTOs;
-using FactoriesGateSystem.Models;
+﻿using FactoriesGateSystem.DTOs.OrderDTOs;
 using FactoriesGateSystem.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FactoriesGateSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class OrderController : Controller
     {
         private readonly OrderRepo _orderRepo;

@@ -1,6 +1,6 @@
-﻿using FactoriesGateSystem.DTOs.EmployeeDTOs;
-using FactoriesGateSystem.DTOs.MaterialDTOs;
+﻿using FactoriesGateSystem.DTOs.MaterialDTOs;
 using FactoriesGateSystem.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Xml.Linq;
 
@@ -8,6 +8,7 @@ namespace FactoriesGateSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class MaterialController : Controller
     {
         private readonly MaterialRepo _materialRepo;

@@ -1,4 +1,7 @@
-﻿using System.Security.Claims;
+﻿using FactoriesGateSystem.Models;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 
 namespace FactoriesGateSystem.Helpers
@@ -12,13 +15,13 @@ namespace FactoriesGateSystem.Helpers
             this.config = config;
         }
 
-        /*public string GenerateAccessToken(User user)
+        public string GenerateAccessToken(User user)
         {
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Name , user.FullName),
+                new Claim(ClaimTypes.Name , user.Name),
                 new Claim(ClaimTypes.Role, user.Role)
             };
 
@@ -38,6 +41,15 @@ namespace FactoriesGateSystem.Helpers
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
-        }*/
+        }
+        public RefreshToken GenerateRefreshToken()
+        {
+            return new RefreshToken
+            {
+                Token = Guid.NewGuid().ToString(),
+                ExpiresAt = DateTime.UtcNow.AddDays(7),
+                IsRevoked = false
+            };
+        }
     }
 }

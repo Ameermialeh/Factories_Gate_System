@@ -1,13 +1,13 @@
-﻿using FactoriesGateSystem.DTOs;
-using FactoriesGateSystem.DTOs.CustomerDTOs;
-using FactoriesGateSystem.Models;
+﻿using FactoriesGateSystem.DTOs.CustomerDTOs;
 using FactoriesGateSystem.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FactoriesGateSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CustomerController : Controller
     {
         private readonly CustomerRepo _customerRepo;

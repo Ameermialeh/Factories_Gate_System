@@ -1,11 +1,13 @@
 ﻿using FactoriesGateSystem.DTOs.SupplierDTOs;
 using FactoriesGateSystem.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FactoriesGateSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class SupplierController : Controller
     {
        private readonly SupplierRepo _supplierRepo;

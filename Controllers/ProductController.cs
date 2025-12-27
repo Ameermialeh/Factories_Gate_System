@@ -1,13 +1,13 @@
-﻿using FactoriesGateSystem.DTOs.MaterialDTOs;
-using FactoriesGateSystem.DTOs.ProductDTOs;
-using FactoriesGateSystem.Models;
+﻿using FactoriesGateSystem.DTOs.ProductDTOs;
 using FactoriesGateSystem.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FactoriesGateSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ProductController : Controller
     {
         private readonly ProductRepo _productRepo;

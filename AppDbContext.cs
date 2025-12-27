@@ -33,7 +33,7 @@ namespace FactoriesGateSystem
         {
             if (users.FirstOrDefault(u=>u.Role == "admin") == null)
             {
-                users.Add(new User { Name = "Ameer", Email = "ameerinad@hotmail.com", PasswordHash = "hashedPassword1", Role = "admin" });
+                users.Add(new User { Name = "Ameer", Email = "ameerinad@hotmail.com", PasswordHash = "m/pFFQcdUck9f2gcAKAChHLgrd07gTxeeqB8KpqfG74=", Role = "admin" }); //pass = ameer123
                 SaveChanges();
             }
         }

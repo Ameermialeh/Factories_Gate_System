@@ -16,6 +16,8 @@ namespace FactoriesGateSystem.Models
         [StringLength(200)]
         public required string PasswordHash { get; set; }
 
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
         public string Role { get; set; } = "manager";
 
         public List<RefreshToken> RefreshTokens { get; set; }
