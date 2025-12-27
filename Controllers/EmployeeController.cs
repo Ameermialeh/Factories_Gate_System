@@ -7,7 +7,7 @@ namespace FactoriesGateSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = "manager")]
     public class EmployeeController : Controller
     {
         private readonly EmployeeRepo _employeeRepo;

@@ -4,6 +4,7 @@ using FactoriesGateSystem.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 
 namespace FactoriesGateSystem
 {
@@ -54,7 +55,7 @@ namespace FactoriesGateSystem
                     ValidateAudience = false,
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ClockSkew = TimeSpan.Zero
+                    ClockSkew = TimeSpan.Zero,
                 };
             });
 

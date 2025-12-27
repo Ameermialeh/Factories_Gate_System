@@ -7,7 +7,7 @@ namespace FactoriesGateSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = "manager")]
     public class OrderController : Controller
     {
         private readonly OrderRepo _orderRepo;

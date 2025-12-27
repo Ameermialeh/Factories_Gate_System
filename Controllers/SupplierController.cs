@@ -7,7 +7,7 @@ namespace FactoriesGateSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = "manager")]
     public class SupplierController : Controller
     {
        private readonly SupplierRepo _supplierRepo;
@@ -32,7 +32,7 @@ namespace FactoriesGateSystem.Controllers
             catch (Exception) { return StatusCode(500, "Internal server error."); }
         }
 
-        [HttpGet("id")]
+        [HttpGet("{id}")]
         [ProducesResponseType(typeof(SupplierDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -72,7 +72,7 @@ namespace FactoriesGateSystem.Controllers
             catch (Exception) { return StatusCode(500, "Internal server error."); }
         }
 
-        [HttpPut("id")]
+        [HttpPut("{id}")]
         [ProducesResponseType(typeof(SupplierDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -91,7 +91,7 @@ namespace FactoriesGateSystem.Controllers
             { return StatusCode(500, "Internal server error"); }
         }
 
-        [HttpDelete("id")]
+        [HttpDelete("{id}")]
         [ProducesResponseType(typeof(DeleteSupplierDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
