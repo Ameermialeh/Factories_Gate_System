@@ -33,6 +33,24 @@ namespace FactoriesGateSystem.Controllers
             catch (Exception){ return StatusCode(500, "Internal Server Error"); }
         }
 
+        [HttpGet("GetFactoryById/{id}")]
+        [ProducesResponseType(typeof(FactoryDTO), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> GetFactoryById(int id)
+        {
+            if (id <= 0)
+                return BadRequest("Invalid Factory id.");
+            try
+            {
+                var factory = await _adminRepo.GetFactoryByIdAsync(id);
+                if (factory == null) { return NotFound($"No Factory with id = {id}."); }
+                return Ok(factory);
+            }
+            catch (Exception) { return StatusCode(500, "Internal Server Error"); }
+        }
+
         [HttpGet("GetAllManagers")]
         [ProducesResponseType(typeof(ManagerDTO), 200)]
         [ProducesResponseType(404)]
@@ -47,5 +65,9 @@ namespace FactoriesGateSystem.Controllers
             }
             catch (Exception) { return StatusCode(500, "Internal Server Error"); }
         }
+
+
     }
+
+
 }

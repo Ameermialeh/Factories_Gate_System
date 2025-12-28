@@ -38,5 +38,18 @@ namespace FactoriesGateSystem.Repositories
                 CreatedAt = m.CreatedAt,
             }).ToListAsync();
         }
+
+        public async Task<FactoryDTO?> GetFactoryByIdAsync(int id)
+        {
+            var factory = await _appDbContext.factory.FindAsync(id);
+            if (factory == null) { return null; }
+
+            return new FactoryDTO
+            {
+                Id = factory.FactoryId,
+                Name = factory.Name,
+                Address = factory.Address,
+            };
+        }
     }
 }
