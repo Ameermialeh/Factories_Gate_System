@@ -35,7 +35,7 @@ namespace FactoriesGateSystem
             builder.Services.AddScoped<AuthRepo>();
             builder.Services.AddScoped<PasswordHasher>();
             builder.Services.AddScoped<JwtHelper>();
-
+            builder.Services.AddScoped<AdminRepo>();
 
             // JWT settings
             var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
