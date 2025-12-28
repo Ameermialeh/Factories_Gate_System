@@ -38,7 +38,7 @@ namespace FactoriesGateSystem
             builder.Services.AddScoped<AdminRepo>();
 
             // JWT settings
-            var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
+            var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]!);
 
             builder.Services.AddAuthentication(options =>
             {

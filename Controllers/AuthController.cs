@@ -25,6 +25,12 @@ namespace FactoriesGateSystem.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDTO dto)
         {
+            if (string.IsNullOrWhiteSpace(dto.Email) ||
+                string.IsNullOrWhiteSpace(dto.Password) ||
+                string.IsNullOrWhiteSpace(dto.Name)||
+                string.IsNullOrWhiteSpace(dto.FactoryName) ||
+                string.IsNullOrWhiteSpace(dto.Address))
+                    return BadRequest("Invalid data.");
             try
             {
                 var passwordHash = _passwordHasher.Hash(dto.Password);
@@ -54,10 +60,10 @@ namespace FactoriesGateSystem.Controllers
         {
             var user = await _authRepo.LoginAsync(dto);
             if (user == null)
-                return Unauthorized();
+                return NotFound("User Not Found");
 
-            if (!_passwordHasher.Verify(dto.Password, user.PasswordHash))
-                return Unauthorized();
+            if (!_passwordHasher.Verify(dto.Password!, user.PasswordHash))
+                return BadRequest("Password is incorrect");
 
             var accessToken = _jwtHelper.GenerateAccessToken(user);
             var refreshToken = _jwtHelper.GenerateRefreshToken();
@@ -76,11 +82,11 @@ namespace FactoriesGateSystem.Controllers
         public async Task<IActionResult> Refresh(RefreshTokenDTO dto)
         {
 
-            var user = await _authRepo.GetUserByRefreshTokenAsync(dto.RefreshToken);
+            var user = await _authRepo.GetUserByRefreshTokenAsync(dto.RefreshToken!);
             if (user == null)
                 return Unauthorized();
 
-            await _authRepo.RevokeRefreshTokenAsync(dto.RefreshToken);
+            await _authRepo.RevokeRefreshTokenAsync(dto.RefreshToken!);
 
             var accessToken = _jwtHelper.GenerateAccessToken(user);
             var newRefreshToken = _jwtHelper.GenerateRefreshToken();

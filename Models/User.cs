@@ -20,7 +20,7 @@ namespace FactoriesGateSystem.Models
 
         public string Role { get; set; } = "manager";
 
-        public List<RefreshToken> RefreshTokens { get; set; }
+        public List<RefreshToken>? RefreshTokens { get; set; }
 
     }
 }

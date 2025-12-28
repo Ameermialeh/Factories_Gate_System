@@ -22,8 +22,8 @@ namespace FactoriesGateSystem.Repositories
         {
             var user = new User
             {
-                Name = dto.Name,
-                Email = dto.Email,
+                Name = dto.Name!,
+                Email = dto.Email!,
                 PasswordHash = passwordHash,
                 Role = "manager",
                 CreatedAt = DateTime.UtcNow.Date,
@@ -34,7 +34,7 @@ namespace FactoriesGateSystem.Repositories
 
             var factory = new Factory
             {
-                Name = dto.FactoryName,
+                Name = dto.FactoryName!,
                 Address = dto.Address,
                 UserId = user.UserId
             };
@@ -46,12 +46,7 @@ namespace FactoriesGateSystem.Repositories
 
         public async Task<User?> LoginAsync(LoginDTO dto)
         {
-            var user = await _appDbContext.users.FirstOrDefaultAsync(u => u.Email == dto.Email);
-            if (user == null) return null;
-
-            bool ph = _passwordHasher.Verify(dto.Password, user.PasswordHash);
-            if (!ph) return null;
-            return user;
+            return await _appDbContext.users.FirstOrDefaultAsync(u => u.Email == dto.Email);  
         }
 
 
@@ -91,8 +86,8 @@ namespace FactoriesGateSystem.Repositories
         {
             var user = new User
             {
-                Name = dto.Name,
-                Email = dto.Email,
+                Name = dto.Name!,
+                Email = dto.Email!,
                 PasswordHash = passwordHash,
                 Role = "admin",
                 CreatedAt = DateTime.UtcNow.Date,
