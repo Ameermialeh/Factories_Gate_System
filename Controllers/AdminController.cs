@@ -92,6 +92,9 @@ namespace FactoriesGateSystem.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(typeof(RegisterAdminDTO), 200)]
+        [ProducesResponseType(500)]
+        [ProducesResponseType(400)]
         public async Task<IActionResult> AddAdmin([FromBody] RegisterAdminDTO dto)
         {
             if(string.IsNullOrWhiteSpace(dto.Name) || string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Password))
@@ -114,6 +117,33 @@ namespace FactoriesGateSystem.Controllers
                     accessToken,
                     refreshToken = refreshToken.Token
                 });
+            }
+            catch (Exception) { return StatusCode(500, "Internal Server Error"); }
+        }
+
+        [HttpPost("ChangePassword")]
+        [ProducesResponseType(typeof(ChangePasswordDTO), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Email) || 
+                string.IsNullOrWhiteSpace(dto.CurrentPassword) || 
+                string.IsNullOrWhiteSpace(dto.NewPassword))
+                return BadRequest("Invalid data.");
+            try
+            {
+                var user =await _adminRepo.getAdminByEmailAsync(dto.Email);
+                if(user == null) return NotFound("Admin not found");
+
+                var isValid = _adminRepo.PasswordValid(user, dto);
+                if (!isValid)
+                    return BadRequest("Current Password is incorrect");
+
+                await _adminRepo.UpdatePasswordAsync(user, dto);
+                return Ok("Changed password successfully");
+
             }
             catch (Exception) { return StatusCode(500, "Internal Server Error"); }
         }

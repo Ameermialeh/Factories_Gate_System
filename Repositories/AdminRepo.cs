@@ -1,4 +1,7 @@
 ﻿using FactoriesGateSystem.DTOs;
+using FactoriesGateSystem.DTOs.Admin;
+using FactoriesGateSystem.Helpers;
+using FactoriesGateSystem.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace FactoriesGateSystem.Repositories
@@ -6,10 +9,12 @@ namespace FactoriesGateSystem.Repositories
     public class AdminRepo
     {
         private readonly AppDbContext _appDbContext;
+        private readonly PasswordHasher _passwordHasher;
 
-        public AdminRepo(AppDbContext appDbContext)
+        public AdminRepo(AppDbContext appDbContext, PasswordHasher passwordHasher)
         {
             _appDbContext = appDbContext;
+            _passwordHasher = passwordHasher;
         }
 
         public async Task<List<FactoryDTO>?> GetAllFactoriesAsync()
@@ -65,6 +70,20 @@ namespace FactoriesGateSystem.Repositories
             };
         }
 
+        public async Task<User?> getAdminByEmailAsync(string email)
+        {
+            return await _appDbContext.users.FirstOrDefaultAsync(u => u.Email == email);
+        }
 
+        public bool PasswordValid(User user,ChangePasswordDTO dto)
+        {
+            return _passwordHasher.Verify(dto.CurrentPassword!, user.PasswordHash);
+        }
+
+        public async Task UpdatePasswordAsync(User user, ChangePasswordDTO dto)
+        {
+            user.PasswordHash = _passwordHasher.Hash(dto.NewPassword!);
+            await _appDbContext.SaveChangesAsync();
+        }
     }
 }
