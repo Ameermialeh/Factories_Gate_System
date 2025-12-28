@@ -16,6 +16,16 @@ namespace FactoriesGateSystem.Controllers
             _adminRepo = adminRepo;
         }
 
-
+        [HttpGet("GetAllFactories")]
+        public async Task<IActionResult> GetAllFactories()
+        {
+            try
+            {
+                var factories = await _adminRepo.GetAllFactoriesAsync();
+                if(factories == null) { return NotFound("No Factories Found!"); }
+                return Ok(factories);
+            }
+            catch (Exception){ return StatusCode(500, "Internal Server Error"); }
+        }
     }
 }

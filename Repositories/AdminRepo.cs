@@ -1,4 +1,7 @@
-﻿namespace FactoriesGateSystem.Repositories
+﻿using FactoriesGateSystem.DTOs;
+using Microsoft.EntityFrameworkCore;
+
+namespace FactoriesGateSystem.Repositories
 {
     public class AdminRepo
     {
@@ -9,6 +12,17 @@
             _appDbContext = appDbContext;
         }
 
+        public async Task<List<FactoryDTO>?> GetAllFactoriesAsync()
+        {
+            var facories = _appDbContext.factory;
+            if(facories == null) { return null; }
 
+            return await facories.Select(f => new FactoryDTO
+            {
+                Id = f.FactoryId,
+                Name = f.Name,
+                Address = f.Address,
+            }).ToListAsync();
+        }
     }
 }
