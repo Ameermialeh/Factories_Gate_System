@@ -27,10 +27,10 @@ namespace FactoriesGateSystem.Controllers
             try
             {
                 var factories = await _adminRepo.GetAllFactoriesAsync();
-                if(factories == null) { return NotFound("No Factories Found!"); }
+                if (factories == null) { return NotFound("No Factories Found!"); }
                 return Ok(factories);
             }
-            catch (Exception){ return StatusCode(500, "Internal Server Error"); }
+            catch (Exception) { return StatusCode(500, "Internal Server Error"); }
         }
 
         [HttpGet("GetFactoryById/{id}")]
@@ -60,14 +60,31 @@ namespace FactoriesGateSystem.Controllers
             try
             {
                 var managers = await _adminRepo.GetAllManagersAsync();
-                if(managers == null) { return NotFound("No Managers Found!");  }
+                if (managers == null) { return NotFound("No Managers Found!"); }
                 return Ok(managers);
             }
             catch (Exception) { return StatusCode(500, "Internal Server Error"); }
         }
 
-
+        [HttpGet("GetManagerById/{id}")]
+        [ProducesResponseType(typeof(ManagerDTO), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> GetManagerById(int id)
+        {
+            if (id <= 0)
+                return BadRequest("Invalid Manager id.");
+            try
+            {
+                var manager = await _adminRepo.GetManagerByIdAsync(id);
+                if (manager == null) { return NotFound("No Manager Found!"); }
+                return Ok(manager);
+            }
+            catch (Exception) { return StatusCode(500, "Internal Server Error"); }
+        }
     }
+
 
 
 }

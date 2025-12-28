@@ -38,6 +38,19 @@ namespace FactoriesGateSystem.Repositories
                 CreatedAt = m.CreatedAt,
             }).ToListAsync();
         }
+        public async Task<ManagerDTO?> GetManagerByIdAsync(int id)
+        {
+            var manager =await _appDbContext.users.Where(m => m.UserId == id && m.Role == "manager").FirstOrDefaultAsync();
+            if (manager == null) { return null; };
+
+            return new ManagerDTO
+            {
+                Id = manager.UserId,
+                Name = manager.Name,
+                Email = manager.Email,
+                CreatedAt = manager.CreatedAt,
+            };
+        }
 
         public async Task<FactoryDTO?> GetFactoryByIdAsync(int id)
         {
@@ -51,5 +64,7 @@ namespace FactoriesGateSystem.Repositories
                 Address = factory.Address,
             };
         }
+
+
     }
 }
