@@ -31,9 +31,9 @@ Expense | Tracks factory expenses | linked to Factory
 ![alt text](https://github.com/Ameermialeh/Factories_Gate_System/blob/main/UML_Diagram/Factories_Managment_System_UML.jpg)
 
 ### **Admin Capabilities**
-* View system statistics:
-  - Total Factories
-  - Total Managers
+* Manage Admins
+* Manage Factories
+* Manage Managers
 
 ### **Manager Capabilities** (Add/Update/Delete)
 * Manage Employees
