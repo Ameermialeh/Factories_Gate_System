@@ -24,5 +24,19 @@ namespace FactoriesGateSystem.Repositories
                 Address = f.Address,
             }).ToListAsync();
         }
+
+        public async Task<List<ManagerDTO>?> GetAllManagersAsync()
+        {
+            var manager = _appDbContext.users.Where(m => m.Role == "manager");
+            if (manager == null) { return null; }
+
+            return await manager.Select(m => new ManagerDTO
+            {
+                Id = m.UserId,
+                Name = m.Name,
+                Email = m.Email,
+                CreatedAt = m.CreatedAt,
+            }).ToListAsync();
+        }
     }
 }

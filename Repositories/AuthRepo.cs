@@ -25,7 +25,7 @@ namespace FactoriesGateSystem.Repositories
                 Email = dto.Email,
                 PasswordHash = passwordHash,
                 Role = "manager",
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow.Date,
             };
 
             await _appDbContext.users.AddAsync(user);
