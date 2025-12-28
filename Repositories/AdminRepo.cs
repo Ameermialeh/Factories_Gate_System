@@ -70,6 +70,19 @@ namespace FactoriesGateSystem.Repositories
             };
         }
 
+        public async Task<List<AdminDTO>> GetAllAdminsAsync()
+        {
+            var admins = _appDbContext.users.Where(a=>a.Role == "admin");
+            return await admins.Select(a => new AdminDTO
+            {
+                Id = a.UserId,
+                Name = a.Name,
+                Email= a.Email,
+                CreatedAt = a.CreatedAt,
+            }).ToListAsync();
+        }
+
+
         public async Task<User?> getAdminByEmailAsync(string email)
         {
             return await _appDbContext.users.FirstOrDefaultAsync(u => u.Email == email);

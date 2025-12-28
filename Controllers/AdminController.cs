@@ -91,6 +91,19 @@ namespace FactoriesGateSystem.Controllers
             catch (Exception) { return StatusCode(500, "Internal Server Error"); }
         }
 
+        [HttpGet]
+        [ProducesResponseType(typeof(AdminDTO), 200)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> GetAllAdmins()
+        {
+            try
+            {
+                var admins = await _adminRepo.GetAllAdminsAsync();
+                return Ok(admins);
+            }
+            catch (Exception) { return StatusCode(500, "Internal Server Error"); }
+        }
+
         [HttpPost]
         [ProducesResponseType(typeof(RegisterAdminDTO), 200)]
         [ProducesResponseType(500)]
