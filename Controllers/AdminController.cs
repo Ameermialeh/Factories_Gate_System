@@ -1,5 +1,7 @@
 ﻿using FactoriesGateSystem.DTOs;
+using FactoriesGateSystem.DTOs.Admin;
 using FactoriesGateSystem.DTOs.CustomerDTOs;
+using FactoriesGateSystem.Helpers;
 using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,10 +14,15 @@ namespace FactoriesGateSystem.Controllers
     public class AdminController : Controller
     {
         private readonly AdminRepo _adminRepo;
-
-        public AdminController(AdminRepo adminRepo)
+        private readonly AuthRepo _authRepo;
+        private readonly PasswordHasher _passwordHasher;
+        private readonly JwtHelper _jwtHelper;
+        public AdminController(AdminRepo adminRepo, PasswordHasher passwordHasher, AuthRepo authRepo, JwtHelper jwtHelper)
         {
             _adminRepo = adminRepo;
+            _passwordHasher = passwordHasher;
+            _authRepo = authRepo;
+            _jwtHelper = jwtHelper;
         }
 
         [HttpGet("GetAllFactories")]
@@ -83,8 +90,32 @@ namespace FactoriesGateSystem.Controllers
             }
             catch (Exception) { return StatusCode(500, "Internal Server Error"); }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> AddAdmin([FromBody] RegisterAdminDTO dto)
+        {
+            if(string.IsNullOrWhiteSpace(dto.Name) || string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Password))
+            {
+                return BadRequest("Invalid Admin data.");
+            }
+            try
+            {
+                var passwordHash = _passwordHasher.Hash(dto.Password);
+                var user = await _authRepo.RegisterAdminAsync(dto, passwordHash);
+
+                var accessToken = _jwtHelper.GenerateAccessToken(user);
+                var refreshToken = _jwtHelper.GenerateRefreshToken();
+
+                refreshToken.UserId = user.UserId;
+                await _authRepo.SaveRefreshTokenAsync(refreshToken);
+
+                return Ok(new
+                {
+                    accessToken,
+                    refreshToken = refreshToken.Token
+                });
+            }
+            catch (Exception) { return StatusCode(500, "Internal Server Error"); }
+        }
     }
-
-
-
 }

@@ -1,4 +1,5 @@
-﻿using FactoriesGateSystem.Helpers;
+﻿using FactoriesGateSystem.DTOs.Admin;
+using FactoriesGateSystem.Helpers;
 using FactoriesGateSystem.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -83,6 +84,23 @@ namespace FactoriesGateSystem.Repositories
             refreshToken.IsRevoked = true;
             await _appDbContext.SaveChangesAsync();
             return true;
+        }
+
+
+        public async Task<User> RegisterAdminAsync(RegisterAdminDTO dto, string passwordHash)
+        {
+            var user = new User
+            {
+                Name = dto.Name,
+                Email = dto.Email,
+                PasswordHash = passwordHash,
+                Role = "admin",
+                CreatedAt = DateTime.UtcNow.Date,
+            };
+
+            await _appDbContext.users.AddAsync(user);
+            await _appDbContext.SaveChangesAsync();
+            return user;
         }
     }
 }
