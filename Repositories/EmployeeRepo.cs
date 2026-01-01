@@ -34,12 +34,13 @@ namespace FactoriesGateSystem.Repositories
         }
 
 
-       public async Task<EmployeeDTO> CreateEmployeeAsync(EmployeeDTO employeeDto)
+       public async Task<EmployeeDTO> CreateEmployeeAsync(EmployeeDTO employeeDto, int factoryId)
        {
             var employee = new Employee()
             {
                 Name = employeeDto.Name!,
-                Phone = employeeDto.Phone!
+                Phone = employeeDto.Phone!,
+                FactoryId = factoryId
             };
             await _appDbContext.employees.AddAsync(employee);
             await _appDbContext.SaveChangesAsync();

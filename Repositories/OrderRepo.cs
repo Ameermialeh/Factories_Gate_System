@@ -44,14 +44,14 @@ namespace FactoriesGateSystem.Repositories
             return products;
         }
 
-        public async Task<OrderWithProductsDTO> CreateOrderAsync(OrderWithProductsDTO dto)
+        public async Task<OrderWithProductsDTO> CreateOrderAsync(OrderWithProductsDTO dto, int factoryId)
         {
             Order order = new Order()
             {
                 Name = dto.Name!,
                 OrderDate = dto.OrderDate,
                 CustomerId = dto.CustomerID,
-                FactoryId = dto.FactoryId
+                FactoryId = factoryId
             };
 
             await _appDbContext.orders.AddAsync(order);

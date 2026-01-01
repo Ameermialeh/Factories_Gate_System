@@ -74,7 +74,11 @@ namespace FactoriesGateSystem.Controllers
         {
             try
             {
-                var product =await _productRepo.CreateProductAsync(productDto);
+                var factoryId = Request.Cookies["FactoryId"];
+                if (factoryId == null)
+                    return Unauthorized();
+
+                var product =await _productRepo.CreateProductAsync(productDto,int.Parse(factoryId));
                 if (product == null) { return BadRequest("Somthing went wrong!"); }
                 return Ok(product);
 

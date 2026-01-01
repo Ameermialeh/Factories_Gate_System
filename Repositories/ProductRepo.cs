@@ -35,7 +35,7 @@ namespace FactoriesGateSystem.Repositories
             return await _appDbContext.products.FirstOrDefaultAsync(p => p.ProductId == id);
         }
 
-        public async Task<ProductDTO?> CreateProductAsync(ProductDTO productdto)
+        public async Task<ProductDTO?> CreateProductAsync(ProductDTO productdto, int factoryId)
         {
             try
             {
@@ -44,6 +44,7 @@ namespace FactoriesGateSystem.Repositories
                     Name = productdto.Name!,
                     Price = productdto.Price,
                     StockQuantity = productdto.Quantity,
+                    FactoryId = factoryId
                 };
 
                 await _appDbContext.products.AddAsync(product);

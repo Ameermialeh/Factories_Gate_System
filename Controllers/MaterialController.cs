@@ -71,7 +71,11 @@ namespace FactoriesGateSystem.Controllers
                 return BadRequest("Material name is required.");
             try
             {
-                var material = await _materialRepo.CreateMaterialAsync(dto);
+                var factoryId = Request.Cookies["FactoryId"];
+                if (factoryId == null)
+                    return Unauthorized();
+
+                var material = await _materialRepo.CreateMaterialAsync(dto, int.Parse(factoryId));
 
                 var materialDto = new MaterialDTO()
                 {

@@ -32,12 +32,13 @@ namespace FactoriesGateSystem.Repositories
             return await _appDbContext.materials.FirstOrDefaultAsync(m => m.MaterialId == id);
         }
 
-        public async Task<Material> CreateMaterialAsync(CreateMaterialDTO dto)
+        public async Task<Material> CreateMaterialAsync(CreateMaterialDTO dto, int factoryId)
         {
             var material = new Material()
             {
                 Name = dto.Name!,
-                Unit = dto.Unit!
+                Unit = dto.Unit!,
+                FactoryId = factoryId
             };
 
             await _appDbContext.materials.AddAsync(material);

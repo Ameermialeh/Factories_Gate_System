@@ -66,7 +66,11 @@ namespace FactoriesGateSystem.Controllers
         {
             try
             {
-                var supplier = await _supplierRepo.AddSupplierAsync(supplierDto);
+                var factoryId = Request.Cookies["FactoryId"];
+                if (factoryId == null)
+                    return Unauthorized();
+
+                var supplier = await _supplierRepo.AddSupplierAsync(supplierDto, int.Parse(factoryId));
                 return Ok(supplier);
             }
             catch (Exception) { return StatusCode(500, "Internal server error."); }

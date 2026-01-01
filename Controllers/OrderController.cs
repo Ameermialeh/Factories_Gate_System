@@ -76,7 +76,11 @@ namespace FactoriesGateSystem.Controllers
         {
             try
             {
-                var order =await _orderRepo.CreateOrderAsync(orderDto);
+                var factoryId = Request.Cookies["FactoryId"];
+                if (factoryId == null)
+                    return Unauthorized();
+
+                var order =await _orderRepo.CreateOrderAsync(orderDto, int.Parse(factoryId));
                 return Ok(order);
             }
             catch (Exception) {

@@ -35,13 +35,14 @@ namespace FactoriesGateSystem.Repositories
             return await _appDbContext.suppliers.FirstOrDefaultAsync(s => s.SupplierId == id);
         }
 
-        public async Task<SupplierDTO> AddSupplierAsync(SupplierDTO supplierDto)
+        public async Task<SupplierDTO> AddSupplierAsync(SupplierDTO supplierDto, int factoryId)
         {
             var supplier = new Supplier()
             {
                 Name= supplierDto.Name,
                 Address= supplierDto.Address!,
                 Phone = supplierDto.Phone!,
+                FactoryId = factoryId
             };
 
             await _appDbContext.suppliers.AddAsync(supplier);

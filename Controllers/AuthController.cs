@@ -82,8 +82,8 @@ namespace FactoriesGateSystem.Controllers
             };
 
             Response.Cookies.Append("UserId", $"{user.UserId}", options);
-            var factoryId = await _factoryRepo.GetFactoryId(user.UserId);
 
+            var factoryId = await _factoryRepo.GetFactoryId(user.UserId);
             Response.Cookies.Append("FactoryId", $"{factoryId}", options);
 
             return Ok(new

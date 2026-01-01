@@ -1,4 +1,5 @@
 ﻿using FactoriesGateSystem.DTOs.EmployeeDTOs;
+using FactoriesGateSystem.Models;
 using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -67,7 +68,11 @@ namespace FactoriesGateSystem.Controllers
         public async Task<IActionResult> CreateEmployee([FromBody] EmployeeDTO dto ) {
             try
             {
-                var employee = await _employeeRepo.CreateEmployeeAsync(dto);
+                var factoryId = Request.Cookies["FactoryId"];
+                if (factoryId == null)
+                    return Unauthorized();
+
+                var employee = await _employeeRepo.CreateEmployeeAsync(dto,int.Parse(factoryId));
                 return Ok(employee);
             }
             catch (Exception)
