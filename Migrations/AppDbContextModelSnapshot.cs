@@ -55,6 +55,9 @@ namespace FactoriesGateSystem.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<int>("FactoryId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -428,6 +431,9 @@ namespace FactoriesGateSystem.Migrations
                     b.Property<int>("EmployeeId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("FactoryId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("FromDate")
                         .HasColumnType("datetime(6)");
 
@@ -441,6 +447,8 @@ namespace FactoriesGateSystem.Migrations
                     b.HasKey("VacationId");
 
                     b.HasIndex("EmployeeId");
+
+                    b.HasIndex("FactoryId");
 
                     b.ToTable("vacations");
                 });
@@ -623,10 +631,14 @@ namespace FactoriesGateSystem.Migrations
             modelBuilder.Entity("FactoriesGateSystem.Models.Vacation", b =>
                 {
                     b.HasOne("FactoriesGateSystem.Models.Employee", "Employee")
-                        .WithMany("Vacations")
+                        .WithMany()
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("FactoriesGateSystem.Models.Employee", null)
+                        .WithMany("Vacations")
+                        .HasForeignKey("FactoryId");
 
                     b.Navigation("Employee");
                 });

@@ -110,10 +110,11 @@ namespace FactoriesGateSystem.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> AddAdmin([FromBody] RegisterAdminDTO dto)
         {
-            if(string.IsNullOrWhiteSpace(dto.Name) || string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Password))
-            {
-                return BadRequest("Invalid Admin data.");
-            }
+            if(string.IsNullOrWhiteSpace(dto.Name) ||
+               string.IsNullOrWhiteSpace(dto.Email) ||
+               string.IsNullOrWhiteSpace(dto.Password))
+                    return BadRequest("Invalid Admin data.");
+            
             try
             {
                 var passwordHash = _passwordHasher.Hash(dto.Password);

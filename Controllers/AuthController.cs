@@ -10,16 +10,18 @@ namespace FactoriesGateSystem.Controllers
     public class AuthController : Controller
     {
         private readonly AuthRepo _authRepo;
+        private readonly FactoryRepo _factoryRepo;
         private readonly JwtHelper _jwtHelper;
         private readonly PasswordHasher _passwordHasher;
 
-        public AuthController(AuthRepo authRepo, JwtHelper jwtHelper, PasswordHasher passwordHasher)
+        public AuthController(AuthRepo authRepo, JwtHelper jwtHelper, PasswordHasher passwordHasher, FactoryRepo factoryRepo)
         {
             _authRepo = authRepo;
 
             _jwtHelper = jwtHelper;
 
             _passwordHasher = passwordHasher;
+            _factoryRepo = factoryRepo;
         }
 
         [HttpPost("register")]
@@ -70,6 +72,19 @@ namespace FactoriesGateSystem.Controllers
 
             refreshToken.UserId = user.UserId;
             await _authRepo.SaveRefreshTokenAsync(refreshToken);
+
+
+            var options = new CookieOptions
+            {
+                Expires = DateTime.UtcNow.AddDays(1),
+                HttpOnly = true,
+                Secure = true
+            };
+
+            Response.Cookies.Append("UserId", $"{user.UserId}", options);
+            var factoryId = await _factoryRepo.GetFactoryId(user.UserId);
+
+            Response.Cookies.Append("FactoryId", $"{factoryId}", options);
 
             return Ok(new
             {
