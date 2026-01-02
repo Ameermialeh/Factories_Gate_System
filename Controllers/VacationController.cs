@@ -99,5 +99,18 @@ namespace FactoriesGateSystem.Controllers
             catch { return StatusCode(500, "Internal server error"); }
         }
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteVacation(int id)
+        {
+            if (id <= 0)
+                return BadRequest("Invalid vacation id.");
+            try
+            {
+                var done = await _vacationRepo.DeleteVacationAsync(id);
+                if (!done) { return NotFound($"No vacation with id = {id}. "); }
+                return Ok($"Vacation with {id} deleted Successfully");
+
+            }catch { return StatusCode(500, "Internal server error"); }
+        }
     }
 }

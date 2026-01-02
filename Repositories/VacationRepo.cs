@@ -95,5 +95,15 @@ namespace FactoriesGateSystem.Repositories
                 VacationReason = vacation.VacationReason,
             };
         }
+
+        public async Task<bool> DeleteVacationAsync(int id)
+        {
+            var vacation = await _appDbContext.vacations.Where(v => v.VacationId == id).FirstOrDefaultAsync();
+            if (vacation == null) { return false; }
+            
+            _appDbContext.vacations.Remove(vacation);
+            await _appDbContext.SaveChangesAsync(); 
+            return true;
+        }
     }
 }
