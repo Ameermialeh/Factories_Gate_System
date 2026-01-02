@@ -2,6 +2,7 @@
 using FactoriesGateSystem.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using static FactoriesGateSystem.DTOs.VacationDTOs.UpdateVacationDTO;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace FactoriesGateSystem.Repositories
@@ -55,6 +56,43 @@ namespace FactoriesGateSystem.Repositories
                 FromDate = dto.FromDate,
                 ToDate = dto.ToDate,
                 VacationReason = dto.VacationReason,
+            };
+        }
+
+        public async Task<VacationDTO?> UpdateVacationDateAsync(UpdateVacationDate dto)
+        {
+            var vacation =await _appDbContext.vacations.Where(v => v.VacationId == dto.VacationId).FirstOrDefaultAsync();
+            if (vacation == null) { return null; }
+
+            vacation.FromDate = dto.FromDate;
+            vacation.ToDate = dto.ToDate;
+
+            await _appDbContext.SaveChangesAsync();
+
+            return new VacationDTO
+            {
+                VacationId = vacation.VacationId,   
+                FromDate = vacation.FromDate,
+                ToDate = vacation.ToDate,
+                EmployeeId = vacation.EmployeeId,
+                VacationReason = vacation.VacationReason,
+            };
+        }
+        public async Task<VacationDTO?> UpdateVacationReasoneAsync(UpdateVacationReasone dto)
+        {
+            var vacation = await _appDbContext.vacations.Where(v => v.VacationId == dto.VacationId).FirstOrDefaultAsync();
+            if (vacation == null) { return null; }
+
+            vacation.VacationReason = dto.VacationReason!;
+            await _appDbContext.SaveChangesAsync();
+
+            return new VacationDTO
+            {
+                VacationId = vacation.VacationId,
+                FromDate = vacation.FromDate,
+                ToDate = vacation.ToDate,
+                EmployeeId = vacation.EmployeeId,
+                VacationReason = vacation.VacationReason,
             };
         }
     }

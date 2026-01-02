@@ -3,6 +3,7 @@ using FactoriesGateSystem.DTOs.VacationDTOs;
 using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static FactoriesGateSystem.DTOs.VacationDTOs.UpdateVacationDTO;
 
 namespace FactoriesGateSystem.Controllers
 {
@@ -64,6 +65,35 @@ namespace FactoriesGateSystem.Controllers
             try
             {
                 var vacation = await _vacationRepo.AddVacationToEmployee(dto);
+                return Ok(vacation);
+            }
+            catch { return StatusCode(500, "Internal server error"); }
+        }
+
+
+        [HttpPut]
+        [ProducesResponseType(typeof(VacationDTO), 200)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> UpdateVacationDate(UpdateVacationDate dto)
+        {
+            try
+            {
+                var vacation = await _vacationRepo.UpdateVacationDateAsync(dto);
+                if (vacation == null) { return NotFound($"No vacation with id = {dto.VacationId}. "); }
+                return Ok(vacation);
+            }
+            catch { return StatusCode(500, "Internal server error"); }
+        }
+
+        [HttpPut]
+        [ProducesResponseType(typeof(VacationDTO), 200)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> UpdateVacationReasone(UpdateVacationReasone dto)
+        {
+            try
+            {
+                var vacation = await _vacationRepo.UpdateVacationReasoneAsync(dto);
+                if (vacation == null) { return NotFound($"No vacation with id = {dto.VacationId}. "); }
                 return Ok(vacation);
             }
             catch { return StatusCode(500, "Internal server error"); }
