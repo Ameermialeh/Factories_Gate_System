@@ -36,10 +36,13 @@ namespace FactoriesGateSystem.Controllers
 
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(VacationDTO), 200)]
+        [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
         public async Task<IActionResult> GetVacationById(int id)
         {
+            if (id <= 0)
+                return BadRequest("Invalid vacation id.");
             try
             {
                 var vacation = await _vacationRepo.GetVacationByIdAsync(id);
@@ -59,9 +62,13 @@ namespace FactoriesGateSystem.Controllers
 
         [HttpPost]
         [ProducesResponseType(typeof(VacationDTO), 200)]
+        [ProducesResponseType(400)]
         [ProducesResponseType(500)]
         public async Task<IActionResult> AddVacation(CreateVacationDTO dto)
         {
+            if (dto.EmployeeId <= 0 || String.IsNullOrWhiteSpace(dto.VacationReason))
+                return BadRequest("Invalid data.");
+
             try
             {
                 var vacation = await _vacationRepo.AddVacationToEmployee(dto);
@@ -73,9 +80,12 @@ namespace FactoriesGateSystem.Controllers
 
         [HttpPut]
         [ProducesResponseType(typeof(VacationDTO), 200)]
+        [ProducesResponseType(400)]
         [ProducesResponseType(500)]
         public async Task<IActionResult> UpdateVacationDate(UpdateVacationDate dto)
         {
+            if (dto.VacationId <= 0)
+                return BadRequest("Invalid vacation id.");
             try
             {
                 var vacation = await _vacationRepo.UpdateVacationDateAsync(dto);
@@ -87,9 +97,12 @@ namespace FactoriesGateSystem.Controllers
 
         [HttpPut]
         [ProducesResponseType(typeof(VacationDTO), 200)]
+        [ProducesResponseType(400)]
         [ProducesResponseType(500)]
         public async Task<IActionResult> UpdateVacationReasone(UpdateVacationReasone dto)
         {
+            if (dto.VacationId <= 0 || String.IsNullOrWhiteSpace(dto.VacationReason))
+                return BadRequest("Invalid data.");
             try
             {
                 var vacation = await _vacationRepo.UpdateVacationReasoneAsync(dto);
@@ -100,6 +113,9 @@ namespace FactoriesGateSystem.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(typeof(bool), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> DeleteVacation(int id)
         {
             if (id <= 0)
