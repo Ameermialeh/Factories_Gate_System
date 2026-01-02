@@ -78,7 +78,7 @@ namespace FactoriesGateSystem.Controllers
         }
 
 
-        [HttpPut]
+        [HttpPut("UpdateVacationDate")]
         [ProducesResponseType(typeof(VacationDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
@@ -95,7 +95,7 @@ namespace FactoriesGateSystem.Controllers
             catch { return StatusCode(500, "Internal server error"); }
         }
 
-        [HttpPut]
+        [HttpPut("UpdateVacationReasone")]
         [ProducesResponseType(typeof(VacationDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
