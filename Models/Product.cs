@@ -11,9 +11,6 @@ namespace FactoriesGateSystem.Models
         public required string Name { get; set; }
 
         [Required]
-        public int StockQuantity { get; set; }
-
-        [Required]
         public int Price { get; set; }
 
         public int FactoryId { get; set; }
