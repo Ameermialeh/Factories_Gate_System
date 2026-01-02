@@ -1,5 +1,5 @@
-﻿using FactoriesGateSystem.DTOs;
-using FactoriesGateSystem.DTOs.EmployeeDTOs;
+﻿using FactoriesGateSystem.DTOs.EmployeeDTOs;
+using FactoriesGateSystem.DTOs.VacationDTOs;
 using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -56,6 +56,18 @@ namespace FactoriesGateSystem.Controllers
             }catch { return StatusCode(500, "Internal server error"); }
         }
 
+        [HttpPost]
+        [ProducesResponseType(typeof(VacationDTO), 200)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> AddVacation(CreateVacationDTO dto)
+        {
+            try
+            {
+                var vacation = await _vacationRepo.AddVacationToEmployee(dto);
+                return Ok(vacation);
+            }
+            catch { return StatusCode(500, "Internal server error"); }
+        }
 
     }
 }

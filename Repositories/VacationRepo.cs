@@ -1,4 +1,4 @@
-﻿using FactoriesGateSystem.DTOs;
+﻿using FactoriesGateSystem.DTOs.VacationDTOs;
 using FactoriesGateSystem.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -34,6 +34,28 @@ namespace FactoriesGateSystem.Repositories
         public async Task<Vacation?> GetVacationByIdAsync(int id)
         {
             return await _appDbContext.vacations.Where(v => v.VacationId == id).FirstOrDefaultAsync();
+        }
+
+        public async Task<VacationDTO> AddVacationToEmployee(CreateVacationDTO dto)
+        {
+            var Vacation = new Vacation
+            {
+                EmployeeId = dto.EmployeeId,
+                FromDate = dto.FromDate,
+                ToDate = dto.ToDate,
+                VacationReason = dto.VacationReason!
+            };
+
+            await _appDbContext.vacations.AddAsync(Vacation);
+            await _appDbContext.SaveChangesAsync();
+            return new VacationDTO
+            {
+                VacationId = Vacation.VacationId,
+                EmployeeId = dto.EmployeeId,
+                FromDate = dto.FromDate,
+                ToDate = dto.ToDate,
+                VacationReason = dto.VacationReason,
+            };
         }
     }
 }
