@@ -30,5 +30,10 @@ namespace FactoriesGateSystem.Repositories
                 VacationReason = v.VacationReason,
             }).ToListAsync();
         }
+
+        public async Task<Vacation?> GetVacationByIdAsync(int id)
+        {
+            return await _appDbContext.vacations.Where(v => v.VacationId == id).FirstOrDefaultAsync();
+        }
     }
 }

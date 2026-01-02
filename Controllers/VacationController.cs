@@ -33,5 +33,29 @@ namespace FactoriesGateSystem.Controllers
             }catch { return StatusCode(500, "Internal server error"); }
         }
 
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(VacationDTO), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> GetVacationById(int id)
+        {
+            try
+            {
+                var vacation = await _vacationRepo.GetVacationByIdAsync(id);
+                if(vacation == null) { return NotFound($"No vacation with id = {id}. "); }
+
+                var vacationDto = new VacationDTO
+                {
+                    VacationId = vacation.VacationId,
+                    EmployeeId = vacation.EmployeeId,
+                    FromDate = vacation.FromDate,
+                    ToDate = vacation.ToDate,
+                    VacationReason = vacation.VacationReason,
+                };
+                return Ok(vacation);
+            }catch { return StatusCode(500, "Internal server error"); }
+        }
+
+
     }
 }
