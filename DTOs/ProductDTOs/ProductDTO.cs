@@ -10,7 +10,5 @@ namespace FactoriesGateSystem.DTOs.ProductDTOs
         public int Quantity { get; set; }
 
         public int Price { get; set; }
-
-        public int FactoryId { get; set; }
     }
 }
