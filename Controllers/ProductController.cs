@@ -49,16 +49,7 @@ namespace FactoriesGateSystem.Controllers
                 var product = await _productRepo.GetProductByIdAsync(id);
                 if (product == null)
                     return NotFound($"No product with id = {id}. Try again");
-
-                var productDto = new ProductDTO()
-                {
-                    ID = product.ProductId,
-                    Name = product.Name,
-                    Price = product.Price,
-                    Quantity = product.StockQuantity,
-                    FactoryId = product.FactoryId,
-                };
-                return Ok(productDto);
+                return Ok(product);
             }
             catch (Exception)
             {

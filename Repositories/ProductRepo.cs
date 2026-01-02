@@ -20,19 +20,30 @@ namespace FactoriesGateSystem.Repositories
             if (filter != null)
                 query = query.Where(filter);
 
+
             return await query.Select(p => new ProductDTO()
             {
                 ID = p.ProductId,
                 Name = p.Name,
                 Price = p.Price,
-                Quantity = p.StockQuantity,
+                //Quantity = p.StockQuantity,
                 FactoryId = p.FactoryId,
             }).ToListAsync();
         }
 
-        public async Task<Product?> GetProductByIdAsync(int id)
+        public async Task<ProductDTO?> GetProductByIdAsync(int id)
         {
-            return await _appDbContext.products.FirstOrDefaultAsync(p => p.ProductId == id);
+            var product =  await _appDbContext.products.FirstOrDefaultAsync(p => p.ProductId == id);
+            var inventory = await _appDbContext.inventories.FirstOrDefaultAsync(p => p.ProductId == id);
+            if (product == null) { return null; }
+            return new ProductDTO()
+            {
+                ID = product.ProductId,
+                Name = product.Name,
+                Price = product.Price,
+                Quantity = inventory!.Quantity,
+                FactoryId = product.FactoryId,
+            };
         }
 
         public async Task<ProductDTO?> CreateProductAsync(ProductDTO productdto, int factoryId)
@@ -43,7 +54,6 @@ namespace FactoriesGateSystem.Repositories
                 {
                     Name = productdto.Name!,
                     Price = productdto.Price,
-                    StockQuantity = productdto.Quantity,
                     FactoryId = factoryId
                 };
 
@@ -67,7 +77,7 @@ namespace FactoriesGateSystem.Repositories
 
             existingproduct.Name = productdto.Name!;
             existingproduct.Price = productdto.Price;
-            existingproduct.StockQuantity = productdto.Quantity;
+            //existingproduct.StockQuantity = productdto.Quantity;
             await _appDbContext.SaveChangesAsync();
 
             return productdto;
