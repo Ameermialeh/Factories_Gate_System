@@ -56,7 +56,6 @@ namespace FactoriesGateSystem.Controllers
                     Name = order.Name,
                     OrderDate = order.OrderDate,
                     CustomerID = order.CustomerId,
-                    FactoryId = order.FactoryId,
                     Products = products,
                 };
 
