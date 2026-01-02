@@ -59,7 +59,7 @@ namespace FactoriesGateSystem.Controllers
 
         [HttpPost]
         [ProducesResponseType(typeof(ProductDTO), 200)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
         [ProducesResponseType(500)]
         public async Task<IActionResult> CreateProduct([FromBody] ProductDTO productDto)
         {
@@ -70,14 +70,12 @@ namespace FactoriesGateSystem.Controllers
                     return Unauthorized();
 
                 var product =await _productRepo.CreateProductAsync(productDto,int.Parse(factoryId));
-                if (product == null) { return BadRequest("Somthing went wrong!"); }
                 return Ok(product);
 
             }catch (Exception)
             {
                 return StatusCode(500, "Internal server error");
             }
-           
         }
 
         [HttpPut]

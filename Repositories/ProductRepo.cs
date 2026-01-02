@@ -27,7 +27,6 @@ namespace FactoriesGateSystem.Repositories
                 Name = p.Name,
                 Price = p.Price,
                 //Quantity = p.StockQuantity,
-                FactoryId = p.FactoryId,
             }).ToListAsync();
         }
 
@@ -42,31 +41,35 @@ namespace FactoriesGateSystem.Repositories
                 Name = product.Name,
                 Price = product.Price,
                 Quantity = inventory!.Quantity,
-                FactoryId = product.FactoryId,
             };
         }
 
-        public async Task<ProductDTO?> CreateProductAsync(ProductDTO productdto, int factoryId)
+        public async Task<ProductDTO> CreateProductAsync(ProductDTO productdto, int factoryId)
         {
-            try
-            {
-                Product product = new Product()
-                {
-                    Name = productdto.Name!,
-                    Price = productdto.Price,
-                    FactoryId = factoryId
-                };
 
-                await _appDbContext.products.AddAsync(product);
-                await _appDbContext.SaveChangesAsync();
-
-                productdto.ID = product.ProductId;
-                return productdto;
-            }
-            catch
+            Product product = new Product()
             {
-                return null;
-            }
+                Name = productdto.Name!,
+                Price = productdto.Price,
+                FactoryId = factoryId
+            };
+
+            await _appDbContext.products.AddAsync(product);
+            await _appDbContext.SaveChangesAsync();
+
+            productdto.ID = product.ProductId;
+
+            Inventory inventory = new Inventory
+            {
+                MaterialId = 0,
+                ProductId = product.ProductId,
+                Quantity = productdto.Quantity,
+                LastUpdated = DateTime.UtcNow.Date,
+            };
+            await _appDbContext.inventories.AddAsync(inventory);
+            await _appDbContext.SaveChangesAsync();
+
+            return productdto;
         }
 
         public async Task<ProductDTO?> UpdateProductAsync(ProductDTO productdto)
