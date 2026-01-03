@@ -127,6 +127,9 @@ namespace FactoriesGateSystem.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<DateTime>("LastUpdated")
                         .HasColumnType("datetime(6)");
 
@@ -178,6 +181,9 @@ namespace FactoriesGateSystem.Migrations
 
                     b.Property<int>("FactoryId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Name")
                         .IsRequired()
