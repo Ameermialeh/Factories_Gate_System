@@ -9,7 +9,6 @@ namespace FactoriesGateSystem.Models
         public int MaterialId { get; set; }
         [Required]
         public required string Name { get; set; }
-        public  string Unit { get; set; }
         [Required]
         public int FactoryId { get; set; }
         

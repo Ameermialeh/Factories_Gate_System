@@ -73,6 +73,11 @@ namespace FactoriesGateSystem.Repositories
             return supplierDto;
         }
 
+        public async Task<bool> ChickIfSupplierExistAsync(int supplierId, int factoryId)
+        {
+            return await _appDbContext.suppliers.AnyAsync(s => s.SupplierId == supplierId && s.FactoryId == factoryId);
+        }
+
         public async Task<Supplier?> DeleteSupplierAsync(int id)
         {
             var supplier = await _appDbContext.suppliers.FindAsync(id);

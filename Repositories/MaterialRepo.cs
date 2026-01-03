@@ -2,6 +2,8 @@
 using FactoriesGateSystem.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using static FactoriesGateSystem.DTOs.MaterialDTOs.AddMaterialDTO;
+using static FactoriesGateSystem.DTOs.MaterialDTOs.UpdateMaterialDTO;
 
 namespace FactoriesGateSystem.Repositories
 {
@@ -23,7 +25,6 @@ namespace FactoriesGateSystem.Repositories
             {
                 ID = m.MaterialId,
                 Name = m.Name,
-                Unit = m.Unit,
             }).ToListAsync();
         }
 
@@ -32,31 +33,130 @@ namespace FactoriesGateSystem.Repositories
             return await _appDbContext.materials.FirstOrDefaultAsync(m => m.MaterialId == id);
         }
 
-        public async Task<Material> CreateMaterialAsync(CreateMaterialDTO dto, int factoryId)
+        public async Task<MaterialDTO> AddNewMaterialAsync(AddNewMaterialDTO dto, int factoryId)
         {
-            var material = new Material()
+            var material = new Material
             {
                 Name = dto.Name!,
-                Unit = dto.Unit!,
                 FactoryId = factoryId
             };
 
             await _appDbContext.materials.AddAsync(material);
             await _appDbContext.SaveChangesAsync();
 
-            return material;
+            var materialPurchase = new MaterialPurchase
+            {
+                SupplierId = dto.SupplierId,
+                MaterialId = material.MaterialId,
+                PricePerUnit = dto.PricePerUnit,
+                Date = DateTime.UtcNow.Date,
+                Quantity = dto.Quantity,
+            };
+
+            var inventory = new Inventory
+            {
+                MaterialId = material.MaterialId,
+                Quantity = dto.Quantity, 
+                LastUpdated = DateTime.UtcNow.Date,
+            };
+
+            
+            await _appDbContext.MaterialPurchase.AddAsync(materialPurchase);
+            await _appDbContext.inventories.AddAsync(inventory);
+            await _appDbContext.SaveChangesAsync();
+
+            return new MaterialDTO()
+            {
+                ID = material.MaterialId,
+                Name = material.Name,
+                Quantity = dto.Quantity,
+            };
         }
 
-        public async Task<Material?> UpdateMaterialAsync(int id, CreateMaterialDTO dto)
+        public async Task<MaterialDTO?> AddExistingMaterialAsync(AddExistingMaterialDTO dto)
         {
-            var material =await _appDbContext.materials.FindAsync(id);
+
+            var materialPurchase = new MaterialPurchase
+            {
+                SupplierId = dto.SupplierId,
+                MaterialId = dto.MaterialId,
+                PricePerUnit = dto.PricePerUnit,
+                Date = DateTime.UtcNow.Date,
+                Quantity = dto.Quantity,
+            };
+            await _appDbContext.MaterialPurchase.AddAsync(materialPurchase);
+
+            var inventory = await _appDbContext.inventories.Include(i=>i.Material).FirstOrDefaultAsync(i=> i.MaterialId == dto.MaterialId);
+
+            if (inventory == null)
+            {
+                inventory = new Inventory
+                {
+                    MaterialId = dto.MaterialId,
+                    Quantity = dto.Quantity,
+                    LastUpdated = DateTime.UtcNow
+                };
+
+                await _appDbContext.inventories.AddAsync(inventory);
+            }
+            else
+            {
+                inventory.Quantity += dto.Quantity;
+                inventory.LastUpdated = DateTime.UtcNow;
+            }
+     
+            await _appDbContext.SaveChangesAsync();
+
+            return new MaterialDTO()
+            {
+                ID = inventory.MaterialId,
+                Name = inventory.Material!.Name,
+                Quantity = inventory.Quantity
+            };
+        }
+
+        public async Task<bool> ChickIfMaterialExistAsync(int materialId, int factoryId)
+        {
+           return await _appDbContext.materials.AnyAsync(m => m.MaterialId == materialId && m.FactoryId == factoryId);
+        }
+
+        public async Task<bool> ChickIfMaterialNameExistAsync(string Name, int factoryId)
+        {
+            return await _appDbContext.materials.AnyAsync(m => m.Name == Name && m.FactoryId == factoryId);
+        }
+
+        public async Task<MaterialDTO?> UpdateMaterialNameAsync(UpdateNameMaterialDTO dto,int factoryId)
+        {
+            var material = await _appDbContext.materials.FirstOrDefaultAsync(m => m.MaterialId == dto.Id && m.FactoryId == factoryId);
             if (material == null) return null;
 
             material.Name = dto.Name!;
-            material.Unit = dto.Unit!;
             await _appDbContext.SaveChangesAsync();
 
-            return material;
+            return new MaterialDTO()
+            {
+                ID = material.MaterialId,
+                Name = material.Name,
+            };
+        }
+
+        public async Task<MaterialDTO?> UpdateMaterialQuantityAsync(UpdateQuantityMaterialDTO dto,int factoryId)
+        {
+            var inventory = await _appDbContext.inventories.Include(i => i.Material)
+                .FirstOrDefaultAsync(i=>i.MaterialId == dto.Id && i.Material!.FactoryId == factoryId);
+
+            if(inventory == null) return null;
+
+            inventory.Quantity = dto.Quantity;
+            inventory.LastUpdated = DateTime.UtcNow;
+            await _appDbContext.SaveChangesAsync();
+
+            return new MaterialDTO
+            {
+                ID = inventory.MaterialId,
+                Name = inventory.Material!.Name,
+                Quantity = inventory.Quantity,
+            };
         }
 
         public async Task<Material?> DeleteMaterialAsync(int id)

@@ -3,6 +3,8 @@ using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Xml.Linq;
+using static FactoriesGateSystem.DTOs.MaterialDTOs.AddMaterialDTO;
+using static FactoriesGateSystem.DTOs.MaterialDTOs.UpdateMaterialDTO;
 
 namespace FactoriesGateSystem.Controllers
 {
@@ -12,10 +14,11 @@ namespace FactoriesGateSystem.Controllers
     public class MaterialController : Controller
     {
         private readonly MaterialRepo _materialRepo;
-
-        public MaterialController(MaterialRepo materialRepo)
+        private readonly SupplierRepo _supplierRepo;
+        public MaterialController(MaterialRepo materialRepo,SupplierRepo supplierRepo)
         {
             _materialRepo = materialRepo;
+            _supplierRepo = supplierRepo;
         }
 
         [HttpGet]
@@ -53,7 +56,6 @@ namespace FactoriesGateSystem.Controllers
                 {
                     ID = material.MaterialId,
                     Name = material.Name,
-                    Unit = material.Unit,
                 };
                 return Ok(materialdto);
             }
@@ -61,59 +63,117 @@ namespace FactoriesGateSystem.Controllers
            
         }
 
-        [HttpPost]
+        [HttpPost("BuyNewMaterial")]
         [ProducesResponseType(typeof(MaterialDTO), 200)]
         [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> CreateMaterial([FromBody] CreateMaterialDTO dto)
+        public async Task<IActionResult> AddNewMaterial([FromBody] AddNewMaterialDTO dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.Name) || string.IsNullOrWhiteSpace(dto.Unit))
-                return BadRequest("Material name is required.");
+            if (string.IsNullOrWhiteSpace(dto.Name) || 
+                string.IsNullOrWhiteSpace(dto.Unit) || 
+                dto.SupplierId <= 0 || 
+                dto.PricePerUnit <=0 || 
+                dto.Quantity < 0)
+                return BadRequest("Material data is invalid.");
             try
             {
                 var factoryId = Request.Cookies["FactoryId"];
                 if (factoryId == null)
                     return Unauthorized();
 
-                var material = await _materialRepo.CreateMaterialAsync(dto, int.Parse(factoryId));
+                var supplierExists = await _supplierRepo.ChickIfSupplierExistAsync(dto.SupplierId, int.Parse(factoryId));
+                if (!supplierExists) return NotFound("Supplier not found.");
 
-                var materialDto = new MaterialDTO()
-                {
-                    ID = material.MaterialId,
-                    Name = material.Name,
-                    Unit = material.Unit,
-                };
-                return Ok(materialDto);
+                var NameExists = await _materialRepo.ChickIfMaterialNameExistAsync(dto.Name, int.Parse(factoryId));
+                if (!NameExists) return NotFound("Material already exists.");
+
+                var material = await _materialRepo.AddNewMaterialAsync(dto, int.Parse(factoryId));
+                return Ok(material);
             }
             catch (Exception) { return StatusCode(500, "Internal server error."); }
         }
 
-        [HttpPut("{id}")]
+        [HttpPost("BuyExistingMaterial")]
         [ProducesResponseType(typeof(MaterialDTO), 200)]
         [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> UpdateMaterial(int id,[FromBody] CreateMaterialDTO dto)
+        public async Task<IActionResult> AddExistingMaterial([FromBody] AddExistingMaterialDTO dto)
         {
-            if (id <= 0 || string.IsNullOrWhiteSpace(dto.Name) || string.IsNullOrWhiteSpace(dto.Unit))
+            if (dto.MaterialId <= 0 || dto.SupplierId <=0 || dto.PricePerUnit <=0 || dto.Quantity <=0)
+                return BadRequest("Material data is invalid.");
+            try
+            {
+                var factoryId = Request.Cookies["FactoryId"];
+                if (factoryId == null)
+                    return Unauthorized();
+
+                var materialExists = await _materialRepo.ChickIfMaterialExistAsync(dto.MaterialId, int.Parse(factoryId));
+                if (!materialExists) return NotFound("Material not found.");
+
+
+                var supplierExists = await _supplierRepo.ChickIfSupplierExistAsync(dto.SupplierId,int.Parse(factoryId));
+                if(!supplierExists) return NotFound("Supplier not found.");
+
+
+                var material = await _materialRepo.AddExistingMaterialAsync(dto);
+                return Ok(material);
+            }
+            catch (Exception) { return StatusCode(500, "Internal server error."); }
+        }
+
+
+        [HttpPut("UpdateMaterialName")]
+        [ProducesResponseType(typeof(MaterialDTO), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> UpdateMaterialName([FromBody] UpdateNameMaterialDTO dto)
+        {
+            if (dto.Id <= 0 || string.IsNullOrWhiteSpace(dto.Name))
                 return BadRequest("Invalid material data.");
             try
             {
-                var material = await _materialRepo.UpdateMaterialAsync(id, dto);
-                if (material == null) return NotFound($"Material with id {id} not found.");
+                var factoryId = Request.Cookies["FactoryId"];
+                if (factoryId == null)
+                    return Unauthorized();
 
-                var materialDto = new MaterialDTO()
-                {
-                    ID = material.MaterialId,
-                    Name = material.Name,
-                    Unit = material.Unit,
-                };
-                return Ok(materialDto);
+                var NameExists = await _materialRepo.ChickIfMaterialNameExistAsync(dto.Name, int.Parse(factoryId));
+                if (!NameExists) return NotFound("Material already exists.");
+
+                var material = await _materialRepo.UpdateMaterialNameAsync(dto,int.Parse(factoryId));
+                if (material == null) return NotFound($"Material with id {dto.Id} not found.");
+                return Ok(material);
+
             }
-            catch(Exception) 
+            catch(Exception) { return StatusCode(500, "Internal server error."); }
+        }
+
+        [HttpPut("UpdateMaterialQuantity")]
+        [ProducesResponseType(typeof(MaterialDTO), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> UpdateMaterialQuantity([FromBody] UpdateQuantityMaterialDTO dto)
+        {
+            if (dto.Id <= 0 || dto.Quantity < 0)
+                return BadRequest("Invalid material data.");
+            try
             {
-                return StatusCode(500, "Internal server error.");
+                var factoryId = Request.Cookies["FactoryId"];
+                if (factoryId == null)
+                    return Unauthorized();
+
+                var material = await _materialRepo.UpdateMaterialQuantityAsync(dto,int.Parse(factoryId));
+                if (material == null) return NotFound($"Material with id {dto.Id} not found.");
+                return Ok(material);
             }
+            catch (Exception) { return StatusCode(500, "Internal server error."); }
         }
 
         [HttpDelete("{id}")]
@@ -134,7 +194,6 @@ namespace FactoriesGateSystem.Controllers
                 {
                     ID = material.MaterialId,
                     Name = material.Name,
-                    Unit = material.Unit,
                 };
                 return Ok(materialDto);
             }
