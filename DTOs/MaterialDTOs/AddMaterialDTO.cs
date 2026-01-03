@@ -6,8 +6,6 @@
         {
             public string? Name { get; set; }
 
-            public string? Unit { get; set; }
-
             public int SupplierId { get; set; }
 
             public decimal PricePerUnit { get; set; }
