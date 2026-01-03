@@ -12,6 +12,8 @@ namespace FactoriesGateSystem.Models
 
         public DateTime LastUpdated { get; set; }
 
+        public bool IsDeleted { get; set; } = false;
+
         public int MaterialId { get; set; }
 
         public int ProductId { get; set; }

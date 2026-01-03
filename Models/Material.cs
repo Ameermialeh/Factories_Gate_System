@@ -9,6 +9,8 @@ namespace FactoriesGateSystem.Models
         public int MaterialId { get; set; }
         [Required]
         public required string Name { get; set; }
+        public bool IsDeleted { get; set; } = false;
+
         [Required]
         public int FactoryId { get; set; }
         
