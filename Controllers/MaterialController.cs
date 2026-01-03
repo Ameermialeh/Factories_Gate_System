@@ -72,7 +72,6 @@ namespace FactoriesGateSystem.Controllers
         public async Task<IActionResult> AddNewMaterial([FromBody] AddNewMaterialDTO dto)
         {
             if (string.IsNullOrWhiteSpace(dto.Name) || 
-                string.IsNullOrWhiteSpace(dto.Unit) || 
                 dto.SupplierId <= 0 || 
                 dto.PricePerUnit <=0 || 
                 dto.Quantity < 0)
@@ -87,10 +86,10 @@ namespace FactoriesGateSystem.Controllers
                 if (!supplierExists) return NotFound("Supplier not found.");
 
                 var NameExists = await _materialRepo.ChickIfMaterialNameExistAsync(dto.Name, int.Parse(factoryId));
-                if (!NameExists) return NotFound("Material already exists.");
+                if (NameExists) return NotFound("Material already exists.");
 
-                var material = await _materialRepo.AddNewMaterialAsync(dto, int.Parse(factoryId));
-                return Ok(material);
+                var materialDto = await _materialRepo.AddNewMaterialAsync(dto, int.Parse(factoryId));
+                return Ok(materialDto);
             }
             catch (Exception) { return StatusCode(500, "Internal server error."); }
         }
@@ -179,6 +178,7 @@ namespace FactoriesGateSystem.Controllers
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(MaterialDTO), 200)]
         [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
         public async Task<IActionResult> DeleteMaterial(int id)
@@ -187,15 +187,17 @@ namespace FactoriesGateSystem.Controllers
                 return BadRequest("Invalid Material id.");
             try
             {
-                var material =await _materialRepo.DeleteMaterialAsync(id);
-                if (material == null) return NotFound($"Material with id {id} not found.");
+                var factoryId = Request.Cookies["FactoryId"];
+                if (factoryId == null)
+                    return Unauthorized();
 
-                var materialDto = new MaterialDTO()
-                {
-                    ID = material.MaterialId,
-                    Name = material.Name,
-                };
-                return Ok(materialDto);
+                var IsZero = await _materialRepo.chickIfMaterialQuantityZeroAsync(id, int.Parse(factoryId));
+                if(!IsZero) return BadRequest("Cannot delete material because the quantity is not zero.");
+
+                var material =await _materialRepo.DeleteMaterialAsync(id, int.Parse(factoryId));
+                if (!material) return NotFound($"Material with id {id} not found.");
+
+                return Ok("Material Deleted successfully");
             }
             catch (Exception) { 
                 return StatusCode(500,"Internal server error.");

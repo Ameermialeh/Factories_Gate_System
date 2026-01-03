@@ -35,14 +35,26 @@ namespace FactoriesGateSystem.Repositories
 
         public async Task<MaterialDTO> AddNewMaterialAsync(AddNewMaterialDTO dto, int factoryId)
         {
-            var material = new Material
-            {
-                Name = dto.Name!,
-                FactoryId = factoryId
-            };
 
-            await _appDbContext.materials.AddAsync(material);
-            await _appDbContext.SaveChangesAsync();
+            var existingMaterial = await _appDbContext.materials.FirstOrDefaultAsync(m => m.Name == dto.Name && m.FactoryId == factoryId && m.IsDeleted);
+            Material material;
+
+            if (existingMaterial != null)
+            {
+                existingMaterial.IsDeleted = false;
+                material = existingMaterial;
+            }
+            else
+            {
+                material = new Material
+                {
+                    Name = dto.Name!.Trim(),
+                    FactoryId = factoryId
+                };
+
+                await _appDbContext.materials.AddAsync(material);
+                await _appDbContext.SaveChangesAsync();
+            }
 
             var materialPurchase = new MaterialPurchase
             {
@@ -52,24 +64,33 @@ namespace FactoriesGateSystem.Repositories
                 Date = DateTime.UtcNow.Date,
                 Quantity = dto.Quantity,
             };
-
-            var inventory = new Inventory
-            {
-                MaterialId = material.MaterialId,
-                Quantity = dto.Quantity, 
-                LastUpdated = DateTime.UtcNow.Date,
-            };
-
-            
             await _appDbContext.MaterialPurchase.AddAsync(materialPurchase);
-            await _appDbContext.inventories.AddAsync(inventory);
+
+            var inventory = await _appDbContext.inventories.FirstOrDefaultAsync(i => i.MaterialId == material.MaterialId);
+            if (inventory != null)
+            {
+                inventory.Quantity += dto.Quantity;
+                inventory.LastUpdated = DateTime.UtcNow;
+                inventory.IsDeleted = false;
+            }
+            else
+            {
+                inventory = new Inventory
+                {
+                    MaterialId = material.MaterialId,
+                    Quantity = dto.Quantity,
+                    LastUpdated = DateTime.UtcNow.Date,
+                };
+                await _appDbContext.inventories.AddAsync(inventory);
+            }
+
             await _appDbContext.SaveChangesAsync();
 
             return new MaterialDTO()
             {
                 ID = material.MaterialId,
                 Name = material.Name,
-                Quantity = dto.Quantity,
+                Quantity = inventory.Quantity,
             };
         }
 
@@ -117,12 +138,12 @@ namespace FactoriesGateSystem.Repositories
 
         public async Task<bool> ChickIfMaterialExistAsync(int materialId, int factoryId)
         {
-           return await _appDbContext.materials.AnyAsync(m => m.MaterialId == materialId && m.FactoryId == factoryId);
+           return await _appDbContext.materials.AnyAsync(m => m.MaterialId == materialId && m.FactoryId == factoryId && !m.IsDeleted);
         }
 
         public async Task<bool> ChickIfMaterialNameExistAsync(string Name, int factoryId)
         {
-            return await _appDbContext.materials.AnyAsync(m => m.Name == Name && m.FactoryId == factoryId);
+            return await _appDbContext.materials.AnyAsync(m => m.Name == Name && m.FactoryId == factoryId && !m.IsDeleted);
         }
 
         public async Task<MaterialDTO?> UpdateMaterialNameAsync(UpdateNameMaterialDTO dto,int factoryId)
@@ -159,14 +180,32 @@ namespace FactoriesGateSystem.Repositories
             };
         }
 
-        public async Task<Material?> DeleteMaterialAsync(int id)
+        public async Task<bool> chickIfMaterialQuantityZeroAsync(int materialId, int factoryId)
         {
-            var material = await _appDbContext.materials.FindAsync(id);
-            if (material == null) return null;
+            return await _appDbContext.inventories
+                .AnyAsync(i =>
+                    i.MaterialId == materialId &&
+                    i.Quantity == 0 &&
+                    i.Material!.FactoryId == factoryId &&
+                    !i.Material.IsDeleted);
+        }
 
-            _appDbContext.materials.Remove(material);
+        public async Task<bool> DeleteMaterialAsync(int id, int factoryId)
+        {
+            var material = await _appDbContext.materials.FirstOrDefaultAsync(m => m.MaterialId == id && m.FactoryId == factoryId);
+            if (material == null) return false;
+
+            material.IsDeleted = true;
+
+            var inventory = await _appDbContext.inventories.FirstOrDefaultAsync(i => i.MaterialId == id);
+            if(inventory != null)
+            {
+                inventory.IsDeleted = true;
+                inventory.LastUpdated = DateTime.UtcNow;
+            }
             await _appDbContext.SaveChangesAsync();
-            return material;
+
+            return true;
         }
     }
 }
