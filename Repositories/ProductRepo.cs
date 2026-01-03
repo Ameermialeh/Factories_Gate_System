@@ -32,16 +32,16 @@ namespace FactoriesGateSystem.Repositories
 
         public async Task<ProductDTO?> GetProductByIdAsync(int id)
         {
-            var product =  await _appDbContext.products.FirstOrDefaultAsync(p => p.ProductId == id);
-            var inventory = await _appDbContext.inventories.FirstOrDefaultAsync(p => p.ProductId == id);
-            if (product == null) { return null; }
-            return new ProductDTO()
-            {
-                ID = product.ProductId,
-                Name = product.Name,
-                Price = product.Price,
-                Quantity = inventory!.Quantity,
-            };
+            return await _appDbContext.inventories
+                .Where(i => i.ProductId == id)
+                .Select(i => new ProductDTO
+                {
+                    ID = i.Product!.ProductId,
+                    Name = i.Product.Name,
+                    Price = i.Product.Price,
+                    Quantity = i.Quantity
+                })
+                .FirstOrDefaultAsync();
         }
 
         public async Task<ProductDTO> CreateProductAsync(ProductDTO productdto, int factoryId)
@@ -54,48 +54,81 @@ namespace FactoriesGateSystem.Repositories
                 FactoryId = factoryId
             };
 
-            await _appDbContext.products.AddAsync(product);
-            await _appDbContext.SaveChangesAsync();
-
-            productdto.ID = product.ProductId;
-
             Inventory inventory = new Inventory
-            {
-                MaterialId = 0,
-                ProductId = product.ProductId,
+            { 
                 Quantity = productdto.Quantity,
                 LastUpdated = DateTime.UtcNow.Date,
+                Product = product,
             };
+
+            await _appDbContext.products.AddAsync(product);
             await _appDbContext.inventories.AddAsync(inventory);
             await _appDbContext.SaveChangesAsync();
 
-            return productdto;
+            return new ProductDTO
+            {
+                ID = product.ProductId,
+                Name = product.Name,
+                Price = product.Price,
+                Quantity = inventory.Quantity
+            };
         }
 
-        public async Task<ProductDTO?> UpdateProductAsync(ProductDTO productdto)
+        public async Task<ProductDTO?> UpdateProductAsync(ProductDTO dto)
         {
-            var existingproduct = await _appDbContext.products.FindAsync(productdto.ID);
-            if (existingproduct == null)
+            var inventory = await _appDbContext.inventories.Include(i => i.Product).FirstOrDefaultAsync(i => i.ProductId == dto.ID);
+
+            if (inventory == null || inventory.Product == null)
                 return null;
 
-            existingproduct.Name = productdto.Name!;
-            existingproduct.Price = productdto.Price;
-            //existingproduct.StockQuantity = productdto.Quantity;
+            inventory.Product.Name = dto.Name!;
+            inventory.Product.Price = dto.Price;
+            inventory.Quantity = dto.Quantity;
+            inventory.LastUpdated = DateTime.UtcNow;
+
             await _appDbContext.SaveChangesAsync();
 
-            return productdto;
+            return new ProductDTO
+            {
+                ID = inventory.Product.ProductId,
+                Name = inventory.Product.Name,
+                Price = inventory.Product.Price,
+                Quantity = inventory.Quantity
+            };
+        }
+
+        public async Task<ProductDTO?> UpdateQuantityProductAsync(UpdateProductDTO dto)
+        {
+            var inventory = await _appDbContext.inventories.Include(i => i.Product).FirstOrDefaultAsync(i => i.ProductId == dto.ID);
+            if (inventory == null || inventory.Product == null)
+                return null;
+
+            inventory.Quantity = dto.Quantity;
+            inventory.LastUpdated = DateTime.UtcNow;
+            await _appDbContext.SaveChangesAsync();
+
+            return new ProductDTO
+            {
+                ID = inventory.Product.ProductId,
+                Name = inventory.Product.Name,
+                Price = inventory.Product.Price,
+                Quantity = inventory.Quantity
+            };
         }
 
         public async Task<Product?> DeleteProductAsync(int id)
         {
-            var product = await _appDbContext.products.FindAsync(id);
-            if(product == null) { return null; }
+            var inventory = await _appDbContext.inventories.Include(i => i.Product).FirstOrDefaultAsync(i => i.ProductId == id);
 
+            if (inventory == null || inventory.Product == null)
+                return null;
 
-            _appDbContext.products.Remove(product);
+            _appDbContext.inventories.Remove(inventory);
+            _appDbContext.products.Remove(inventory.Product);
+
             await _appDbContext.SaveChangesAsync();
-            return product;
-    
+
+            return inventory.Product;
         }
     }
 }

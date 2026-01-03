@@ -101,6 +101,28 @@ namespace FactoriesGateSystem.Controllers
             }
         }
 
+        [HttpPut("UpdateQuantity")]
+        [ProducesResponseType(typeof(ProductDTO), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> UpdateQuantityProduct([FromBody] UpdateProductDTO dto)
+        {
+            if (dto.ID < 0 || dto.Quantity < 0)
+                return BadRequest("Invalid product data.");
+            try
+            {
+                var Product = await _productRepo.UpdateQuantityProductAsync(dto);
+                if (Product == null)
+                    return NotFound($"No Product with id: {dto.ID}. Try again");
+
+                return Ok(Product);
+
+            }
+            catch (Exception)
+            { return StatusCode(500, "Internal server error"); }
+        }
+
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(DeleteProductDTO), 200)]
         [ProducesResponseType(400)]
