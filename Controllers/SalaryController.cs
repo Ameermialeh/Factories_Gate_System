@@ -2,10 +2,14 @@
 using FactoriesGateSystem.DTOs.SalaryDTOs;
 using FactoriesGateSystem.DTOs.VacationDTOs;
 using FactoriesGateSystem.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FactoriesGateSystem.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
+    [Authorize(Roles = "manager")]
     public class SalaryController : Controller
     {
         private readonly SalaryRepo _salaryRepo;
