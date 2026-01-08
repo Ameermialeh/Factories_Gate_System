@@ -2,7 +2,7 @@
 {
     public class UpdateExpenseDTO
     {
-        public class UpdateExpenseAmount
+        public class UpdateExpenseAmountDTO
         {
             public int id;
             public int newAmount;

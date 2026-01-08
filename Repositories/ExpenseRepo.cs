@@ -56,7 +56,7 @@ namespace FactoriesGateSystem.Repositories
             };
         }
 
-        public async Task<ExpenseDTO?> UpdateExpenseAmountAsync(UpdateExpenseAmount dto)
+        public async Task<ExpenseDTO?> UpdateExpenseAmountAsync(UpdateExpenseAmountDTO dto)
         {
             var expense = await GetExpenseByIdAsync(dto.id);
             if (expense == null) { return null; }
