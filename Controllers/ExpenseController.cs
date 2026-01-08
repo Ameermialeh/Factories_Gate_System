@@ -89,7 +89,7 @@ namespace FactoriesGateSystem.Controllers
         [ProducesResponseType(typeof(ExpenseDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> UpdateExpenseAmount([FromBody] UpdateExpenseAmount dto)
+        public async Task<IActionResult> UpdateExpenseAmount([FromBody] UpdateExpenseAmountDTO dto)
         {
             if (dto.id <= 0 || dto.newAmount < 0)
                 return BadRequest("Invalid Expense data.");
