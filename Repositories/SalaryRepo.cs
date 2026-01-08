@@ -28,7 +28,7 @@ namespace FactoriesGateSystem.Repositories
                 Bonus = s.Bonus,
                 Deductions = s.Deductions,
                 EmployeeId = s.EmployeeId,
-                Month = s.Month 
+                Date = s.Date,
             }).ToListAsync();
         }
 

@@ -57,6 +57,7 @@ namespace FactoriesGateSystem.Controllers
                      Bonus = salary.Bonus,
                      Deductions = salary.Deductions,
                      EmployeeId = salary.EmployeeId,
+                     Date = salary.Date
                 };
                 return Ok(salaryDto);
             }
@@ -81,6 +82,23 @@ namespace FactoriesGateSystem.Controllers
             catch { return StatusCode(500, "Internal server error"); }
         }
 
+        [HttpGet("GetAllSalariesInDateRange")]
+        [ProducesResponseType(typeof(SalaryDTO), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> GetAllSalariesInDateRange([FromBody] RangeDateSalaryDTO dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest("Invalid range.");
+            try
+            {
+                var salary = await _salaryRepo.GetAllSalariesAsync(s => dto.FromDate <= s.Date && dto.ToDate >= s.Date);
+                if (salary == null) { return NotFound($"No salaries in range {dto.FromDate} - {dto.ToDate}. "); }
+                return Ok(salary);
+            }
+            catch { return StatusCode(500, "Internal server error"); }
+        }
 
     }
 }
