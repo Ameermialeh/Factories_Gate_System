@@ -1,5 +1,6 @@
-﻿using FactoriesGateSystem.DTOs;
+﻿using FactoriesGateSystem.DTOs.ExpenseDTOs;
 using FactoriesGateSystem.DTOs.VacationDTOs;
+using FactoriesGateSystem.Models;
 using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -56,6 +57,28 @@ namespace FactoriesGateSystem.Controllers
                     Amount = expense.Amount,
                 };
                 return Ok(expenseDto);
+            }
+            catch { return StatusCode(500, "Internal server error"); }
+        }
+
+        [HttpPost]
+        [ProducesResponseType(typeof(ExpenseDTO), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> AddExpense(AddExpenseDTO dto)
+        {
+            if (dto.Amount <= 0 || String.IsNullOrWhiteSpace(dto.Description))
+                return BadRequest("Invalid data.");
+
+            try
+            {
+                var factoryId = Request.Cookies["FactoryId"];
+                if (factoryId == null)
+                    return Unauthorized();
+
+                var expense = await _expenseRepo.AddExpenseAsync(dto,int.Parse(factoryId));
+                return Ok(expense);
             }
             catch { return StatusCode(500, "Internal server error"); }
         }

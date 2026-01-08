@@ -1,4 +1,4 @@
-﻿using FactoriesGateSystem.DTOs;
+﻿using FactoriesGateSystem.DTOs.ExpenseDTOs;
 using FactoriesGateSystem.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -32,6 +32,27 @@ namespace FactoriesGateSystem.Repositories
         public async Task<Expense?> GetExpenseByIdAsync(int id)
         {
             return await _appDbContext.expenses.Where(v => v.ExpenseId == id).FirstOrDefaultAsync();
+        }
+
+        public async Task<ExpenseDTO> AddExpenseAsync(AddExpenseDTO dto, int factoryId)
+        {
+            var expense = new Expense
+            {
+                Description = dto.Description!,
+                Amount = dto.Amount,
+                Date = dto.Date,
+                FactoryId = factoryId,
+            };
+
+            await _appDbContext.expenses.AddAsync(expense);
+            await _appDbContext.SaveChangesAsync();
+            return new ExpenseDTO
+            {
+                Id = expense.ExpenseId,
+                Description = dto.Description,
+                Date = dto.Date,
+                Amount = dto.Amount,
+            };
         }
     }
 }
