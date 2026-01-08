@@ -4,6 +4,7 @@ using FactoriesGateSystem.DTOs.VacationDTOs;
 using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static FactoriesGateSystem.DTOs.SalaryDTOs.UpdateSalaryDTO;
 
 namespace FactoriesGateSystem.Controllers
 {
@@ -100,5 +101,21 @@ namespace FactoriesGateSystem.Controllers
             catch { return StatusCode(500, "Internal server error"); }
         }
 
+        [HttpPut("UpdateSalary")]
+        [ProducesResponseType(typeof(ExpenseDTO), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> UpdateSalary([FromBody] UpdateSalariesDTO dto)
+        {
+            if (dto.Id <= 0 || dto.BaseSalary < 0 || dto.Bonus < 0 || dto.Deductions < 0)
+                return BadRequest("Invalid Salaries data.");
+            try
+            {
+                var salary = await _salaryRepo.UpdateSalariesAsync(dto);
+                if (salary == null) { return NotFound($"No Salary with id = {dto.Id}. "); }
+                return Ok(salary);
+            }
+            catch { return StatusCode(500, "Internal server error"); }
+        }
     }
 }

@@ -3,6 +3,7 @@ using FactoriesGateSystem.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Linq.Expressions;
+using static FactoriesGateSystem.DTOs.SalaryDTOs.UpdateSalaryDTO;
 
 namespace FactoriesGateSystem.Repositories
 {
@@ -38,5 +39,24 @@ namespace FactoriesGateSystem.Repositories
         }
 
         
+        public async Task<SalaryDTO?> UpdateSalariesAsync(UpdateSalariesDTO dto)
+        {
+            var salary = await GetSalaryByIdAsync(dto.Id);
+            if(salary == null) { return null; }
+
+            salary.BaseSalary = dto.BaseSalary;
+            salary.Bonus = dto.Bonus;
+            salary.Deductions = dto.Deductions; 
+
+            await _appDbContext.SaveChangesAsync();
+            return new SalaryDTO { 
+                Id = salary.SalaryId,
+                BaseSalary = salary.BaseSalary,
+                Bonus = salary.Deductions,
+                Deductions= salary.Deductions,
+                Date = salary.Date,
+                EmployeeId  = salary.EmployeeId,
+            };
+        }
     }
 }
