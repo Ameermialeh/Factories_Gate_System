@@ -10,7 +10,7 @@
 
         public decimal Deductions { get; set; }
 
-        public string? Month { get; set; }
+        public DateTime Date { get; set; }
 
         public int EmployeeId { get; set; }
     }
