@@ -64,7 +64,7 @@ namespace FactoriesGateSystem.Controllers
         [ProducesResponseType(typeof(VacationDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> AddVacation(CreateVacationDTO dto)
+        public async Task<IActionResult> AddVacation([FromBody] CreateVacationDTO dto)
         {
             if (dto.EmployeeId <= 0 || String.IsNullOrWhiteSpace(dto.VacationReason))
                 return BadRequest("Invalid data.");
@@ -82,7 +82,7 @@ namespace FactoriesGateSystem.Controllers
         [ProducesResponseType(typeof(VacationDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> UpdateVacationDate(UpdateVacationDate dto)
+        public async Task<IActionResult> UpdateVacationDate([FromBody] UpdateVacationDate dto)
         {
             if (dto.VacationId <= 0)
                 return BadRequest("Invalid vacation id.");
@@ -99,7 +99,7 @@ namespace FactoriesGateSystem.Controllers
         [ProducesResponseType(typeof(VacationDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> UpdateVacationReasone(UpdateVacationReasone dto)
+        public async Task<IActionResult> UpdateVacationReasone([FromBody] UpdateVacationReasone dto)
         {
             if (dto.VacationId <= 0 || String.IsNullOrWhiteSpace(dto.VacationReason))
                 return BadRequest("Invalid data.");

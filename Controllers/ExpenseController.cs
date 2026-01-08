@@ -68,7 +68,7 @@ namespace FactoriesGateSystem.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(401)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> AddExpense(AddExpenseDTO dto)
+        public async Task<IActionResult> AddExpense([FromBody] AddExpenseDTO dto)
         {
             if (dto.Amount <= 0 || String.IsNullOrWhiteSpace(dto.Description))
                 return BadRequest("Invalid data.");
@@ -89,7 +89,7 @@ namespace FactoriesGateSystem.Controllers
         [ProducesResponseType(typeof(ExpenseDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> UpdateExpenseAmount(UpdateExpenseAmount dto)
+        public async Task<IActionResult> UpdateExpenseAmount([FromBody] UpdateExpenseAmount dto)
         {
             if (dto.id <= 0 || dto.newAmount < 0)
                 return BadRequest("Invalid Expense data.");
@@ -106,7 +106,7 @@ namespace FactoriesGateSystem.Controllers
         [ProducesResponseType(typeof(ExpenseDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> UpdateExpenseDescription(UpdateExpenseDescription dto)
+        public async Task<IActionResult> UpdateExpenseDescription([FromBody] UpdateExpenseDescription dto)
         {
             if (dto.id <= 0 || string.IsNullOrWhiteSpace(dto.newDescription))
                 return BadRequest("Invalid Expense data.");
