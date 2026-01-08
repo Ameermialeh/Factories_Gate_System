@@ -135,6 +135,23 @@ namespace FactoriesGateSystem.Controllers
             catch { return StatusCode(500, "Internal server error"); }
         }
 
+        [HttpDelete("{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> DeleteSalary(int id)
+        {
+            if (id <= 0)
+                return BadRequest("Invalid salary id.");
+            try
+            {
+                var done = await _salaryRepo.DeleteSalaryAsync(id);
+                if (!done) { return NotFound($"No salary with id = {id}. "); }
 
+                return Ok($"Salary with {id} deleted Successfully");
+
+            }
+            catch { return StatusCode(500, "Internal server error"); }
+        }
     }
 }

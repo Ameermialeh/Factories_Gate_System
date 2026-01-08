@@ -77,5 +77,15 @@ namespace FactoriesGateSystem.Repositories
                 EmployeeId = salary.EmployeeId,
             };
         }
+
+        public async Task<bool> DeleteSalaryAsync(int id)
+        {
+            var salary = await GetSalaryByIdAsync(id);
+            if (salary == null) { return false; }
+
+            _appDbContext.salaries.Remove(salary);
+            await _appDbContext.SaveChangesAsync();
+            return true;
+        }
     }
 }
