@@ -2,6 +2,7 @@
 using FactoriesGateSystem.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using static FactoriesGateSystem.DTOs.ExpenseDTOs.UpdateExpenseDTO;
 
 namespace FactoriesGateSystem.Repositories
 {
@@ -54,5 +55,24 @@ namespace FactoriesGateSystem.Repositories
                 Amount = dto.Amount,
             };
         }
+
+        public async Task<ExpenseDTO?> UpdateExpenseAmountAsync(UpdateExpenseAmount dto)
+        {
+            var expense = await GetExpenseByIdAsync(dto.id);
+            if (expense == null) { return null; }
+
+            expense.Amount = dto.newAmount;
+
+            await _appDbContext.SaveChangesAsync();
+
+            return new ExpenseDTO
+            {
+                Id = dto.id,
+                Description = expense.Description,
+                Amount = expense.Amount,
+                Date = expense.Date,
+            };
+        }
+
     }
 }

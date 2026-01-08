@@ -4,6 +4,8 @@ using FactoriesGateSystem.Models;
 using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static FactoriesGateSystem.DTOs.ExpenseDTOs.UpdateExpenseDTO;
+using static FactoriesGateSystem.DTOs.VacationDTOs.UpdateVacationDTO;
 
 namespace FactoriesGateSystem.Controllers
 {
@@ -82,5 +84,24 @@ namespace FactoriesGateSystem.Controllers
             }
             catch { return StatusCode(500, "Internal server error"); }
         }
+
+        [HttpPut("UpdateExpenseAmount")]
+        [ProducesResponseType(typeof(ExpenseDTO), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> UpdateExpenseAmount(UpdateExpenseAmount dto)
+        {
+            if (dto.id <= 0)
+                return BadRequest("Invalid Expense id.");
+            try
+            {
+                var expense = await _expenseRepo.UpdateExpenseAmountAsync(dto);
+                if (expense == null) { return NotFound($"No Expense with id = {dto.id}. "); }
+                return Ok(expense);
+            }
+            catch { return StatusCode(500, "Internal server error"); }
+        }
+
+
     }
 }
