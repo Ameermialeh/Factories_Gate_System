@@ -33,5 +33,31 @@ namespace FactoriesGateSystem.Controllers
             }
             catch { return StatusCode(500, "Internal server error"); }
         }
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(ExpenseDTO), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> GetExpenseById(int id)
+        {
+            if (id <= 0)
+                return BadRequest("Invalid expense id.");
+            try
+            {
+                var expense = await _expenseRepo.GetExpenseByIdAsync(id);
+                if (expense == null) { return NotFound($"No expense with id = {id}. "); }
+
+                var expenseDto = new ExpenseDTO
+                {
+                    Id = expense.ExpenseId,
+                    Description = expense.Description,
+                    Date = expense.Date,
+                    Amount = expense.Amount,
+                };
+                return Ok(expenseDto);
+            }
+            catch { return StatusCode(500, "Internal server error"); }
+        }
     }
 }

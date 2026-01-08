@@ -14,7 +14,7 @@ namespace FactoriesGateSystem.Repositories
             this._appDbContext = appDbContext;
         }
 
-        public async Task<List<ExpenseDTO>> GetAllExpenseAsync(Expression<Func<Expense, bool>>? filter = null)
+        public async Task<List<ExpenseDTO>?> GetAllExpenseAsync(Expression<Func<Expense, bool>>? filter = null)
         {
             IQueryable<Expense> query = _appDbContext.expenses;
             if (filter != null)
@@ -29,6 +29,9 @@ namespace FactoriesGateSystem.Repositories
         }
 
 
-
+        public async Task<Expense?> GetExpenseByIdAsync(int id)
+        {
+            return await _appDbContext.expenses.Where(v => v.ExpenseId == id).FirstOrDefaultAsync();
+        }
     }
 }
