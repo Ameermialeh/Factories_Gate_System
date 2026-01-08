@@ -73,6 +73,22 @@ namespace FactoriesGateSystem.Repositories
                 Date = expense.Date,
             };
         }
+        public async Task<ExpenseDTO?> UpdateExpenseDescriptionAsync(UpdateExpenseDescription dto)
+        {
+            var expense = await GetExpenseByIdAsync(dto.id);
+            if (expense == null) { return null; }
 
+            expense.Description = dto.newDescription!;
+
+            await _appDbContext.SaveChangesAsync();
+
+            return new ExpenseDTO
+            {
+                Id = dto.id,
+                Description = expense.Description,
+                Amount = expense.Amount,
+                Date = expense.Date,
+            };
+        }
     }
 }

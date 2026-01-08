@@ -91,8 +91,8 @@ namespace FactoriesGateSystem.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> UpdateExpenseAmount(UpdateExpenseAmount dto)
         {
-            if (dto.id <= 0)
-                return BadRequest("Invalid Expense id.");
+            if (dto.id <= 0 || dto.newAmount < 0)
+                return BadRequest("Invalid Expense data.");
             try
             {
                 var expense = await _expenseRepo.UpdateExpenseAmountAsync(dto);
@@ -102,6 +102,21 @@ namespace FactoriesGateSystem.Controllers
             catch { return StatusCode(500, "Internal server error"); }
         }
 
-
+        [HttpPut("UpdateExpenseDescription")]
+        [ProducesResponseType(typeof(ExpenseDTO), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> UpdateExpenseDescription(UpdateExpenseDescription dto)
+        {
+            if (dto.id <= 0 || string.IsNullOrWhiteSpace(dto.newDescription))
+                return BadRequest("Invalid Expense data.");
+            try
+            {
+                var expense = await _expenseRepo.UpdateExpenseDescriptionAsync(dto);
+                if (expense == null) { return NotFound($"No Expense with id = {dto.id}. "); }
+                return Ok(expense);
+            }
+            catch { return StatusCode(500, "Internal server error"); }
+        }
     }
 }
