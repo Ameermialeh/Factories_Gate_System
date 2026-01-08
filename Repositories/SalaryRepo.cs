@@ -58,5 +58,24 @@ namespace FactoriesGateSystem.Repositories
                 EmployeeId  = salary.EmployeeId,
             };
         }
+
+        public async Task<SalaryDTO?> UpdateSalariesDateAsync(UpdateDateSalaryDTO dto)
+        {
+            var salary = await GetSalaryByIdAsync(dto.Id);
+            if (salary == null) { return null; }
+
+            salary.Date = dto.Date;
+
+            await _appDbContext.SaveChangesAsync();
+            return new SalaryDTO
+            {
+                Id = salary.SalaryId,
+                BaseSalary = salary.BaseSalary,
+                Bonus = salary.Deductions,
+                Deductions = salary.Deductions,
+                Date = salary.Date,
+                EmployeeId = salary.EmployeeId,
+            };
+        }
     }
 }

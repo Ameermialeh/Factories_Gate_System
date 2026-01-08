@@ -118,5 +118,23 @@ namespace FactoriesGateSystem.Controllers
             catch { return StatusCode(500, "Internal server error"); }
         }
 
+        [HttpPut("UpdateDate")]
+        [ProducesResponseType(typeof(SalaryDTO), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> UpdateSalaryDate([FromBody] UpdateDateSalaryDTO dto)
+        {
+            if (dto.Id <= 0 || !ModelState.IsValid)
+                return BadRequest("Invalid data.");
+            try
+            {
+                var salary = await _salaryRepo.UpdateSalariesDateAsync(dto);
+                if (salary == null) { return NotFound($"No Salary with id = {dto.Id}. "); }
+                return Ok(salary);
+            }
+            catch { return StatusCode(500, "Internal server error"); }
+        }
+
+
     }
 }
