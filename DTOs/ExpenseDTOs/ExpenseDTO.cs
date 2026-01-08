@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace FactoriesGateSystem.DTOs
+namespace FactoriesGateSystem.DTOs.ExpenseDTOs
 {
     public class ExpenseDTO
     {
