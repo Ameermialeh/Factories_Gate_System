@@ -118,5 +118,25 @@ namespace FactoriesGateSystem.Controllers
             }
             catch { return StatusCode(500, "Internal server error"); }
         }
+
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> DeleteExpense(int id)
+        {
+            if (id <= 0)
+                return BadRequest("Invalid expense id.");
+            try
+            {
+                var done = await _expenseRepo.DeleteExpenseAsync(id);
+                if (!done) { return NotFound($"No expense with id = {id}. "); }
+
+                return Ok($"Expense with {id} deleted Successfully");
+
+            }
+            catch { return StatusCode(500, "Internal server error"); }
+        }
     }
 }

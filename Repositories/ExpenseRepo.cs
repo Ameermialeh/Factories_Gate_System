@@ -90,5 +90,15 @@ namespace FactoriesGateSystem.Repositories
                 Date = expense.Date,
             };
         }
+
+        public async Task<bool> DeleteExpenseAsync(int id)
+        {
+            var expense = await GetExpenseByIdAsync(id);
+            if (expense == null) { return false; }
+
+            _appDbContext.expenses.Remove(expense);
+            await _appDbContext.SaveChangesAsync();
+            return true;
+        }
     }
 }
