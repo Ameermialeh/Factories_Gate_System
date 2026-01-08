@@ -32,6 +32,9 @@ namespace FactoriesGateSystem.Repositories
             }).ToListAsync();
         }
 
-
+        public async Task<Salary?> GetSalaryByIdAsync(int id)
+        {
+            return await _appDbContext.salaries.Where(s=>s.SalaryId == id).FirstOrDefaultAsync();
+        }
     }
 }
