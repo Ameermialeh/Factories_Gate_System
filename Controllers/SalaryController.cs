@@ -102,7 +102,7 @@ namespace FactoriesGateSystem.Controllers
         }
 
         [HttpPut("UpdateSalary")]
-        [ProducesResponseType(typeof(ExpenseDTO), 200)]
+        [ProducesResponseType(typeof(SalaryDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
         public async Task<IActionResult> UpdateSalary([FromBody] UpdateSalariesDTO dto)
@@ -117,5 +117,6 @@ namespace FactoriesGateSystem.Controllers
             }
             catch { return StatusCode(500, "Internal server error"); }
         }
+
     }
 }
