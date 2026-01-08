@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
+using FactoriesGateSystem.Models;
 
 namespace FactoriesGateSystem
 {
@@ -38,6 +39,7 @@ namespace FactoriesGateSystem
             builder.Services.AddScoped<AdminRepo>();
             builder.Services.AddScoped<FactoryRepo>();
             builder.Services.AddScoped<VacationRepo>();
+            builder.Services.AddScoped<ExpenseRepo>();
 
             // JWT settings
             var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]!);
