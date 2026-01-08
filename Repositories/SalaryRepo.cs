@@ -36,5 +36,7 @@ namespace FactoriesGateSystem.Repositories
         {
             return await _appDbContext.salaries.Where(s=>s.SalaryId == id).FirstOrDefaultAsync();
         }
+
+        
     }
 }
