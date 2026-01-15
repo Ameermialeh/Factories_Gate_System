@@ -35,6 +35,10 @@ namespace FactoriesGateSystem.Controllers
         }
 
         [HttpGet("id")]
+        [ProducesResponseType(typeof(InvoiceDTO), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> GetInvoiceById(int id)
         {
             if (id <= 0)
@@ -43,14 +47,25 @@ namespace FactoriesGateSystem.Controllers
             {
                 var invoice = await _invoiceRepo.GetInvoiceByIdAsync(id);
                 if (invoice == null) { return NotFound($"No invoice with id = {id}. "); }
-                return Ok(invoice);
+                var invoiceDto = new InvoiceDTO()
+                {
+                    Id = id,
+                    Total = invoice.Total,
+                    Date = invoice.Date,
+                    OrderId = invoice.OrderId,
+
+                };
+                return Ok(invoiceDto);
             }
             catch (Exception) { return StatusCode(500, "Internal server error");  }
         }
 
 
         [HttpPut("UpdateDate")]
-
+        [ProducesResponseType(typeof(InvoiceDTO), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> UpdateInvoiceDate([FromBody] UpdateInvoiceDateDTO dto)
         {
             if (!ModelState.IsValid || dto.id <= 0) return BadRequest("Invalid input data");
@@ -66,7 +81,10 @@ namespace FactoriesGateSystem.Controllers
         }
 
         [HttpPut("UpdateTotal")]
-
+        [ProducesResponseType(typeof(InvoiceDTO), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> UpdateInvoiceTotal([FromBody] UpdateInvoiceTotalDTO dto)
         {
             if (dto.Total < 0  || dto.id <= 0) return BadRequest("Invalid input data");
@@ -83,6 +101,10 @@ namespace FactoriesGateSystem.Controllers
 
 
         [HttpDelete("id")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> DeleteInvoice(int id) {
             if (id <= 0)
                 return BadRequest("Invalid invoice id.");
