@@ -41,6 +41,7 @@ namespace FactoriesGateSystem
             builder.Services.AddScoped<VacationRepo>();
             builder.Services.AddScoped<ExpenseRepo>();
             builder.Services.AddScoped<SalaryRepo>();
+            builder.Services.AddScoped<InvoiceRepo>();
 
             // JWT settings
             var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]!);
