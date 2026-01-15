@@ -66,13 +66,14 @@ namespace FactoriesGateSystem.Repositories
                 var p = await _appDbContext.products.Where(P => P.ProductId == product.ProductID).FirstOrDefaultAsync();
                 if(p == null) { return null; }
 
-                total += p.Price;
+                total += (p.Price * product.ProductQuantity);
 
                 var orderProduct = new OrderItem()
                 {
                     OrderId = order.OrderId,
                     ProductId = product.ProductID,
-                    Quantity = product.ProductQuantity
+                    Quantity = product.ProductQuantity,
+                    Price = p.Price
                 };
 
                 await _appDbContext.OrderItem.AddAsync(orderProduct);
