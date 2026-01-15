@@ -1,7 +1,7 @@
 ﻿using FactoriesGateSystem.Helpers;
 using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using static FactoriesGateSystem.DTOs.AuthDTO;
+using static FactoriesGateSystem.Models.DTOs.AuthDTO;
 
 namespace FactoriesGateSystem.Controllers
 {

@@ -1,5 +1,5 @@
-﻿using FactoriesGateSystem.DTOs.CustomerDTOs;
-using FactoriesGateSystem.Models;
+﻿using FactoriesGateSystem.Models;
+using FactoriesGateSystem.Models.DTOs.CustomerDTOs;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 

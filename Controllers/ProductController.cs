@@ -1,4 +1,4 @@
-﻿using FactoriesGateSystem.DTOs.ProductDTOs;
+﻿using FactoriesGateSystem.Models.DTOs.ProductDTOs;
 using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

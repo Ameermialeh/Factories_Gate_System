@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace FactoriesGateSystem.DTOs.ProductDTOs
+namespace FactoriesGateSystem.Models.DTOs.ProductDTOs
 {
     public class ProductDTO
     {

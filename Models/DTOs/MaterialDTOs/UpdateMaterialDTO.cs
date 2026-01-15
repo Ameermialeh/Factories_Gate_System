@@ -1,4 +1,4 @@
-﻿namespace FactoriesGateSystem.DTOs.MaterialDTOs
+﻿namespace FactoriesGateSystem.Models.DTOs.MaterialDTOs
 {
     public class UpdateMaterialDTO
     {
@@ -8,7 +8,7 @@
             public string? Name { get; set; }
         }
 
-        public class  UpdateQuantityMaterialDTO
+        public class UpdateQuantityMaterialDTO
         {
             public int Id { get; set; }
             public int Quantity { get; set; }

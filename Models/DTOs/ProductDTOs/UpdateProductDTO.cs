@@ -1,4 +1,4 @@
-﻿namespace FactoriesGateSystem.DTOs.ProductDTOs
+﻿namespace FactoriesGateSystem.Models.DTOs.ProductDTOs
 {
     public class UpdateProductDTO
     {

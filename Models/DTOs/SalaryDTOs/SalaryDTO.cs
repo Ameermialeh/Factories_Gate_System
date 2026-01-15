@@ -1,4 +1,4 @@
-﻿namespace FactoriesGateSystem.DTOs.SalaryDTOs
+﻿namespace FactoriesGateSystem.Models.DTOs.SalaryDTOs
 {
     public class SalaryDTO
     {

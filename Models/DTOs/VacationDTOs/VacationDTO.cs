@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace FactoriesGateSystem.DTOs.VacationDTOs
+namespace FactoriesGateSystem.Models.DTOs.VacationDTOs
 {
     public class VacationDTO
     {

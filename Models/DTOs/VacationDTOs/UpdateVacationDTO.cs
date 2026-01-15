@@ -1,4 +1,4 @@
-﻿namespace FactoriesGateSystem.DTOs.VacationDTOs
+﻿namespace FactoriesGateSystem.Models.DTOs.VacationDTOs
 {
     public class UpdateVacationDTO
     {
@@ -9,7 +9,7 @@
             public DateTime ToDate { get; set; }
         }
 
-        public class  UpdateVacationReasone
+        public class UpdateVacationReasone
         {
             public int VacationId { get; set; }
             public string? VacationReason { get; set; }

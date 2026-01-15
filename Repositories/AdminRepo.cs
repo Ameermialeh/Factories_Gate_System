@@ -1,7 +1,7 @@
-﻿using FactoriesGateSystem.DTOs;
-using FactoriesGateSystem.DTOs.Admin;
-using FactoriesGateSystem.Helpers;
+﻿using FactoriesGateSystem.Helpers;
 using FactoriesGateSystem.Models;
+using FactoriesGateSystem.Models.DTOs;
+using FactoriesGateSystem.Models.DTOs.Admin;
 using Microsoft.EntityFrameworkCore;
 
 namespace FactoriesGateSystem.Repositories

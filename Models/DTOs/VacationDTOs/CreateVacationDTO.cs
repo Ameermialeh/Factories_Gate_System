@@ -1,4 +1,4 @@
-﻿namespace FactoriesGateSystem.DTOs.VacationDTOs
+﻿namespace FactoriesGateSystem.Models.DTOs.VacationDTOs
 {
     public class CreateVacationDTO
     {

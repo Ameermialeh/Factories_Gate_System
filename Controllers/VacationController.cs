@@ -1,9 +1,9 @@
 ﻿using FactoriesGateSystem.DTOs.EmployeeDTOs;
-using FactoriesGateSystem.DTOs.VacationDTOs;
+using FactoriesGateSystem.Models.DTOs.VacationDTOs;
 using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static FactoriesGateSystem.DTOs.VacationDTOs.UpdateVacationDTO;
+using static FactoriesGateSystem.Models.DTOs.VacationDTOs.UpdateVacationDTO;
 
 namespace FactoriesGateSystem.Controllers
 {

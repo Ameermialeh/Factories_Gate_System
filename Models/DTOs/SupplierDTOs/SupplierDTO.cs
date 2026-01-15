@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace FactoriesGateSystem.DTOs.SupplierDTOs
+namespace FactoriesGateSystem.Models.DTOs.SupplierDTOs
 {
     public class SupplierDTO
     {

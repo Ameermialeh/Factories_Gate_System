@@ -1,7 +1,7 @@
 ﻿using FactoriesGateSystem.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace FactoriesGateSystem.DTOs.OrderDTOs
+namespace FactoriesGateSystem.Models.DTOs.OrderDTOs
 {
     public class OrderDTO
     {
