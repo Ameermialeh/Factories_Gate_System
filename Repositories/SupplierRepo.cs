@@ -1,7 +1,6 @@
 ﻿using FactoriesGateSystem.Models;
 using FactoriesGateSystem.Models.DTOs.SupplierDTOs;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using System.Linq.Expressions;
 
 namespace FactoriesGateSystem.Repositories

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace FactoriesGateSystem.DTOs.Admin
+namespace FactoriesGateSystem.Models.DTOs.Admin
 {
     public class ChangePasswordDTO
     {

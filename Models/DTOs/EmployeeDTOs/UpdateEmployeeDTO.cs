@@ -1,4 +1,4 @@
-﻿namespace FactoriesGateSystem.DTOs.EmployeeDTOs
+﻿namespace FactoriesGateSystem.Models.DTOs.EmployeeDTOs
 {
     public class UpdateEmployeeDTO
     {

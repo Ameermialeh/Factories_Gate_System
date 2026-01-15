@@ -1,9 +1,7 @@
-﻿using FactoriesGateSystem.DTOs.OrderDTOs;
-using FactoriesGateSystem.Models;
-using Microsoft.AspNetCore.Mvc.Routing;
+﻿using FactoriesGateSystem.Models;
+using FactoriesGateSystem.Models.DTOs.OrderDTOs;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using System.Numerics;
 
 namespace FactoriesGateSystem.Repositories
 {

@@ -1,10 +1,9 @@
-﻿using FactoriesGateSystem.DTOs.MaterialDTOs;
-using FactoriesGateSystem.Repositories;
+﻿using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Xml.Linq;
-using static FactoriesGateSystem.DTOs.MaterialDTOs.AddMaterialDTO;
-using static FactoriesGateSystem.DTOs.MaterialDTOs.UpdateMaterialDTO;
+using static FactoriesGateSystem.Models.DTOs.MaterialDTOs.AddMaterialDTO;
+using static FactoriesGateSystem.Models.DTOs.MaterialDTOs.UpdateMaterialDTO;
+using FactoriesGateSystem.Models.DTOs.MaterialDTOs;
 
 namespace FactoriesGateSystem.Controllers
 {

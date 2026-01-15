@@ -1,5 +1,4 @@
-﻿using FactoriesGateSystem.Models;
-using FactoriesGateSystem.Models.DTOs.EmployeeDTOs;
+﻿using FactoriesGateSystem.Models.DTOs.EmployeeDTOs;
 using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

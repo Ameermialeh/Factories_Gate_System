@@ -1,10 +1,10 @@
-﻿using FactoriesGateSystem.DTOs;
-using FactoriesGateSystem.DTOs.Admin;
-using FactoriesGateSystem.DTOs.CustomerDTOs;
-using FactoriesGateSystem.Helpers;
+﻿using FactoriesGateSystem.Helpers;
+using FactoriesGateSystem.Models.DTOs;
+using FactoriesGateSystem.Models.DTOs.Admin;
 using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 
 namespace FactoriesGateSystem.Controllers
 {
@@ -58,6 +58,23 @@ namespace FactoriesGateSystem.Controllers
             catch (Exception) { return StatusCode(500, "Internal Server Error"); }
         }
 
+        [HttpGet("GetFactoryById")]
+        [ProducesResponseType(typeof(FactoryDTO), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> GetFactoryByIdQuery(int id)
+        {
+            if (id <= 0)
+                return BadRequest("Invalid Factory id.");
+            try
+            {
+                var factory = await _adminRepo.GetFactoryByIdAsync(id);
+                if (factory == null) { return NotFound($"No Factory with id = {id}."); }
+                return Ok(factory);
+            }
+            catch (Exception) { return StatusCode(500, "Internal Server Error"); }
+        }
         [HttpGet("GetAllManagers")]
         [ProducesResponseType(typeof(ManagerDTO), 200)]
         [ProducesResponseType(404)]

@@ -1,7 +1,6 @@
 ﻿using FactoriesGateSystem.Models;
 using FactoriesGateSystem.Models.DTOs.SalaryDTOs;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using System.Linq.Expressions;
 using static FactoriesGateSystem.Models.DTOs.SalaryDTOs.UpdateSalaryDTO;
 

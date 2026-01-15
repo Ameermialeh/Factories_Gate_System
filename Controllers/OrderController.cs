@@ -1,4 +1,4 @@
-﻿using FactoriesGateSystem.DTOs.OrderDTOs;
+﻿using FactoriesGateSystem.Models.DTOs.OrderDTOs;
 using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

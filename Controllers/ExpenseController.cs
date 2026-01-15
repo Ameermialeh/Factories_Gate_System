@@ -1,10 +1,8 @@
-﻿using FactoriesGateSystem.DTOs.ExpenseDTOs;
-using FactoriesGateSystem.DTOs.VacationDTOs;
-using FactoriesGateSystem.Models;
+﻿using FactoriesGateSystem.Models.DTOs.ExpenseDTOs;
 using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static FactoriesGateSystem.DTOs.ExpenseDTOs.UpdateExpenseDTO;
+using static FactoriesGateSystem.Models.DTOs.ExpenseDTOs.UpdateExpenseDTO;
 
 
 namespace FactoriesGateSystem.Controllers

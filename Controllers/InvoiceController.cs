@@ -1,9 +1,8 @@
-﻿using FactoriesGateSystem.DTOs.ExpenseDTOs;
-using FactoriesGateSystem.DTOs.InvoiceDTOs;
+﻿using FactoriesGateSystem.Models.DTOs.InvoiceDTOs;
 using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static FactoriesGateSystem.DTOs.InvoiceDTOs.UpdateInvoiceDTO;
+using static FactoriesGateSystem.Models.DTOs.InvoiceDTOs.UpdateInvoiceDTO;
 
 namespace FactoriesGateSystem.Controllers
 {

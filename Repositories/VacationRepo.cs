@@ -3,7 +3,6 @@ using FactoriesGateSystem.Models.DTOs.VacationDTOs;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using static FactoriesGateSystem.Models.DTOs.VacationDTOs.UpdateVacationDTO;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace FactoriesGateSystem.Repositories
 {

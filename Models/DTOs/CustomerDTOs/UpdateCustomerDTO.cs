@@ -1,4 +1,4 @@
-﻿namespace FactoriesGateSystem.DTOs.CustomerDTOs
+﻿namespace FactoriesGateSystem.Models.DTOs.CustomerDTOs
 {
     public class UpdateCustomerDTO
     {

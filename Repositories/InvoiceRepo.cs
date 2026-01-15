@@ -1,9 +1,8 @@
-﻿using FactoriesGateSystem.DTOs.InvoiceDTOs;
-using FactoriesGateSystem.Models;
+﻿using FactoriesGateSystem.Models;
+using FactoriesGateSystem.Models.DTOs.InvoiceDTOs;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
 using System.Linq.Expressions;
-using static FactoriesGateSystem.DTOs.InvoiceDTOs.UpdateInvoiceDTO;
+using static FactoriesGateSystem.Models.DTOs.InvoiceDTOs.UpdateInvoiceDTO;
 
 namespace FactoriesGateSystem.Repositories
 {

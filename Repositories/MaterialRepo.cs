@@ -1,9 +1,9 @@
-﻿using FactoriesGateSystem.DTOs.MaterialDTOs;
-using FactoriesGateSystem.Models;
+﻿using FactoriesGateSystem.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using static FactoriesGateSystem.DTOs.MaterialDTOs.AddMaterialDTO;
-using static FactoriesGateSystem.DTOs.MaterialDTOs.UpdateMaterialDTO;
+using static FactoriesGateSystem.Models.DTOs.MaterialDTOs.AddMaterialDTO;
+using static FactoriesGateSystem.Models.DTOs.MaterialDTOs.UpdateMaterialDTO;
+using FactoriesGateSystem.Models.DTOs.MaterialDTOs;
 
 namespace FactoriesGateSystem.Repositories
 {

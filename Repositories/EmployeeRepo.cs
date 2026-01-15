@@ -1,5 +1,5 @@
-﻿using FactoriesGateSystem.DTOs.EmployeeDTOs;
-using FactoriesGateSystem.Models;
+﻿using FactoriesGateSystem.Models;
+using FactoriesGateSystem.Models.DTOs.EmployeeDTOs;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 

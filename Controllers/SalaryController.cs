@@ -1,10 +1,8 @@
-﻿using FactoriesGateSystem.DTOs.ExpenseDTOs;
-using FactoriesGateSystem.DTOs.SalaryDTOs;
-using FactoriesGateSystem.DTOs.VacationDTOs;
+﻿using FactoriesGateSystem.Models.DTOs.SalaryDTOs;
 using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static FactoriesGateSystem.DTOs.SalaryDTOs.UpdateSalaryDTO;
+using static FactoriesGateSystem.Models.DTOs.SalaryDTOs.UpdateSalaryDTO;
 
 namespace FactoriesGateSystem.Controllers
 {

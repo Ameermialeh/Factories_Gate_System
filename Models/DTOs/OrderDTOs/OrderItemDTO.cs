@@ -1,4 +1,4 @@
-﻿namespace FactoriesGateSystem.DTOs.OrderDTOs
+﻿namespace FactoriesGateSystem.Models.DTOs.OrderDTOs
 {
     public class OrderItemDTO
     {

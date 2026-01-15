@@ -1,9 +1,7 @@
 ﻿using FactoriesGateSystem.Helpers;
 using FactoriesGateSystem.Models;
 using FactoriesGateSystem.Models.DTOs.Admin;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System;
 using static FactoriesGateSystem.Models.DTOs.AuthDTO;
 
 namespace FactoriesGateSystem.Repositories

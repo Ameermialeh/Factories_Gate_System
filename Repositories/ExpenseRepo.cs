@@ -1,8 +1,8 @@
-﻿using FactoriesGateSystem.DTOs.ExpenseDTOs;
-using FactoriesGateSystem.Models;
+﻿using FactoriesGateSystem.Models;
+using FactoriesGateSystem.Models.DTOs.ExpenseDTOs;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using static FactoriesGateSystem.DTOs.ExpenseDTOs.UpdateExpenseDTO;
+using static FactoriesGateSystem.Models.DTOs.ExpenseDTOs.UpdateExpenseDTO;
 
 namespace FactoriesGateSystem.Repositories
 {

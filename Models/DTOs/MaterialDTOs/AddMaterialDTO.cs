@@ -1,4 +1,4 @@
-﻿namespace FactoriesGateSystem.DTOs.MaterialDTOs
+﻿namespace FactoriesGateSystem.Models.DTOs.MaterialDTOs
 {
     public class AddMaterialDTO
     {
@@ -10,7 +10,7 @@
 
             public decimal PricePerUnit { get; set; }
 
-            public int Quantity {  get; set; }
+            public int Quantity { get; set; }
         }
 
         public class AddExistingMaterialDTO

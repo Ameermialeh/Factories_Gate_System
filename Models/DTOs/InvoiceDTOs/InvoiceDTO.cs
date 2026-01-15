@@ -1,4 +1,4 @@
-﻿namespace FactoriesGateSystem.DTOs.InvoiceDTOs
+﻿namespace FactoriesGateSystem.Models.DTOs.InvoiceDTOs
 {
     public class InvoiceDTO
     {
