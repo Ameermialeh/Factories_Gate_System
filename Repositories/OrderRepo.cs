@@ -1,7 +1,9 @@
 ﻿using FactoriesGateSystem.DTOs.OrderDTOs;
 using FactoriesGateSystem.Models;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using System.Numerics;
 
 namespace FactoriesGateSystem.Repositories
 {
@@ -44,8 +46,9 @@ namespace FactoriesGateSystem.Repositories
             return products;
         }
 
-        public async Task<OrderWithProductsDTO> CreateOrderAsync(OrderWithProductsDTO dto, int factoryId)
+        public async Task<OrderWithProductsDTO?> CreateOrderAsync(OrderWithProductsDTO dto, int factoryId)
         {
+            var total = 0;
             Order order = new Order()
             {
                 Name = dto.Name!,
@@ -57,8 +60,14 @@ namespace FactoriesGateSystem.Repositories
             await _appDbContext.orders.AddAsync(order);
             await _appDbContext.SaveChangesAsync();
 
+            
             foreach(var product in dto.Products!)
             {
+                var p = await _appDbContext.products.Where(P => P.ProductId == product.ProductID).FirstOrDefaultAsync();
+                if(p == null) { return null; }
+
+                total += p.Price;
+
                 var orderProduct = new OrderItem()
                 {
                     OrderId = order.OrderId,
@@ -71,6 +80,16 @@ namespace FactoriesGateSystem.Repositories
             await _appDbContext.SaveChangesAsync();
 
             dto.ID = order.OrderId;
+
+            Invoice invoice = new Invoice()
+            {
+                Total = total,
+                Date = DateTime.UtcNow,
+                OrderId = order.OrderId,    
+            };
+            await _appDbContext.AddAsync(invoice);
+            await _appDbContext.SaveChangesAsync();
+
             return dto;
         }
 

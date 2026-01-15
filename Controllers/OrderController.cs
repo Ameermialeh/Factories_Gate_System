@@ -80,6 +80,7 @@ namespace FactoriesGateSystem.Controllers
                     return Unauthorized();
 
                 var order =await _orderRepo.CreateOrderAsync(orderDto, int.Parse(factoryId));
+                if (order == null) { return BadRequest(""); }
                 return Ok(order);
             }
             catch (Exception) {
