@@ -18,6 +18,7 @@ namespace FactoriesGateSystem.Models
         public int FactoryId { get; set; }
         [ForeignKey(nameof(FactoryId))]
 
+        public Factory? Factory { get; set; }
         public ICollection<Vacation>? Vacations { get; set; }
     }
 }
