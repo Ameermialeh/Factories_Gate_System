@@ -11,9 +11,9 @@ A system to manage factories, employees, products, orders, inventory, accounting
 
 Entity | Description | Key Relationships |
 ---|---|---|
-Admin | Controls system, adds factories and managers, views stats | (1) Admin → (Many) Factories
-Factory | Represents a factory | (1) Factory → (1) Manager, (1) Factory → (Many) Employees / Products / Orders / Materials / Suppliers
-Manager | Manages a factory | (1) Manager → (1) Factory, manages Employees, Orders, Products, Materials, Suppliers and Expense
+Admin | Controls system, views stats | -
+Factory | Represents a factory | (1) Factory → (1) Manager, (1) Factory → (Many) Employees / Products / Orders / Materials / Suppliers / Customers
+Manager | Manages a factory | (1) Manager → (1) Factory, manages Employees, Orders, Products, Materials, Suppliers, Customers, Vacations,Salaries and Expense
 Employee | Works in factory | Belongs to Factory, 
 Customer | Places orders | (1) Customer → (Many) Orders
 Supplier | Supplies materials | (Many-to-Many) with Materials (via MaterialPurchase)
@@ -24,7 +24,7 @@ OrderItem | Line items in order | Links Product and Order
 Invoice | Billing for order | (1) Invoice → (1) Order
 Inventory | Tracks stock quantities | (1) Inventory → (many) Product / Material
 Vacation | Employee leave | (1) Employee → (many) vacations
-Salary | Employee payroll | (1) Employee → (many) Monthly salary
+Salary | Employee payroll | (1) Employee → (many) salaries
 Expense | Tracks factory expenses | linked to Factory
 
 ### **UML Diagram**
@@ -43,4 +43,5 @@ Expense | Tracks factory expenses | linked to Factory
 * Manage Suppliers
 * Manage Materials
 * Manage vacations
+* Manage salaries
 * Manage Expense
