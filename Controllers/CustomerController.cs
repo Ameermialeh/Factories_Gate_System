@@ -24,8 +24,6 @@ namespace FactoriesGateSystem.Controllers
             try
             {
                 var customerDto = await _customerRepo.GetCustomersAsync();
-                if (customerDto == null)
-                    return NotFound("There is no customers Found.");
 
                 return Ok(customerDto);
             }
@@ -35,7 +33,7 @@ namespace FactoriesGateSystem.Controllers
             }
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         [ProducesResponseType(typeof(CustomerDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -62,17 +60,17 @@ namespace FactoriesGateSystem.Controllers
             catch (Exception) {
                 return StatusCode(500, "Internal server error");
             }
-        }
+        } 
 
-        [HttpPost]
-        [ProducesResponseType(typeof(CustomerDTO), 200)]
+        [HttpGet("{name:alpha}")]
+        [ProducesResponseType(typeof(List<CustomerDTO>), 200)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> CreateCustomer([FromBody]CustomerDTO customerDto)
+        public async Task<IActionResult> GetCustomerName(string name)
         {
             try
             {
-                var customer = await _customerRepo.AddCustomerAsync(customerDto);
-                return Ok(customer);
+                var customerDto = await _customerRepo.GetCustomersAsync(c => c.Name.Contains(name));
+                return Ok(customerDto);
             }
             catch (Exception)
             {
@@ -80,32 +78,52 @@ namespace FactoriesGateSystem.Controllers
             }
         }
 
-        [HttpPut("{id}")]
-        [ProducesResponseType(typeof(UpdateCustomerDTO), 200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
+        [HttpPost]
+        [ProducesResponseType(typeof(CustomerDTO), 200)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> UpdateCustomer(int id, [FromBody] UpdateCustomerDTO customerDto)
+        public async Task<IActionResult> CreateCustomer([FromBody]CustomerDTO customerDto)
         {
-            if (id <= 0 || customerDto == null)
-                return BadRequest("Invalid customer data.");
+            if(customerDto.Name == null && customerDto.Address == null && customerDto.Phone == null)
+                return BadRequest("All field (Name and Address and Phone) must be provided.");
+
             try
             {
-                var customer =await _customerRepo.UpdateCustomerAsync(id, customerDto);
-                if (customer == null)
-                {
-                    return NotFound($"No Customer with id: {id}.");
-                }
+                var factoryId = Request.Cookies["FactoryId"];
+                if (factoryId == null)
+                    return Unauthorized();
 
+                var customer = await _customerRepo.AddCustomerAsync(customerDto, int.Parse(factoryId));
                 return Ok(customer);
             }
-            catch(Exception)
+            catch (Exception ex)
             {
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500,  ex );
             }
         }
 
-        [HttpDelete("{id}")]
+        [HttpPut("{id:int}")]
+        [ProducesResponseType(typeof(CustomerDTO), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> UpdateCustomer(int id, [FromBody] UpdateCustomerDTO dto)
+        {
+            if (id <= 0)
+                return BadRequest("Invalid customer id.");
+            if(dto.Name == null && dto.Address == null && dto.Phone == null)
+                return BadRequest("At least one field (Name or Address or Phone) must be provided.");
+
+            try
+            {
+                var customer = await _customerRepo.UpdateCustomerAsync(id, dto);
+                if (customer == null)
+                    return NotFound($"No Customer with id: {id}."); 
+
+                return Ok(customer);
+            } catch(Exception) { return StatusCode(500, "Internal server error");}
+        }
+
+        [HttpDelete("{id:int}")]
         [ProducesResponseType(typeof(DeleteCustomerDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -116,16 +134,11 @@ namespace FactoriesGateSystem.Controllers
                 return BadRequest("Invalid customer id.");
             try
             {
-                var customer = await _customerRepo.DeleteCustomerAsync(id);
-                if (customer == null)
+                var done = await _customerRepo.DeleteCustomerAsync(id);
+                if (!done)
                     return NotFound($"No customer with id = {id}.");
-
-                var customerDto = new DeleteCustomerDTO()
-                {
-                    ID = customer.CustomerId,
-                    Name = customer.Name,
-                };
-                return Ok(customerDto);
+               
+                return Ok("Customer deleted successfully");
             }
             catch (Exception)
             {
