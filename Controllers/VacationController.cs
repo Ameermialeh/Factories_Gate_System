@@ -54,7 +54,7 @@ namespace FactoriesGateSystem.Controllers
                     ToDate = vacation.ToDate,
                     VacationReason = vacation.VacationReason,
                 };
-                return Ok(vacation);
+                return Ok(vacationDto);
             }catch { return StatusCode(500, "Internal server error"); }
         }
 
@@ -67,12 +67,14 @@ namespace FactoriesGateSystem.Controllers
             if (dto.EmployeeId <= 0 || String.IsNullOrWhiteSpace(dto.VacationReason))
                 return BadRequest("Invalid data.");
 
+            if (dto.FromDate == null || dto.ToDate == null)
+                return BadRequest("Dates are required");
             try
             {
                 var vacation = await _vacationRepo.AddVacationToEmployee(dto);
                 return Ok(vacation);
             }
-            catch { return StatusCode(500, "Internal server error"); }
+            catch(Exception ex) { return StatusCode(500, ex.InnerException?.Message ?? ex.Message); }
         }
 
 
