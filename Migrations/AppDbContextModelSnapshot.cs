@@ -121,34 +121,38 @@ namespace FactoriesGateSystem.Migrations
                     b.ToTable("factory");
                 });
 
-            modelBuilder.Entity("FactoriesGateSystem.Models.Inventory", b =>
+            modelBuilder.Entity("FactoriesGateSystem.Models.InventoryMaterial", b =>
                 {
                     b.Property<int>("InventoryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("tinyint(1)");
-
                     b.Property<DateTime>("LastUpdated")
                         .HasColumnType("datetime(6)");
-
-                    b.Property<int>("MaterialId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
                     b.HasKey("InventoryId");
 
-                    b.HasIndex("MaterialId");
+                    b.ToTable("inventoryMaterials");
+                });
 
-                    b.HasIndex("ProductId");
+            modelBuilder.Entity("FactoriesGateSystem.Models.InventoryProduct", b =>
+                {
+                    b.Property<int>("InventoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
 
-                    b.ToTable("inventories");
+                    b.Property<DateTime>("LastUpdated")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("InventoryId");
+
+                    b.ToTable("inventoryProducts");
                 });
 
             modelBuilder.Entity("FactoriesGateSystem.Models.Invoice", b =>
@@ -182,8 +186,8 @@ namespace FactoriesGateSystem.Migrations
                     b.Property<int>("FactoryId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("tinyint(1)");
+                    b.Property<int>("InventoryId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -192,6 +196,8 @@ namespace FactoriesGateSystem.Migrations
                     b.HasKey("MaterialId");
 
                     b.HasIndex("FactoryId");
+
+                    b.HasIndex("InventoryId");
 
                     b.ToTable("materials");
                 });
@@ -290,7 +296,14 @@ namespace FactoriesGateSystem.Migrations
                     b.Property<int>("FactoryId")
                         .HasColumnType("int");
 
+                    b.Property<int>("InventoryId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("NameAr")
                         .IsRequired()
                         .HasColumnType("longtext");
 
@@ -300,6 +313,8 @@ namespace FactoriesGateSystem.Migrations
                     b.HasKey("ProductId");
 
                     b.HasIndex("FactoryId");
+
+                    b.HasIndex("InventoryId");
 
                     b.ToTable("products");
                 });
@@ -485,25 +500,6 @@ namespace FactoriesGateSystem.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("FactoriesGateSystem.Models.Inventory", b =>
-                {
-                    b.HasOne("FactoriesGateSystem.Models.Material", "Material")
-                        .WithMany()
-                        .HasForeignKey("MaterialId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FactoriesGateSystem.Models.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Material");
-
-                    b.Navigation("Product");
-                });
-
             modelBuilder.Entity("FactoriesGateSystem.Models.Invoice", b =>
                 {
                     b.HasOne("FactoriesGateSystem.Models.Order", "Order")
@@ -523,7 +519,15 @@ namespace FactoriesGateSystem.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("FactoriesGateSystem.Models.InventoryMaterial", "Inventory")
+                        .WithMany("Materials")
+                        .HasForeignKey("InventoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Factory");
+
+                    b.Navigation("Inventory");
                 });
 
             modelBuilder.Entity("FactoriesGateSystem.Models.MaterialPurchase", b =>
@@ -591,7 +595,15 @@ namespace FactoriesGateSystem.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("FactoriesGateSystem.Models.InventoryProduct", "Inventory")
+                        .WithMany("Product")
+                        .HasForeignKey("InventoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Factory");
+
+                    b.Navigation("Inventory");
                 });
 
             modelBuilder.Entity("FactoriesGateSystem.Models.RefreshToken", b =>
@@ -650,6 +662,16 @@ namespace FactoriesGateSystem.Migrations
             modelBuilder.Entity("FactoriesGateSystem.Models.Employee", b =>
                 {
                     b.Navigation("Vacations");
+                });
+
+            modelBuilder.Entity("FactoriesGateSystem.Models.InventoryMaterial", b =>
+                {
+                    b.Navigation("Materials");
+                });
+
+            modelBuilder.Entity("FactoriesGateSystem.Models.InventoryProduct", b =>
+                {
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("FactoriesGateSystem.Models.Material", b =>
