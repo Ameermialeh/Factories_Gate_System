@@ -1,4 +1,5 @@
 ﻿using FactoriesGateSystem.Helpers;
+using FactoriesGateSystem.Models.DTOs.Admin;
 using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using static FactoriesGateSystem.Models.DTOs.AuthDTO;
@@ -39,22 +40,9 @@ namespace FactoriesGateSystem.Controllers
 
                 var user = await _authRepo.RegisterAsync(dto, passwordHash);
 
-                var accessToken = _jwtHelper.GenerateAccessToken(user);
-                var refreshToken = _jwtHelper.GenerateRefreshToken();
-
-                refreshToken.UserId = user.UserId;
-                await _authRepo.SaveRefreshTokenAsync(refreshToken);
-
-                return Ok(new
-                {
-                    accessToken,
-                    refreshToken = refreshToken.Token
-                });
+                return Ok("Register successfully, Try to login");
             }
-            catch (Exception)
-            {
-                return StatusCode(500, "Internal server error");
-            }
+            catch (Exception) { return StatusCode(500, "Internal server error"); }
         }
 
         [HttpPost("login")]
@@ -82,9 +70,11 @@ namespace FactoriesGateSystem.Controllers
             };
 
             Response.Cookies.Append("UserId", $"{user.UserId}", options);
-
-            var factoryId = await _factoryRepo.GetFactoryId(user.UserId);
-            Response.Cookies.Append("FactoryId", $"{factoryId}", options);
+            if(user.Role == "manager")
+            {
+                var factoryId = await _factoryRepo.GetFactoryId(user.UserId);
+                Response.Cookies.Append("FactoryId", $"{factoryId}", options);
+            }
 
             return Ok(new
             {
@@ -92,6 +82,21 @@ namespace FactoriesGateSystem.Controllers
                 refreshToken = refreshToken.Token
             });
         }
+
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+
+            var userId = Request.Cookies["UserId"];
+            if (userId == null)
+                return Unauthorized();
+
+            var done =await _authRepo.LogoutAsync(int.Parse(userId));
+            if (!done) { return BadRequest("Something went wrong"); }
+
+            return Ok(new { message = "Logged out successfully" });
+        }
+
 
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh(RefreshTokenDTO dto)
@@ -114,6 +119,33 @@ namespace FactoriesGateSystem.Controllers
                 accessToken,
                 refreshToken = newRefreshToken.Token
             });
+        }
+
+        [HttpPost("ChangePassword")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Email) ||
+                string.IsNullOrWhiteSpace(dto.CurrentPassword) ||
+                string.IsNullOrWhiteSpace(dto.NewPassword))
+                return BadRequest("Invalid data.");
+            try
+            {
+                var user = await _authRepo.getAUserByEmailAsync(dto.Email);
+                if (user == null) return NotFound("User not found");
+
+                var isValid = _authRepo.PasswordValid(user, dto);
+                if (!isValid)
+                    return BadRequest("Current Password is incorrect");
+
+                await _authRepo.UpdatePasswordAsync(user, dto);
+                return Ok("Changed password successfully");
+
+            }
+            catch (Exception) { return StatusCode(500, "Internal Server Error"); }
         }
 
     }
