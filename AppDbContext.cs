@@ -16,7 +16,8 @@ namespace FactoriesGateSystem
         public DbSet<Supplier> suppliers { get; set; }
         public DbSet<Product> products { get; set; }
         public DbSet<Material> materials { get; set; }
-        public DbSet<Inventory> inventories { get; set; }
+        public DbSet<InventoryMaterial> inventoryMaterials { get; set; }
+        public DbSet<InventoryProduct> inventoryProducts { get; set; }
         public DbSet<Employee> employees { get; set; }
         public DbSet<Salary> salaries { get; set; }
         public DbSet<Customer> customer { get; set; }
