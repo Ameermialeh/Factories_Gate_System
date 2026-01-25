@@ -28,7 +28,7 @@ Salary | Employee payroll | (1) Employee → (many) Monthly salary
 Expense | Tracks factory expenses | linked to Factory
 
 ### **UML Diagram**
-![alt text](https://github.com/Ameermialeh/Factories_Gate_System/blob/main/UML_Diagram/Factories_Managment_System_UML.jpg)
+![alt text](https://github.com/Ameermialeh/Factories_Gate_System/blob/main/UML_Diagram/FactoryManagmentSystem_UML.jpg)
 
 ### **Admin Capabilities**
 * Manage Admins
