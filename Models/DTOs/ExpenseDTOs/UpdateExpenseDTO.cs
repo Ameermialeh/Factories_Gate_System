@@ -2,16 +2,8 @@
 {
     public class UpdateExpenseDTO
     {
-        public class UpdateExpenseAmountDTO
-        {
-            public int id;
-            public int newAmount;
-        }
+        public int? Amount;
+        public string? Description;
 
-        public class UpdateExpenseDescription
-        {
-            public int id;
-            public string? newDescription;
-        }
     }
 }

@@ -10,5 +10,6 @@ namespace FactoriesGateSystem.Models.DTOs
 
         public string? Address { get; set; }
 
+        public int ManagerId { get; set; }
     }
 }

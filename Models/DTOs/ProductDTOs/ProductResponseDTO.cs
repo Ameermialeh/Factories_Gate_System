@@ -1,12 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace FactoriesGateSystem.Models.DTOs.ProductDTOs
+﻿namespace FactoriesGateSystem.Models.DTOs.ProductDTOs
 {
-    public class ProductDTO
+    public class ProductResponseDTO
     {
         public int ID { get; set; }
         public string? Name { get; set; }
-        public string? NameAr { get; set; }
 
         public int Quantity { get; set; }
 

@@ -1,16 +1,15 @@
-﻿using FactoriesGateSystem.Models;
-using System.ComponentModel.DataAnnotations;
-
+﻿
 namespace FactoriesGateSystem.Models.DTOs.OrderDTOs
 {
-    public class OrderDTO
+    public class OrderResponseDTO
     {
-        public int ID { get; set; }
-
+        public int ID { get; set; } 
         public string? Name { get; set; }
 
         public DateTime OrderDate { get; set; }
 
         public int CustomerID { get; set; }
+
+        public ICollection<OrderItemDTO>? Products { get; set; }
     }
 }
