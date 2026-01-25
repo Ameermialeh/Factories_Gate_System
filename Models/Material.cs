@@ -7,9 +7,11 @@ namespace FactoriesGateSystem.Models
     {
         [Key]
         public int MaterialId { get; set; }
+
+        public int InventoryId { get; set; }   
+
         [Required]
         public required string Name { get; set; }
-        public bool IsDeleted { get; set; } = false;
 
         [Required]
         public int FactoryId { get; set; }
@@ -18,5 +20,8 @@ namespace FactoriesGateSystem.Models
         public Factory? Factory { get; set; }
 
         public ICollection<MaterialPurchase>? MaterialPurchase { get; set; }
+
+        [ForeignKey(nameof(InventoryId))]
+        public InventoryMaterial? Inventory { get; set; }
     }
 }

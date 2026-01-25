@@ -7,8 +7,13 @@ namespace FactoriesGateSystem.Models
     {
         [Key]
         public int ProductId { get; set; }
+
+        public int InventoryId { get; set; }
         [Required]
         public required string Name { get; set; }
+
+        [Required]
+        public required string NameAr { get; set; }
 
         [Required]
         public int Price { get; set; }
@@ -19,5 +24,8 @@ namespace FactoriesGateSystem.Models
         public Factory? Factory { get; set; }
 
         public ICollection<OrderItem>? OrderProducts { get; set; }
+
+        [ForeignKey(nameof(InventoryId))]
+        public InventoryProduct? Inventory { get; set; }
     }
 }
