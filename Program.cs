@@ -40,6 +40,8 @@ namespace FactoriesGateSystem
             builder.Services.AddScoped<ExpenseRepo>();
             builder.Services.AddScoped<SalaryRepo>();
             builder.Services.AddScoped<InvoiceRepo>();
+            builder.Services.AddScoped<ManagerRepo>();
+
 
             // JWT settings
             var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]!);
@@ -63,8 +65,18 @@ namespace FactoriesGateSystem
                 };
             });
 
+            // React connection
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowReact",
+                    policy => policy
+                        .WithOrigins("http://localhost:3000")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod());
+            });
 
             var app = builder.Build();
+            // Seed
             using (var scope = app.Services.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -82,6 +94,7 @@ namespace FactoriesGateSystem
 
             app.UseAuthorization();
 
+            app.UseCors("AllowReact");
 
             app.MapControllers();
 

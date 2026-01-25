@@ -1,11 +1,19 @@
 {
   "Version": 1,
-  "Hash": "VgPenM6B02GLbgOqMI/8l9rAD42nIDZnnHpdSEvr6xg=",
+  "Hash": "DRcXROQrmFG1mv2fPljVpSHt76H9Y+gCSYC4gagYe00=",
   "Source": "FactoriesGateSystem",
   "BasePath": "_content/FactoriesGateSystem",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],
-  "DiscoveryPatterns": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "FactoriesGateSystem\\wwwroot",
+      "Source": "FactoriesGateSystem",
+      "ContentRoot": "C:\\Users\\Ameer Pc\\source\\repos\\Factories_Gate_System\\FactoriesGateSystem\\wwwroot\\",
+      "BasePath": "_content/FactoriesGateSystem",
+      "Pattern": "**"
+    }
+  ],
   "Assets": []
 }

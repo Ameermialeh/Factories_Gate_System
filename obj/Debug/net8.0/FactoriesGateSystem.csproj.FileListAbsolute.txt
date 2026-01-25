@@ -111,3 +111,4 @@ C:\Users\Ameer Pc\source\repos\Factories_Gate_System\FactoriesGateSystem\bin\Deb
 C:\Users\Ameer Pc\source\repos\Factories_Gate_System\FactoriesGateSystem\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\Ameer Pc\source\repos\Factories_Gate_System\FactoriesGateSystem\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
 C:\Users\Ameer Pc\source\repos\Factories_Gate_System\FactoriesGateSystem\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\Users\Ameer Pc\source\repos\Factories_Gate_System\FactoriesGateSystem\bin\Debug\net8.0\FactoriesGateSystem.staticwebassets.runtime.json
