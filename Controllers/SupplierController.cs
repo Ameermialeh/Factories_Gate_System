@@ -17,22 +17,25 @@ namespace FactoriesGateSystem.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(SupplierDTO), 200)]
+        [ProducesResponseType(typeof(List<SupplierDTO>), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> GetSuppliers()
+        public async Task<IActionResult> GetSuppliers([FromQuery] string? name)
         {
             try
             {
-                var supplierdto = await _supplierRepo.GetSupplierAsync();
-                if (supplierdto == null || supplierdto.Count == 0) { return NotFound("There is no suppliers."); }
-
-                return Ok(supplierdto);
+                if (name == null)
+                {
+                    var supplierdto = await _supplierRepo.GetSupplierAsync();
+                    return Ok(supplierdto);
+                }
+                var filtered = await _supplierRepo.GetSupplierAsync(s => s.Name.Contains(name));
+                return Ok(filtered);
             }
             catch (Exception) { return StatusCode(500, "Internal server error."); }
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         [ProducesResponseType(typeof(SupplierDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -55,6 +58,20 @@ namespace FactoriesGateSystem.Controllers
                     Phone = supplier.Phone,
                 };
                 return Ok(supplierDto);
+            }
+            catch (Exception) { return StatusCode(500, "Internal server error."); }
+        }
+
+        [HttpGet("{name:alpha}")]
+        [ProducesResponseType(typeof(List<SupplierDTO>), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> GetSuppliersByName(string name)
+        {
+            try
+            {
+                var supplier = await _supplierRepo.GetSupplierAsync(s => s.Name.Contains(name));
+                return Ok(supplier);
             }
             catch (Exception) { return StatusCode(500, "Internal server error."); }
         }
@@ -83,8 +100,12 @@ namespace FactoriesGateSystem.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> UpdateSupplier(int id, [FromBody] UpdateSupplierDTO supplierDto)
         {
-            if (id <= 0 || supplierDto == null)
-                return BadRequest("Invalid supplier data.");
+            if (id <= 0)
+                return BadRequest("Invalid supplier id.");
+
+            if(supplierDto.Name == null && supplierDto.Address == null && supplierDto.Phone == null)
+                return BadRequest("At least one field (Name or Address or Phone) must be provided.");
+
             try
             {
                 var supplier = await _supplierRepo.UpdateSupplierAsync(id, supplierDto);

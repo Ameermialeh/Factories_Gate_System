@@ -1,4 +1,5 @@
-﻿using FactoriesGateSystem.Models.DTOs.VacationDTOs;
+﻿using FactoriesGateSystem.Models.DTOs.SupplierDTOs;
+using FactoriesGateSystem.Models.DTOs.VacationDTOs;
 using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -27,8 +28,6 @@ namespace FactoriesGateSystem.Controllers
             try
             {
                 var vacations = await _vacationRepo.GetAllVacationAsync();
-
-                if(vacations == null) { return NotFound("Vacations not Found!"); }
                 return Ok(vacations);
             }catch { return StatusCode(500, "Internal server error"); }
         }
@@ -77,39 +76,34 @@ namespace FactoriesGateSystem.Controllers
         }
 
 
-        [HttpPut("UpdateVacationDate")]
+        [HttpPut("{id:int}")]
         [ProducesResponseType(typeof(VacationDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> UpdateVacationDate([FromBody] UpdateVacationDate dto)
+        public async Task<IActionResult> UpdateVacation(int id, [FromBody] UpdateVacationDTO dto)
         {
-            if (dto.VacationId <= 0)
+            if (id <= 0)
                 return BadRequest("Invalid vacation id.");
+
+            if (dto.VacationReason == null && dto.FromDate == null && dto.ToDate == null)
+                return BadRequest("At least one field (VacationReason or FromDate or ToDate) must be provided.");
+
+            if (dto.FromDate != null && dto.ToDate != null)
+            {
+                if (dto.ToDate.Value <= dto.FromDate.Value)
+                    return BadRequest("ToDate must be later than FromDate.");
+            }
+
             try
             {
-                var vacation = await _vacationRepo.UpdateVacationDateAsync(dto);
-                if (vacation == null) { return NotFound($"No vacation with id = {dto.VacationId}. "); }
+                var vacation = await _vacationRepo.UpdateVacationAsync(id, dto);
+                if (vacation == null) { return NotFound($"No vacation with id = {id}. "); }
                 return Ok(vacation);
             }
             catch { return StatusCode(500, "Internal server error"); }
         }
 
-        [HttpPut("UpdateVacationReasone")]
-        [ProducesResponseType(typeof(VacationDTO), 200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(500)]
-        public async Task<IActionResult> UpdateVacationReasone([FromBody] UpdateVacationReasone dto)
-        {
-            if (dto.VacationId <= 0 || String.IsNullOrWhiteSpace(dto.VacationReason))
-                return BadRequest("Invalid data.");
-            try
-            {
-                var vacation = await _vacationRepo.UpdateVacationReasoneAsync(dto);
-                if (vacation == null) { return NotFound($"No vacation with id = {dto.VacationId}. "); }
-                return Ok(vacation);
-            }
-            catch { return StatusCode(500, "Internal server error"); }
-        }
+       
 
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(bool), 200)]

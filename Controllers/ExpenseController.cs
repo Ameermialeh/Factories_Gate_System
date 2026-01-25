@@ -20,22 +20,25 @@ namespace FactoriesGateSystem.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(ExpenseDTO), 200)]
+        [ProducesResponseType(typeof(List<ExpenseDTO>), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> GetAllExpense()
+        public async Task<IActionResult> GetExpense([FromQuery] DateTime? date)
         {
             try
             {
-                var Expenses = await _expenseRepo.GetAllExpenseAsync();
-
-                if (Expenses == null) { return NotFound("Expenses not Found!"); }
-                return Ok(Expenses);
+                if (date == null)
+                {
+                    var Expenses = await _expenseRepo.GetAllExpenseAsync();
+                    return Ok(Expenses);
+                }
+                var filtered = await _expenseRepo.GetAllExpenseAsync(e =>e.Date >= date.Value.Date && e.Date < date.Value.Date.AddDays(1));
+                return Ok(filtered);
             }
             catch { return StatusCode(500, "Internal server error"); }
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         [ProducesResponseType(typeof(ExpenseDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -83,35 +86,25 @@ namespace FactoriesGateSystem.Controllers
             catch { return StatusCode(500, "Internal server error"); }
         }
 
-        [HttpPut("UpdateExpenseAmount")]
+        [HttpPut("{id:int}")]
         [ProducesResponseType(typeof(ExpenseDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> UpdateExpenseAmount([FromBody] UpdateExpenseAmountDTO dto)
+        public async Task<IActionResult> UpdateExpense(int id, [FromBody] UpdateExpenseDTO dto)
         {
-            if (dto.id <= 0 || dto.newAmount < 0)
-                return BadRequest("Invalid Expense data.");
-            try
-            {
-                var expense = await _expenseRepo.UpdateExpenseAmountAsync(dto);
-                if (expense == null) { return NotFound($"No Expense with id = {dto.id}. "); }
-                return Ok(expense);
-            }
-            catch { return StatusCode(500, "Internal server error"); }
-        }
+            if (id <= 0)
+                return BadRequest("Invalid Expense id.");
 
-        [HttpPut("UpdateExpenseDescription")]
-        [ProducesResponseType(typeof(ExpenseDTO), 200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(500)]
-        public async Task<IActionResult> UpdateExpenseDescription([FromBody] UpdateExpenseDescription dto)
-        {
-            if (dto.id <= 0 || string.IsNullOrWhiteSpace(dto.newDescription))
-                return BadRequest("Invalid Expense data.");
+            if(dto.Amount == null && dto.Description == null)
+                return BadRequest("At least one field (Amount or Description) must be provided.");
+
+            if(dto.Amount < 0)
+                return BadRequest("Amount cannot be negative.");
+
             try
             {
-                var expense = await _expenseRepo.UpdateExpenseDescriptionAsync(dto);
-                if (expense == null) { return NotFound($"No Expense with id = {dto.id}. "); }
+                var expense = await _expenseRepo.UpdateExpenseAsync(id, dto);
+                if (expense == null) { return NotFound($"No Expense with id = {id}. "); }
                 return Ok(expense);
             }
             catch { return StatusCode(500, "Internal server error"); }

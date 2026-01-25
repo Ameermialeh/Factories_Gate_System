@@ -1,4 +1,5 @@
-﻿using FactoriesGateSystem.Models.DTOs.OrderDTOs;
+﻿using FactoriesGateSystem.Models;
+using FactoriesGateSystem.Models.DTOs.OrderDTOs;
 using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,25 +18,26 @@ namespace FactoriesGateSystem.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(OrderDTO), 200)]
+        [ProducesResponseType(typeof(List<OrderDTO>), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> GetAllOrders()
+        public async Task<IActionResult> GetOrders([FromQuery] string? name)
         {
             try
             {
-                var orderDto = await _orderRepo.GetOrdersAsync();
-                if (orderDto == null) { return NotFound("No order here."); }
-                 
-                return Ok(orderDto);
+                if (name == null)
+                {
+                    var orderDto = await _orderRepo.GetOrdersAsync();
+                    return Ok(orderDto);
+                }
+                var filtered = await _orderRepo.GetOrdersAsync(o => o.Name.Contains(name));
+                return Ok(filtered);
             }
-            catch (Exception) {
-                return StatusCode(500, "Internal server error");
-            }
+            catch (Exception) { return StatusCode(500, "Internal server error"); }
         }
 
-        [HttpGet("{id}")]
-        [ProducesResponseType(typeof(OrderWithProductsDTO), 200)]
+        [HttpGet("{id:int}")]
+        [ProducesResponseType(typeof(OrderResponseDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -50,7 +52,7 @@ namespace FactoriesGateSystem.Controllers
 
                 var products = await _orderRepo.GetProductsForOrderAsync(id);
 
-                var dto = new OrderWithProductsDTO()
+                var dto = new OrderResponseDTO()
                 {
                     ID = order.OrderId,
                     Name = order.Name,
@@ -67,48 +69,83 @@ namespace FactoriesGateSystem.Controllers
             }
         }
 
-        [HttpPost]
-        [ProducesResponseType(typeof(OrderWithProductsDTO), 200)]
+
+        [HttpGet("{name:alpha}")]
+        [ProducesResponseType(typeof(List<OrderResponseDTO>), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> CreateOrder([FromBody] OrderWithProductsDTO orderDto)
+        public async Task<IActionResult> GetOrdersByName(string name)
         {
+            try
+            {
+                var orders = await _orderRepo.GetOrdersAsync(o => o.Name.Contains(name));
+
+                var result = new List<OrderResponseDTO>();
+
+                foreach (var order in orders)
+                {
+                    var products = await _orderRepo.GetProductsForOrderAsync(order.ID);
+
+                    result.Add(new OrderResponseDTO
+                    {
+                        ID = order.ID,
+                        Name = order.Name,
+                        OrderDate = order.OrderDate,
+                        CustomerID = order.CustomerID,
+                        Products = products
+                    });
+                }
+
+                return Ok(result);
+            }
+            catch (Exception) { return StatusCode(500, "Internal server error"); }
+        }
+
+        [HttpPost]
+        [ProducesResponseType(typeof(OrderResponseDTO), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> CreateOrder( [FromBody] OrderWithProductsDTO dto)
+        {
+            if (dto.Name == null && dto.OrderDate == null && dto.CustomerID == null && dto.Products == null)
+                return BadRequest("All fields (Name or OrderDate or CustomerID or Products) must be provided.");
             try
             {
                 var factoryId = Request.Cookies["FactoryId"];
                 if (factoryId == null)
                     return Unauthorized();
 
-                var order =await _orderRepo.CreateOrderAsync(orderDto, int.Parse(factoryId));
+                var order =await _orderRepo.CreateOrderAsync(dto, int.Parse(factoryId));
                 if (order == null) { return BadRequest(""); }
                 return Ok(order);
             }
-            catch (Exception) {
-                return StatusCode(500, "Internal server error");
-            }
+            catch (Exception) { return StatusCode(500, "Internal server error"); }
         }
 
-        [HttpPut]
+        [HttpPut("{id:int}")]
         [ProducesResponseType(typeof(OrderWithProductsDTO), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> UpdateOrder([FromBody] OrderWithProductsDTO orderDto)
+        public async Task<IActionResult> UpdateOrder(int id, [FromBody] OrderWithProductsDTO dto)
         {
+            if(id <= 0)
+                return BadRequest("Invalid order id.");
+            if(dto.Name == null && dto.OrderDate == null && dto.CustomerID == null && dto.Products == null)
+                return BadRequest("At least one field (Name or OrderDate or CustomerID or Products) must be provided.");
+            if(dto.CustomerID <=0)
+                return BadRequest("Invalid customer id.");
             try
             {
-                var orderWithProductsDto =await _orderRepo.UpdateOrderAsync(orderDto);
-                if (orderWithProductsDto == null) { return NotFound($"No order with id = {orderDto.ID}."); }
+                var orderWithProductsDto =await _orderRepo.UpdateOrderAsync(id, dto);
+                if (orderWithProductsDto == null) { return NotFound($"No order with id = {id}."); }
 
                 return Ok(orderWithProductsDto);
             }
-            catch (Exception)
-            {
-                return StatusCode(500, "Internal server error");
-            }
+            catch (Exception) { return StatusCode(500, "Internal server error"); }
         }
 
-        [HttpDelete("{id}")]
-        [ProducesResponseType(typeof(OrderDTO), 200)]
+        [HttpDelete("{id:int}")]
+        [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -118,17 +155,10 @@ namespace FactoriesGateSystem.Controllers
                 return BadRequest("Invalid order id.");
             try
             {
-                var order = await _orderRepo.DeleteOrderAsync(id);
-                if (order == null) { return NotFound($"No order with id = {id}."); }
-                var orderdto = new OrderDTO()
-                {
-                    ID = order.OrderId,
-                    Name = order.Name,
-                    OrderDate = order.OrderDate,
-                    CustomerID = order.CustomerId,
-                    FactoryId = order.FactoryId,
-                };
-                return Ok(orderdto);
+                var done = await _orderRepo.DeleteOrderAsync(id);
+                if (!done) { return NotFound($"No order with id = {id}."); }
+                
+                return Ok("Deleted Order Successfully");
             }
             catch (Exception) {
                 return StatusCode(500, "Internal server error");

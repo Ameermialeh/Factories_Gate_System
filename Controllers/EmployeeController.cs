@@ -17,7 +17,7 @@ namespace FactoriesGateSystem.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(EmployeeDTO), 200)]
+        [ProducesResponseType(typeof(List<EmployeeDTO>), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
         public async Task<IActionResult> GetAllEmployees()
@@ -25,7 +25,6 @@ namespace FactoriesGateSystem.Controllers
             try
             {
                 var employeeDto = await _employeeRepo.GetEmployeesAsync();
-                if (employeeDto == null) { return NotFound("There is no employees Found."); }
                 return Ok(employeeDto);
             }
             catch (Exception)
@@ -34,7 +33,7 @@ namespace FactoriesGateSystem.Controllers
             }
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         [ProducesResponseType(typeof(EmployeeDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -52,6 +51,7 @@ namespace FactoriesGateSystem.Controllers
                 {
                     Id = employee.EmployeeId,
                     Name = employee.Name,
+                    Phone = employee.Phone,
                 };
                 return Ok(employeeDto);
             }
@@ -59,6 +59,20 @@ namespace FactoriesGateSystem.Controllers
             {
                 return StatusCode(500, "Internal server error");
             }
+        }
+
+        [HttpGet("{name:alpha}")]
+        [ProducesResponseType(typeof(List<EmployeeDTO>), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> GetEmployeeName(string name)
+        {
+            try
+            {
+                var employeeDto = await _employeeRepo.GetEmployeesAsync(e => e.Name.Contains(name));
+                return Ok(employeeDto);
+            }
+            catch (Exception) { return StatusCode(500, "Internal server error"); }
         }
 
         [HttpPost]
@@ -80,15 +94,18 @@ namespace FactoriesGateSystem.Controllers
             }
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         [ProducesResponseType(typeof(EmployeeDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
         public async Task<IActionResult> UpdateEmployee(int id, [FromBody] UpdateEmployeeDTO dto)
         {
-            if (id <= 0 || dto == null)
-                return BadRequest("Invalid employee data.");
+            if (id <= 0)
+                return BadRequest("Invalid employee id.");
+            if (dto.Name == null && dto.Phone == null)
+                return BadRequest("At least one field (Name or Phone) must be provided.");
+
             try
             {
                 var employee =await _employeeRepo.UpdateEmployeeAsync(id, dto);   
@@ -101,8 +118,8 @@ namespace FactoriesGateSystem.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
-        [ProducesResponseType(typeof(EmployeeDTO), 200)]
+        [HttpDelete("{id:int}")]
+        [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -112,16 +129,9 @@ namespace FactoriesGateSystem.Controllers
                 return BadRequest("Invalid employee id.");
             try
             {
-                var employee =await _employeeRepo.DeleteEmployeeAsync(id);
-                if(employee == null) { return NotFound($"No Employee with id: {id}."); }
-
-                var employeeDto = new EmployeeDTO()
-                {
-                    Id = id,
-                    Name = employee.Name,  
-                    Phone = employee.Phone,
-                };
-                return Ok(employeeDto);
+                var done = await _employeeRepo.DeleteEmployeeAsync(id);
+                if(!done) { return NotFound($"No Employee with id: {id}."); }
+                return Ok("Deleted Employee Successfuly");
             }
             catch (Exception)
             {

@@ -21,32 +21,32 @@ namespace FactoriesGateSystem.Controllers
         [ProducesResponseType(typeof(ProductDTO), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> GetAllProducts()
+        public async Task<IActionResult> GetProducts([FromQuery] string? name, [FromQuery] string ln = "en")
         {
             try
             {
-                var productDto = await _productRepo.GetProductsAsync();
-                if (productDto == null || productDto.Count == 0) { return NotFound("There is no products."); }
-
-                return Ok(productDto);
+                if (name == null)
+                {
+                    var productDto = await _productRepo.GetProductsAsync(ln);
+                    return Ok(productDto);
+                }
+                var filtered = await _productRepo.GetProductsAsync(ln, p => p.Name.Contains(name));
+                return Ok(filtered);
             }
-            catch (Exception)
-            {
-                return StatusCode(500, "Internal server error");
-            }
+            catch (Exception) { return StatusCode(500, "Internal server error"); }
         }
 
-        [HttpGet("{id}")]
-        [ProducesResponseType(typeof(ProductDTO), 200)]
+        [HttpGet("{id:int}")]
+        [ProducesResponseType(typeof(ProductResponseDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> GetProductById(int id) {
+        public async Task<IActionResult> GetProductById(int id, [FromQuery] string ln = "en") {
             if (id <= 0)
                 return BadRequest("Invalid product id.");
             try
             {
-                var product = await _productRepo.GetProductByIdAsync(id);
+                var product = await _productRepo.GetProductByIdAsync(id, ln);
                 if (product == null)
                     return NotFound($"No product with id = {id}. Try again");
                 return Ok(product);
@@ -69,58 +69,49 @@ namespace FactoriesGateSystem.Controllers
                 if (factoryId == null)
                     return Unauthorized();
 
-                var product =await _productRepo.CreateProductAsync(productDto,int.Parse(factoryId));
+                var product = await _productRepo.CreateProductAsync(productDto, int.Parse(factoryId));
                 return Ok(product);
-
-            }catch (Exception)
-            {
-                return StatusCode(500, "Internal server error");
-            }
+            }catch (Exception) { return StatusCode(500, "Internal server error"); }
         }
 
-        [HttpPut]
+        [HttpPut("{id:int}")]
         [ProducesResponseType(typeof(ProductDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> UpdateProduct([FromBody] ProductDTO productDto)
+        public async Task<IActionResult> UpdateProduct(int id, [FromBody] UpdateProductDTO productDto)
         {
-            if (productDto == null)
-                return BadRequest("Invalid product data.");
+            if (id <= 0)
+                return BadRequest("Invalid product id.");
+
+            if (productDto.Name == null && productDto.Quantity == null && productDto.Price == null)
+                return BadRequest("At least one field (name or quantity or price) must be provided.");
+
+            if (productDto.Quantity < 0 || productDto.Price < 0)
+                return BadRequest("Quantity and Price cannot be negative.");
             try
             {
-               var updatedProduct = await _productRepo.UpdateProductAsync(productDto);
-                if(updatedProduct == null)
-                    return NotFound($"No Product with id: {productDto.ID}. Try again");
+                var factoryId = Request.Cookies["FactoryId"];
+                if (factoryId == null)
+                    return Unauthorized();
+
+                if (productDto.Name != null)
+                {
+                    var nameExists = await _productRepo.ChickIfProductNameExistAsync(productDto.Name, int.Parse(factoryId));
+
+                    if (!nameExists)
+                        return NotFound("Product name already exists.");
+                }
+                var Product = await _productRepo.UpdateProductAsync(id, productDto, int.Parse(factoryId));
+                if(Product == null)
+                    return NotFound($"No Product with id: {id}. Try again");
                
-                return Ok(updatedProduct);
-
-            }catch (Exception)
-            {
-                return StatusCode(500, "Internal server error");
-            }
-        }
-
-        [HttpPut("UpdateQuantity")]
-        [ProducesResponseType(typeof(ProductDTO), 200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(500)]
-        public async Task<IActionResult> UpdateQuantityProduct([FromBody] UpdateProductDTO dto)
-        {
-            if (dto.ID < 0 || dto.Quantity < 0)
-                return BadRequest("Invalid product data.");
-            try
-            {
-                var Product = await _productRepo.UpdateQuantityProductAsync(dto);
-                if (Product == null)
-                    return NotFound($"No Product with id: {dto.ID}. Try again");
-
                 return Ok(Product);
 
+            }catch (Exception)
+            {
+                return StatusCode(500, "Internal server error");
             }
-            catch (Exception)
-            { return StatusCode(500, "Internal server error"); }
         }
 
         [HttpDelete("{id}")]
@@ -134,7 +125,11 @@ namespace FactoriesGateSystem.Controllers
                 return BadRequest("Invalid product id.");
             try
             {
-                var product = await _productRepo.DeleteProductAsync(id);
+                var factoryId = Request.Cookies["FactoryId"];
+                if (factoryId == null)
+                    return Unauthorized();
+
+                var product = await _productRepo.DeleteProductAsync(id,int.Parse(factoryId));
                 if (product == null)
                     return NotFound($"No Product with id: {id}. Try again");
 

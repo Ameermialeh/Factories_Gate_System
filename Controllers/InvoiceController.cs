@@ -1,4 +1,5 @@
-﻿using FactoriesGateSystem.Models.DTOs.InvoiceDTOs;
+﻿using FactoriesGateSystem.Models;
+using FactoriesGateSystem.Models.DTOs.InvoiceDTOs;
 using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,21 +20,25 @@ namespace FactoriesGateSystem.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(InvoiceDTO), 200)]
+        [ProducesResponseType(typeof(List<InvoiceDTO>), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> GetAllInvoices()
+        public async Task<IActionResult> GetInvoices([FromQuery] int? orderId)
         {
             try
             {
-                var invoice = await _invoiceRepo.GetAllInvoicesAsync();
-                if (invoice == null) { return NotFound("Invoices not Found!");}
-                return Ok(invoice);
-
-            }catch(Exception) { return StatusCode(500, "Internal server error"); }
+                if (orderId == null)
+                {
+                    var invoice = await _invoiceRepo.GetAllInvoicesAsync();
+                    return Ok(invoice);
+                }
+                var filtered = await _invoiceRepo.GetAllInvoicesAsync(i => i.OrderId == orderId.Value);
+                return Ok(filtered);
+            }
+            catch(Exception) { return StatusCode(500, "Internal server error"); }
         }
 
-        [HttpGet("id")]
+        [HttpGet("{id:int}")]
         [ProducesResponseType(typeof(InvoiceDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -60,46 +65,29 @@ namespace FactoriesGateSystem.Controllers
         }
 
 
-        [HttpPut("UpdateDate")]
+        [HttpPut("{id:int}")]
         [ProducesResponseType(typeof(InvoiceDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> UpdateInvoiceDate([FromBody] UpdateInvoiceDateDTO dto)
+        public async Task<IActionResult> UpdateInvoice(int id, [FromBody] UpdateInvoiceDTO dto)
         {
-            if (!ModelState.IsValid || dto.id <= 0) return BadRequest("Invalid input data");
-
+            if (id <= 0) return BadRequest("Invalid Invoice id");
+            if(dto.Date == null && dto.Total == null)
+                return BadRequest("At least one field (Date or Total) must be provided.");
+            if(dto.Total < 0 )
+                return BadRequest("Total cannot be negative.");
             try
             {
-                var invoice = await _invoiceRepo.UpdateInvoiceDateAsync(dto);
-                if (invoice == null) { return NotFound($"No invoice with id = {dto.id}. "); }
+                var invoice = await _invoiceRepo.UpdateInvoiceAsync(id, dto);
+                if (invoice == null) { return NotFound($"No invoice with id = {id}. "); }
 
                 return Ok(invoice);
             }
             catch { return StatusCode(500, "Internal server error");  }
         }
 
-        [HttpPut("UpdateTotal")]
-        [ProducesResponseType(typeof(InvoiceDTO), 200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(500)]
-        public async Task<IActionResult> UpdateInvoiceTotal([FromBody] UpdateInvoiceTotalDTO dto)
-        {
-            if (dto.Total < 0  || dto.id <= 0) return BadRequest("Invalid input data");
-
-            try
-            {
-                var invoice = await _invoiceRepo.UpdateInvoiceTotalAsync(dto);
-                if (invoice == null) { return NotFound($"No invoice with id = {dto.id}. "); }
-
-                return Ok(invoice);
-            }
-            catch { return StatusCode(500, "Internal server error"); }
-        }
-
-
-        [HttpDelete("id")]
+        [HttpDelete("{id:int}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]

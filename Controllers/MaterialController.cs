@@ -22,21 +22,24 @@ namespace FactoriesGateSystem.Controllers
 
         [HttpGet]
         [ProducesResponseType(typeof(MaterialDTO), 200)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> GetAllMaterials()
+        public async Task<IActionResult> GetMaterials([FromQuery] string? name)
         {
             try
             {
-                var materialdto = await _materialRepo.GetMaterialAsync();
-                if (materialdto == null || materialdto.Count == 0) { return BadRequest("There is no materials."); }
-
-                return Ok(materialdto);
+                if (name == null)
+                {
+                    var materialdto = await _materialRepo.GetMaterialAsync();
+                    return Ok(materialdto);
+                }
+                var filtered = await _materialRepo.GetMaterialAsync(m => m.Name.Contains(name));
+                return Ok(filtered);
             }
             catch (Exception) { return StatusCode(500, "Internal server error."); }
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         [ProducesResponseType(typeof(MaterialDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -55,12 +58,31 @@ namespace FactoriesGateSystem.Controllers
                 {
                     ID = material.MaterialId,
                     Name = material.Name,
+                    Quantity = material.Inventory!.Quantity
                 };
                 return Ok(materialdto);
             }
             catch (Exception) { return StatusCode(500, "Internal server error."); }
            
         }
+
+
+        [HttpGet("{name:alpha}")]
+        [ProducesResponseType(typeof(List<MaterialDTO>), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> GetMaterialByName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return BadRequest("Invalid material name.");
+            try
+            {
+                var material = await _materialRepo.GetMaterialAsync(m => m.Name.Contains(name));
+                return Ok(material);
+            }
+            catch (Exception) { return StatusCode(500, "Internal server error."); }
+        }
+
 
         [HttpPost("BuyNewMaterial")]
         [ProducesResponseType(typeof(MaterialDTO), 200)]
@@ -90,7 +112,7 @@ namespace FactoriesGateSystem.Controllers
                 var materialDto = await _materialRepo.AddNewMaterialAsync(dto, int.Parse(factoryId));
                 return Ok(materialDto);
             }
-            catch (Exception) { return StatusCode(500, "Internal server error."); }
+            catch (Exception ex) { return StatusCode(500, ex); }
         }
 
         [HttpPost("BuyExistingMaterial")]
@@ -124,57 +146,47 @@ namespace FactoriesGateSystem.Controllers
         }
 
 
-        [HttpPut("UpdateMaterialName")]
+        [HttpPut("{id:int}")]
         [ProducesResponseType(typeof(MaterialDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(401)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> UpdateMaterialName([FromBody] UpdateNameMaterialDTO dto)
+        public async Task<IActionResult> UpdateMaterial(int id, [FromBody] UpdateMaterialDTO dto)
         {
-            if (dto.Id <= 0 || string.IsNullOrWhiteSpace(dto.Name))
-                return BadRequest("Invalid material data.");
+            if (id <= 0)
+                return BadRequest("Invalid material id.");
+
+            if (dto.Name == null && dto.Quantity == null)
+                return BadRequest("At least one field (name or quantity) must be provided.");
+
+            if (dto.Quantity < 0)
+                return BadRequest("Quantity cannot be negative.");
+
             try
             {
                 var factoryId = Request.Cookies["FactoryId"];
                 if (factoryId == null)
                     return Unauthorized();
 
-                var NameExists = await _materialRepo.ChickIfMaterialNameExistAsync(dto.Name, int.Parse(factoryId));
-                if (!NameExists) return NotFound("Material already exists.");
+                if (dto.Name != null)
+                {
+                    var nameExists = await _materialRepo
+                        .ChickIfMaterialNameExistAsync(dto.Name, int.Parse(factoryId));
 
-                var material = await _materialRepo.UpdateMaterialNameAsync(dto,int.Parse(factoryId));
-                if (material == null) return NotFound($"Material with id {dto.Id} not found.");
+                    if (!nameExists)
+                        return NotFound("Material name already exists.");
+                }
+                var material = await _materialRepo.UpdateMaterialAsync(id, dto, int.Parse(factoryId));
+                if (material == null)
+                    return NotFound($"Material with id {id} not found.");
+
                 return Ok(material);
-
             }
             catch(Exception) { return StatusCode(500, "Internal server error."); }
         }
 
-        [HttpPut("UpdateMaterialQuantity")]
-        [ProducesResponseType(typeof(MaterialDTO), 200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(401)]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(500)]
-        public async Task<IActionResult> UpdateMaterialQuantity([FromBody] UpdateQuantityMaterialDTO dto)
-        {
-            if (dto.Id <= 0 || dto.Quantity < 0)
-                return BadRequest("Invalid material data.");
-            try
-            {
-                var factoryId = Request.Cookies["FactoryId"];
-                if (factoryId == null)
-                    return Unauthorized();
-
-                var material = await _materialRepo.UpdateMaterialQuantityAsync(dto,int.Parse(factoryId));
-                if (material == null) return NotFound($"Material with id {dto.Id} not found.");
-                return Ok(material);
-            }
-            catch (Exception) { return StatusCode(500, "Internal server error."); }
-        }
-
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         [ProducesResponseType(typeof(MaterialDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(401)]

@@ -1,8 +1,9 @@
-﻿using FactoriesGateSystem.Models.DTOs.SalaryDTOs;
+﻿using FactoriesGateSystem.Models;
+using FactoriesGateSystem.Models.DTOs.ProductDTOs;
+using FactoriesGateSystem.Models.DTOs.SalaryDTOs;
 using FactoriesGateSystem.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static FactoriesGateSystem.Models.DTOs.SalaryDTOs.UpdateSalaryDTO;
 
 namespace FactoriesGateSystem.Controllers
 {
@@ -19,23 +20,27 @@ namespace FactoriesGateSystem.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(SalaryDTO), 200)]
+        [ProducesResponseType(typeof(List<SalaryDTO>), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> GetAllSalaries()
+        public async Task<IActionResult> GetSalary([FromQuery] int?employeeId)
         {
             try
-            {
-                var salaries = await _salaryRepo.GetAllSalariesAsync();
-
-                if (salaries == null) { return NotFound("Salaries not Found!"); }
-                return Ok(salaries);
+            { 
+                if(employeeId == null)
+                {
+                    var salaries = await _salaryRepo.GetAllSalariesAsync();
+                    return Ok(salaries);
+                }
+                var filtered = await _salaryRepo.GetAllSalariesAsync(s => s.EmployeeId == employeeId);
+                if (!filtered.Any()) { return NotFound($"No employee with id = {employeeId}. "); }
+                return Ok(filtered);
             }
             catch { return StatusCode(500, "Internal server error"); }
         }
 
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         [ProducesResponseType(typeof(SalaryDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -63,77 +68,71 @@ namespace FactoriesGateSystem.Controllers
             catch { return StatusCode(500, "Internal server error"); }
         }
 
-        [HttpGet("GetAllSalariesForEmployee/{employeeId}")]
+        [HttpGet("DateRange")]
         [ProducesResponseType(typeof(SalaryDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> GetAllSalariesForEmployee(int employeeId)
+        public async Task<IActionResult> GetAllSalariesInDateRange([FromQuery] int employeeId, [FromQuery] DateTime FromDate, [FromQuery] DateTime ToDate)
         {
-            if (employeeId <= 0)
-                return BadRequest("Invalid employee id.");
+            if(employeeId <= 0)
+                return BadRequest("Employee Id invalid.");
+            
+            if (ToDate <= FromDate)
+                return BadRequest("ToDate must be later than FromDate.");
             try
             {
-                var salary = await _salaryRepo.GetAllSalariesAsync(s => s.EmployeeId == employeeId);
-                if (salary == null) { return NotFound($"No employee with id = {employeeId}. "); }
+                var salary = await _salaryRepo.GetAllSalariesAsync(s => FromDate <= s.Date && ToDate >= s.Date && s.EmployeeId == employeeId);
+                if (salary == null) { return NotFound($"No salaries in range {FromDate} - {ToDate}. "); }
                 return Ok(salary);
             }
             catch { return StatusCode(500, "Internal server error"); }
         }
 
-        [HttpGet("GetAllSalariesInDateRange")]
-        [ProducesResponseType(typeof(SalaryDTO), 200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(500)]
-        public async Task<IActionResult> GetAllSalariesInDateRange([FromBody] RangeDateSalaryDTO dto)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest("Invalid range.");
-            try
-            {
-                var salary = await _salaryRepo.GetAllSalariesAsync(s => dto.FromDate <= s.Date && dto.ToDate >= s.Date);
-                if (salary == null) { return NotFound($"No salaries in range {dto.FromDate} - {dto.ToDate}. "); }
-                return Ok(salary);
-            }
-            catch { return StatusCode(500, "Internal server error"); }
-        }
-
-        [HttpPut("UpdateSalary")]
+        [HttpPost]
         [ProducesResponseType(typeof(SalaryDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> UpdateSalary([FromBody] UpdateSalariesDTO dto)
+        public async Task<IActionResult> AddSalary([FromBody] AddSalaryDTO dto)
         {
-            if (dto.Id <= 0 || dto.BaseSalary < 0 || dto.Bonus < 0 || dto.Deductions < 0)
-                return BadRequest("Invalid Salaries data.");
+            if(dto.EmployeeId <= 0)
+                return BadRequest("Employee Id invalid.");
+
             try
             {
-                var salary = await _salaryRepo.UpdateSalariesAsync(dto);
-                if (salary == null) { return NotFound($"No Salary with id = {dto.Id}. "); }
+                var salary = await _salaryRepo.AddSalaryForEmployeeAsync(dto);
                 return Ok(salary);
             }
             catch { return StatusCode(500, "Internal server error"); }
+
         }
 
-        [HttpPut("UpdateDate")]
+        [HttpPut("{id:int}")]
         [ProducesResponseType(typeof(SalaryDTO), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> UpdateSalaryDate([FromBody] UpdateDateSalaryDTO dto)
+        public async Task<IActionResult> UpdateSalary(int id, [FromBody] UpdateSalaryDTO dto)
         {
-            if (dto.Id <= 0 || !ModelState.IsValid)
-                return BadRequest("Invalid data.");
+            if (id <= 0)
+                return BadRequest("Invalid product id.");
+
+            if (dto.BaseSalary == null && dto.Bonus == null && dto.Deductions == null && dto.Date == null)
+                return BadRequest("At least one field (BaseSalary or Bonus or Deductions or Date) must be provided.");
+
+            if (dto.BaseSalary < 0 || dto.Bonus < 0 || dto.Deductions < 0 )
+                return BadRequest("BaseSalary and Bonus and Deductions cannot be negative.");
+
             try
             {
-                var salary = await _salaryRepo.UpdateSalariesDateAsync(dto);
-                if (salary == null) { return NotFound($"No Salary with id = {dto.Id}. "); }
+                var salary = await _salaryRepo.UpdateSalariesAsync(id, dto);
+                if (salary == null) { return NotFound($"No Salary with id = {id}. "); }
                 return Ok(salary);
             }
             catch { return StatusCode(500, "Internal server error"); }
         }
 
-        [HttpDelete("{id}")]
+       
+        [HttpDelete("{id:int}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
