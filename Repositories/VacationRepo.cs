@@ -2,7 +2,6 @@
 using FactoriesGateSystem.Models.DTOs.VacationDTOs;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using static FactoriesGateSystem.Models.DTOs.VacationDTOs.UpdateVacationDTO;
 
 namespace FactoriesGateSystem.Repositories
 {
@@ -38,23 +37,24 @@ namespace FactoriesGateSystem.Repositories
 
         public async Task<VacationDTO> AddVacationToEmployee(CreateVacationDTO dto)
         {
-            var Vacation = new Vacation
+            var Vacation = new Vacation()
             {
                 EmployeeId = dto.EmployeeId,
-                FromDate = dto.FromDate,
-                ToDate = dto.ToDate,
+                FromDate = dto.FromDate!.Value,
+                ToDate = dto.ToDate!.Value,
                 VacationReason = dto.VacationReason!
             };
 
             await _appDbContext.vacations.AddAsync(Vacation);
             await _appDbContext.SaveChangesAsync();
+
             return new VacationDTO
             {
                 VacationId = Vacation.VacationId,
                 EmployeeId = dto.EmployeeId,
-                FromDate = dto.FromDate,
-                ToDate = dto.ToDate,
-                VacationReason = dto.VacationReason,
+                FromDate = Vacation.FromDate,
+                ToDate = Vacation.ToDate,
+                VacationReason = Vacation.VacationReason,
             };
         }
 
