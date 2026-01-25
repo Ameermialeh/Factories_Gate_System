@@ -15,7 +15,7 @@ namespace FactoriesGateSystem.Repositories
             _appDbContext = appDbContext;
         }
 
-        public async Task<List<SalaryDTO>?> GetAllSalariesAsync(Expression<Func<Salary, bool>>? filter = null)
+        public async Task<List<SalaryDTO>> GetAllSalariesAsync(Expression<Func<Salary, bool>>? filter = null)
         {
             IQueryable<Salary> query = _appDbContext.salaries;
             if (filter != null)
@@ -38,18 +38,58 @@ namespace FactoriesGateSystem.Repositories
         }
 
         
-        public async Task<SalaryDTO?> UpdateSalariesAsync(UpdateSalariesDTO dto)
+        public async Task<SalaryDTO> AddSalaryForEmployeeAsync(AddSalaryDTO dto)
         {
-            var salary = await GetSalaryByIdAsync(dto.Id);
+            Salary salary = new Salary
+            {
+                EmployeeId = dto.EmployeeId,
+                BaseSalary = dto.BaseSalary,
+                Bonus = dto.Bonus,
+                Deductions = dto.Deductions,
+                Date = dto.Date,
+            };
+
+            await _appDbContext.salaries.AddAsync(salary);
+            await _appDbContext.SaveChangesAsync();
+
+            return new SalaryDTO 
+            {
+                Id = salary.SalaryId,
+                BaseSalary = salary.BaseSalary,
+                Bonus = salary.Bonus,
+                Date = dto.Date,
+                Deductions = dto.Deductions,
+                EmployeeId= dto.EmployeeId,
+            };
+        }
+
+        public async Task<SalaryDTO?> UpdateSalariesAsync(int id, UpdateSalaryDTO dto)
+        {
+            var salary = await GetSalaryByIdAsync(id);
             if(salary == null) { return null; }
 
-            salary.BaseSalary = dto.BaseSalary;
-            salary.Bonus = dto.Bonus;
-            salary.Deductions = dto.Deductions; 
+            if(dto.BaseSalary != null)
+            {
+                salary.BaseSalary = dto.BaseSalary.Value;
+            }
 
+            if(dto.Bonus != null)
+            {
+                salary.Bonus = dto.Bonus.Value;
+            }
+
+            if(dto.Deductions != null)
+            {
+                salary.Deductions = dto.Deductions.Value;
+            }
+
+            if(dto.Date != null)
+            {
+                salary.Date = dto.Date.Value;
+            }
             await _appDbContext.SaveChangesAsync();
             return new SalaryDTO { 
-                Id = salary.SalaryId,
+                Id = id,
                 BaseSalary = salary.BaseSalary,
                 Bonus = salary.Deductions,
                 Deductions= salary.Deductions,
@@ -57,26 +97,6 @@ namespace FactoriesGateSystem.Repositories
                 EmployeeId  = salary.EmployeeId,
             };
         }
-
-        public async Task<SalaryDTO?> UpdateSalariesDateAsync(UpdateDateSalaryDTO dto)
-        {
-            var salary = await GetSalaryByIdAsync(dto.Id);
-            if (salary == null) { return null; }
-
-            salary.Date = dto.Date;
-
-            await _appDbContext.SaveChangesAsync();
-            return new SalaryDTO
-            {
-                Id = salary.SalaryId,
-                BaseSalary = salary.BaseSalary,
-                Bonus = salary.Deductions,
-                Deductions = salary.Deductions,
-                Date = salary.Date,
-                EmployeeId = salary.EmployeeId,
-            };
-        }
-
         public async Task<bool> DeleteSalaryAsync(int id)
         {
             var salary = await GetSalaryByIdAsync(id);

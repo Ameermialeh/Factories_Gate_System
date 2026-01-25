@@ -37,33 +37,25 @@ namespace FactoriesGateSystem.Repositories
         }
 
 
-        public async Task<InvoiceDTO?> UpdateInvoiceDateAsync(UpdateInvoiceDateDTO dto)
+        public async Task<InvoiceDTO?> UpdateInvoiceAsync(int id, UpdateInvoiceDTO dto)
         {
-            var invoice = await GetInvoiceByIdAsync(dto.id);
+            var invoice = await GetInvoiceByIdAsync(id);
             if (invoice == null) { return null; }
 
-            invoice.Date = dto.Date;
+            if(dto.Total != null)
+            {
+                invoice.Total = dto.Total.Value;
+            }
+
+            if(dto.Date != null)
+            {
+                invoice.Date = dto.Date.Value;
+            }
 
             await _appDbContext.SaveChangesAsync();
             return new InvoiceDTO
             {
-                Id = invoice.InvoiceId,
-                Date = invoice.Date,
-                Total = invoice.Total,
-                OrderId = invoice.OrderId,
-            };
-        }
-
-        public async Task <InvoiceDTO?> UpdateInvoiceTotalAsync(UpdateInvoiceTotalDTO dto)
-        {
-            var invoice = await GetInvoiceByIdAsync(dto.id);
-            if (invoice == null) { return null; }
-            
-            invoice.Total = dto.Total;
-            await _appDbContext.SaveChangesAsync();
-            return new InvoiceDTO
-            {
-                Id = invoice.InvoiceId,
+                Id = id,
                 Date = invoice.Date,
                 Total = invoice.Total,
                 OrderId = invoice.OrderId,

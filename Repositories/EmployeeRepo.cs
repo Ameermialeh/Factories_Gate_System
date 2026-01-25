@@ -14,7 +14,7 @@ namespace FactoriesGateSystem.Repositories
             _appDbContext = appDbContext;
         }
 
-        public async Task<List<EmployeeDTO>?> GetEmployeesAsync(Expression<Func<Employee,bool>>? filter = null)
+        public async Task<List<EmployeeDTO>> GetEmployeesAsync(Expression<Func<Employee,bool>>? filter = null)
         {
             IQueryable<Employee> query = _appDbContext.employees;
             if (filter != null)
@@ -51,26 +51,31 @@ namespace FactoriesGateSystem.Repositories
         public async Task<EmployeeDTO?> UpdateEmployeeAsync(int id,UpdateEmployeeDTO dto)
         {
             var employee = await _appDbContext.employees.FindAsync(id);
-            if (employee == null)
-                return null;
+            if (employee == null) return null;
 
-            employee.Name = dto.Name!;
-            employee.Phone = dto.Phone!;
+            if(dto.Name != null)
+            {
+                employee.Name = dto.Name;
+            }
+            if (dto.Phone != null)
+            {
+                employee.Phone = dto.Phone;
+            }
+          
             await _appDbContext.SaveChangesAsync();
             var employeeDto = new EmployeeDTO()
             {
                 Id = id,
-                Name = dto.Name,
-                Phone = dto.Phone,
+                Name = employee.Name,
+                Phone = employee.Phone,
             };
             return employeeDto;
         }
 
-        public async Task<Employee?> DeleteEmployeeAsync(int id)
+        public async Task<bool> DeleteEmployeeAsync(int id)
         {
             var employee = await _appDbContext.employees.FindAsync(id);
-            if (employee == null)
-                return null;
+            if (employee == null) return false;
 
             var vacations = await _appDbContext.vacations.Where(v => v.EmployeeId == id).ToListAsync();
 
@@ -79,7 +84,7 @@ namespace FactoriesGateSystem.Repositories
           
             _appDbContext.employees.Remove(employee);
             await _appDbContext.SaveChangesAsync();
-            return employee;
+            return true;
         }
     }
 }

@@ -15,7 +15,7 @@ namespace FactoriesGateSystem.Repositories
             this._appDbContext = appDbContext;
         }
 
-        public async Task<List<ExpenseDTO>?> GetAllExpenseAsync(Expression<Func<Expense, bool>>? filter = null)
+        public async Task<List<ExpenseDTO>> GetAllExpenseAsync(Expression<Func<Expense, bool>>? filter = null)
         {
             IQueryable<Expense> query = _appDbContext.expenses;
             if (filter != null)
@@ -56,41 +56,31 @@ namespace FactoriesGateSystem.Repositories
             };
         }
 
-        public async Task<ExpenseDTO?> UpdateExpenseAmountAsync(UpdateExpenseAmountDTO dto)
+        public async Task<ExpenseDTO?> UpdateExpenseAsync(int id, UpdateExpenseDTO dto)
         {
-            var expense = await GetExpenseByIdAsync(dto.id);
+            var expense = await GetExpenseByIdAsync(id);
             if (expense == null) { return null; }
 
-            expense.Amount = dto.newAmount;
-
+            if(dto.Amount != null)
+            {
+                expense.Amount = dto.Amount.Value;
+            }
+            
+            if(dto.Description != null)
+            {
+                expense.Description = dto.Description;
+            }
             await _appDbContext.SaveChangesAsync();
 
             return new ExpenseDTO
             {
-                Id = dto.id,
+                Id = id,
                 Description = expense.Description,
                 Amount = expense.Amount,
                 Date = expense.Date,
             };
         }
-        public async Task<ExpenseDTO?> UpdateExpenseDescriptionAsync(UpdateExpenseDescription dto)
-        {
-            var expense = await GetExpenseByIdAsync(dto.id);
-            if (expense == null) { return null; }
-
-            expense.Description = dto.newDescription!;
-
-            await _appDbContext.SaveChangesAsync();
-
-            return new ExpenseDTO
-            {
-                Id = dto.id,
-                Description = expense.Description,
-                Amount = expense.Amount,
-                Date = expense.Date,
-            };
-        }
-
+         
         public async Task<bool> DeleteExpenseAsync(int id)
         {
             var expense = await GetExpenseByIdAsync(id);

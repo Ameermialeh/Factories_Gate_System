@@ -50,7 +50,7 @@ namespace FactoriesGateSystem.Repositories
 
         public async Task SaveRefreshTokenAsync(RefreshToken refreshToken)
         {
-            _appDbContext.refreshtokens.Add(refreshToken);
+            await _appDbContext.refreshtokens.AddAsync(refreshToken);
             await _appDbContext.SaveChangesAsync();
         }
 
@@ -94,6 +94,33 @@ namespace FactoriesGateSystem.Repositories
             await _appDbContext.users.AddAsync(user);
             await _appDbContext.SaveChangesAsync();
             return user;
+        }
+
+
+        public async Task<bool> LogoutAsync(int userId)
+        {
+            var refreshToken =await _appDbContext.refreshtokens.Where(rt => rt.UserId == userId).OrderByDescending(rt=> rt.Id).FirstOrDefaultAsync();
+            if(refreshToken == null) return false;
+
+            refreshToken.IsRevoked = true;
+            await _appDbContext.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<User?> getAUserByEmailAsync(string email)
+        {
+            return await _appDbContext.users.FirstOrDefaultAsync(u => u.Email == email);
+        }
+
+        public bool PasswordValid(User user, ChangePasswordDTO dto)
+        {
+            return _passwordHasher.Verify(dto.CurrentPassword!, user.PasswordHash);
+        }
+
+        public async Task UpdatePasswordAsync(User user, ChangePasswordDTO dto)
+        {
+            user.PasswordHash = _passwordHasher.Hash(dto.NewPassword!);
+            await _appDbContext.SaveChangesAsync();
         }
     }
 }

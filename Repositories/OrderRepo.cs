@@ -25,7 +25,6 @@ namespace FactoriesGateSystem.Repositories
                 Name = o.Name,
                 OrderDate = o.OrderDate,
                 CustomerID = o.CustomerId,
-                FactoryId = o.FactoryId,
             }).ToListAsync();
         }
 
@@ -44,14 +43,14 @@ namespace FactoriesGateSystem.Repositories
             return products;
         }
 
-        public async Task<OrderWithProductsDTO?> CreateOrderAsync(OrderWithProductsDTO dto, int factoryId)
+        public async Task<OrderResponseDTO?> CreateOrderAsync(OrderWithProductsDTO dto, int factoryId)
         {
             var total = 0;
             Order order = new Order()
             {
                 Name = dto.Name!,
-                OrderDate = dto.OrderDate,
-                CustomerId = dto.CustomerID,
+                OrderDate = dto.OrderDate!.Value,
+                CustomerId = dto.CustomerID!.Value,
                 FactoryId = factoryId
             };
 
@@ -78,59 +77,107 @@ namespace FactoriesGateSystem.Repositories
             }
             await _appDbContext.SaveChangesAsync();
 
-            dto.ID = order.OrderId;
-
             Invoice invoice = new Invoice()
             {
                 Total = total,
-                Date = DateTime.UtcNow,
+                Date = dto.OrderDate!.Value,
                 OrderId = order.OrderId,    
             };
             await _appDbContext.AddAsync(invoice);
             await _appDbContext.SaveChangesAsync();
 
-            return dto;
+            return new OrderResponseDTO { 
+                ID = order.OrderId,
+                Name = order.Name,
+                OrderDate = order.OrderDate.Date,
+                CustomerID = order.CustomerId,
+                Products = dto.Products
+            };
         }
 
-        public async Task<OrderWithProductsDTO?> UpdateOrderAsync(OrderWithProductsDTO OrderWithProductsDto)
+        public async Task<OrderWithProductsDTO?> UpdateOrderAsync(int id, OrderWithProductsDTO dto)
         {
-            var order = await _appDbContext.orders.FindAsync(OrderWithProductsDto.ID);
+            var order = await GetOrderByIdAsync(id);
             if (order == null) return null;
            
-            order.Name = OrderWithProductsDto.Name!;
-            order.OrderDate = OrderWithProductsDto.OrderDate;
-            order.CustomerId = OrderWithProductsDto.CustomerID;
-            await _appDbContext.SaveChangesAsync();
-
-            var orderProducts =await _appDbContext.OrderItem.Where(op => op.OrderId == 2).ToListAsync();
-
-            _appDbContext.OrderItem.RemoveRange(orderProducts);
-            await _appDbContext.SaveChangesAsync();
-
-            foreach (var product in OrderWithProductsDto.Products!)
-            {
-                var orderProduct = new OrderItem()
-                {
-                    OrderId = order.OrderId,
-                    ProductId = product.ProductID,
-                    Quantity = product.ProductQuantity
-                };
-
-                await _appDbContext.OrderItem.AddAsync(orderProduct);
+            if(dto.Name != null) 
+            { 
+                order.Name = dto.Name; 
             }
+            if(dto.OrderDate != null)
+            {
+                order.OrderDate = dto.OrderDate.Value;
+            }
+            if (dto.CustomerID != null)
+            {
+                order.CustomerId = dto.CustomerID.Value;
+            }
+
             await _appDbContext.SaveChangesAsync();
 
-            return OrderWithProductsDto;
+            List<OrderItemDTO> productsList = new();
+            decimal total = 0;
+            if (dto.Products != null)
+            {
+                var orderProducts = await _appDbContext.OrderItem.Where(op => op.OrderId == order.OrderId).ToListAsync();
+                _appDbContext.OrderItem.RemoveRange(orderProducts);
+                await _appDbContext.SaveChangesAsync();
+
+                foreach (var product in dto.Products!)
+                {
+                    var orderProduct = new OrderItem()
+                    {
+                        OrderId = order.OrderId,
+                        ProductId = product.ProductID,
+                        Quantity = product.ProductQuantity
+                    };
+                    await _appDbContext.OrderItem.AddAsync(orderProduct);
+                    productsList.Add(new OrderItemDTO { ProductID = product.ProductID, ProductQuantity = product.ProductQuantity });
+
+                    var p = await _appDbContext.products.FirstOrDefaultAsync(p => p.ProductId == product.ProductID);
+
+                    if (p != null)
+                        total += p.Price * product.ProductQuantity;
+                }
+                await _appDbContext.SaveChangesAsync();
+
+                var inv = await _appDbContext.invoices.FirstOrDefaultAsync(i => i.OrderId == id);
+
+                if (inv != null)
+                {
+                    inv.Total = total;
+                    await _appDbContext.SaveChangesAsync();
+                }
+            }
+            else
+            {
+                productsList = await _appDbContext.OrderItem
+                    .Where(op => op.OrderId == order.OrderId)
+                    .Select(op => new OrderItemDTO
+                    {
+                        ProductID = op.ProductId,
+                        ProductQuantity = op.Quantity
+                    })
+                    .ToListAsync();
+            }
+
+            return new OrderWithProductsDTO
+            {
+                Name = order.Name,
+                OrderDate = order.OrderDate,
+                CustomerID = order.CustomerId,
+                Products = productsList
+            };
         }
 
-        public async Task<Order?> DeleteOrderAsync(int id)
+        public async Task<bool> DeleteOrderAsync(int id)
         {
             var order = await _appDbContext.orders.FindAsync(id);
-            if (order == null) { return null; }
+            if (order == null) { return false; }
 
             _appDbContext.orders.Remove(order);
             await _appDbContext.SaveChangesAsync();
-            return order;
+            return true;
         }
     }
 }

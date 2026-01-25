@@ -58,13 +58,25 @@ namespace FactoriesGateSystem.Repositories
             };
         }
 
-        public async Task<VacationDTO?> UpdateVacationDateAsync(UpdateVacationDate dto)
+        public async Task<VacationDTO?> UpdateVacationAsync(int id, UpdateVacationDTO dto)
         {
-            var vacation =await _appDbContext.vacations.Where(v => v.VacationId == dto.VacationId).FirstOrDefaultAsync();
+            var vacation =await _appDbContext.vacations.FirstOrDefaultAsync(v => v.VacationId == id);
             if (vacation == null) { return null; }
 
-            vacation.FromDate = dto.FromDate;
-            vacation.ToDate = dto.ToDate;
+            if(dto.FromDate != null)
+            {
+                vacation.FromDate = dto.FromDate.Value;
+            }
+
+            if (dto.ToDate != null)
+            {
+                vacation.ToDate = dto.ToDate.Value;
+            }
+
+            if(dto.VacationReason != null)
+            {
+                vacation.VacationReason = dto.VacationReason;
+            }
 
             await _appDbContext.SaveChangesAsync();
 
@@ -77,24 +89,7 @@ namespace FactoriesGateSystem.Repositories
                 VacationReason = vacation.VacationReason,
             };
         }
-        public async Task<VacationDTO?> UpdateVacationReasoneAsync(UpdateVacationReasone dto)
-        {
-            var vacation = await _appDbContext.vacations.Where(v => v.VacationId == dto.VacationId).FirstOrDefaultAsync();
-            if (vacation == null) { return null; }
-
-            vacation.VacationReason = dto.VacationReason!;
-            await _appDbContext.SaveChangesAsync();
-
-            return new VacationDTO
-            {
-                VacationId = vacation.VacationId,
-                FromDate = vacation.FromDate,
-                ToDate = vacation.ToDate,
-                EmployeeId = vacation.EmployeeId,
-                VacationReason = vacation.VacationReason,
-            };
-        }
-
+       
         public async Task<bool> DeleteVacationAsync(int id)
         {
             var vacation = await _appDbContext.vacations.Where(v => v.VacationId == id).FirstOrDefaultAsync();

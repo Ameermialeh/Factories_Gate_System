@@ -36,7 +36,7 @@ namespace FactoriesGateSystem.Repositories
             return await _appDbContext.customer.FirstOrDefaultAsync(c => c.CustomerId == id);
         }
 
-        public async Task<CustomerDTO> AddCustomerAsync(CustomerDTO customerdto)
+        public async Task<CustomerDTO> AddCustomerAsync(CustomerDTO customerdto, int factoryId)
         {
            
             var customer = new Customer()
@@ -44,6 +44,7 @@ namespace FactoriesGateSystem.Repositories
                 Name = customerdto.Name!,
                 Address = customerdto.Address!,
                 Phone = customerdto.Phone!,
+                FactoryId = factoryId
             };
 
             await _appDbContext.customer.AddAsync(customer);
@@ -53,27 +54,41 @@ namespace FactoriesGateSystem.Repositories
             return customerdto;
            
         }
-        public async Task<UpdateCustomerDTO?> UpdateCustomerAsync(int id, UpdateCustomerDTO customer)
+        public async Task<CustomerDTO?> UpdateCustomerAsync(int id, UpdateCustomerDTO dto)
         {
-            var existing = await _appDbContext.customer.FindAsync(id);
-            if (existing == null)
-                return null;
+            var customer = await GetCustomerByIdAsync(id);
+            if (customer == null) return null;
 
+            if(dto.Name != null)
+            {
+                customer.Name = dto.Name;
+            }
 
-            existing.Name = customer.Name!;
-            existing.Phone = customer.Phone!;
-            existing.Address = customer.Address!;
+            if(dto.Address != null)
+            {
+                customer.Address = dto.Address;
+            }
+
+            if(dto.Phone != null)
+            {
+                customer.Phone = dto.Phone;
+            }
 
             await _appDbContext.SaveChangesAsync();
 
-            return customer;
+            return new CustomerDTO
+            {
+                ID = customer.CustomerId,
+                Name = customer.Name,
+                Address = customer.Address,
+                Phone = customer.Phone,
+            };
         }
 
-        public async Task<Customer?> DeleteCustomerAsync(int id)
+        public async Task<bool> DeleteCustomerAsync(int id)
         {
-            var existing = await _appDbContext.customer.FindAsync(id);
-            if (existing == null)
-                return null;
+            var existing = await GetCustomerByIdAsync(id);
+            if (existing == null) return false;
 
             var orders = existing.Orders;
             if (orders != null)
@@ -87,7 +102,7 @@ namespace FactoriesGateSystem.Repositories
             _appDbContext.customer.Remove(existing);
             await _appDbContext.SaveChangesAsync();
                 
-            return existing;
+            return true;
         }
     }
 }

@@ -50,24 +50,32 @@ namespace FactoriesGateSystem.Repositories
             return supplierDto;
         }
 
-        public async Task<SupplierDTO?> UpdateSupplierAsync(int id, UpdateSupplierDTO UpdateSupplierDto)
+        public async Task<SupplierDTO?> UpdateSupplierAsync(int id, UpdateSupplierDTO dto)
         {
             var supplier = await _appDbContext.suppliers.FindAsync(id);
-            if (supplier == null)
-                return null;
+            if (supplier == null) return null;
 
-            supplier.Name = UpdateSupplierDto.Name;
-            supplier.Phone = UpdateSupplierDto.Phone!;
-            supplier.Address = UpdateSupplierDto.Address!;
+            if(dto.Name != null)
+            {
+                supplier.Name = dto.Name;
+            }
+            if(dto.Address != null)
+            {
+                supplier.Address = dto.Address;
+            }
+            if(dto.Phone != null)
+            {
+                supplier.Phone = dto.Phone;
+            }
 
             await _appDbContext.SaveChangesAsync();
 
             var supplierDto = new SupplierDTO()
             {
                 Id = id,
-                Name = UpdateSupplierDto.Name,
-                Address = UpdateSupplierDto.Address,
-                Phone = UpdateSupplierDto.Phone
+                Name = supplier.Name,
+                Address = supplier.Address,
+                Phone = supplier.Phone
             };
             return supplierDto;
         }

@@ -3,6 +3,7 @@ using FactoriesGateSystem.Models;
 using FactoriesGateSystem.Models.DTOs;
 using FactoriesGateSystem.Models.DTOs.Admin;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace FactoriesGateSystem.Repositories
 {
@@ -16,64 +17,13 @@ namespace FactoriesGateSystem.Repositories
             _appDbContext = appDbContext;
             _passwordHasher = passwordHasher;
         }
-
-        public async Task<List<FactoryDTO>?> GetAllFactoriesAsync()
+        public async Task<List<AdminDTO>> GetAllAdminsAsync(Expression<Func<User, bool>>? filter = null)
         {
-            var facories = _appDbContext.factory;
-            if(facories == null) { return null; }
+            IQueryable<User> query = _appDbContext.users.Where(u => u.Role == "admin");
+            if (filter != null)
+                query = query.Where(filter);
 
-            return await facories.Select(f => new FactoryDTO
-            {
-                Id = f.FactoryId,
-                Name = f.Name,
-                Address = f.Address,
-            }).ToListAsync();
-        }
-
-        public async Task<List<ManagerDTO>?> GetAllManagersAsync()
-        {
-            var manager = _appDbContext.users.Where(m => m.Role == "manager");
-            if (manager == null) { return null; }
-
-            return await manager.Select(m => new ManagerDTO
-            {
-                Id = m.UserId,
-                Name = m.Name,
-                Email = m.Email,
-                CreatedAt = m.CreatedAt,
-            }).ToListAsync();
-        }
-        public async Task<ManagerDTO?> GetManagerByIdAsync(int id)
-        {
-            var manager =await _appDbContext.users.Where(m => m.UserId == id && m.Role == "manager").FirstOrDefaultAsync();
-            if (manager == null) { return null; };
-
-            return new ManagerDTO
-            {
-                Id = manager.UserId,
-                Name = manager.Name,
-                Email = manager.Email,
-                CreatedAt = manager.CreatedAt,
-            };
-        }
-
-        public async Task<FactoryDTO?> GetFactoryByIdAsync(int id)
-        {
-            var factory = await _appDbContext.factory.FindAsync(id);
-            if (factory == null) { return null; }
-
-            return new FactoryDTO
-            {
-                Id = factory.FactoryId,
-                Name = factory.Name,
-                Address = factory.Address,
-            };
-        }
-
-        public async Task<List<AdminDTO>> GetAllAdminsAsync()
-        {
-            var admins = _appDbContext.users.Where(a=>a.Role == "admin");
-            return await admins.Select(a => new AdminDTO
+            return await query.Select(a => new AdminDTO
             {
                 Id = a.UserId,
                 Name = a.Name,
@@ -82,21 +32,5 @@ namespace FactoriesGateSystem.Repositories
             }).ToListAsync();
         }
 
-
-        public async Task<User?> getAdminByEmailAsync(string email)
-        {
-            return await _appDbContext.users.FirstOrDefaultAsync(u => u.Email == email);
-        }
-
-        public bool PasswordValid(User user,ChangePasswordDTO dto)
-        {
-            return _passwordHasher.Verify(dto.CurrentPassword!, user.PasswordHash);
-        }
-
-        public async Task UpdatePasswordAsync(User user, ChangePasswordDTO dto)
-        {
-            user.PasswordHash = _passwordHasher.Hash(dto.NewPassword!);
-            await _appDbContext.SaveChangesAsync();
-        }
     }
 }
