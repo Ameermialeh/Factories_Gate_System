@@ -32,7 +32,7 @@ namespace FactoriesGateSystem.Controllers
                     var invoice = await _invoiceRepo.GetAllInvoicesAsync();
                     return Ok(invoice);
                 }
-                var filtered = await _invoiceRepo.GetAllInvoicesAsync(i => i.OrderId == orderId.Value);
+                var filtered = await _invoiceRepo.GetAllInvoicesAsync(i => i.OrderId == orderId);
                 return Ok(filtered);
             }
             catch(Exception) { return StatusCode(500, "Internal server error"); }
