@@ -1,9 +1,8 @@
-﻿using FactoriesGateSystem.Helpers;
-using FactoriesGateSystem.Models.DTOs;
-using FactoriesGateSystem.Models.DTOs.Admin;
-using FactoriesGateSystem.Repositories;
+﻿using FactoriesGateSystem.Models.DTOs.Admin;
+using FactoriesGateSystem.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 
 namespace FactoriesGateSystem.Controllers
@@ -13,16 +12,13 @@ namespace FactoriesGateSystem.Controllers
     [Authorize(Roles = "admin")]
     public class AdminController : Controller
     {
-        private readonly AdminRepo _adminRepo;
-        private readonly AuthRepo _authRepo;
-        private readonly PasswordHasher _passwordHasher;
-        private readonly JwtHelper _jwtHelper;
-        public AdminController(AdminRepo adminRepo, PasswordHasher passwordHasher, AuthRepo authRepo, JwtHelper jwtHelper)
+        private readonly IAdminService _adminService;
+        private readonly IAuthService _authService;
+
+        public AdminController(IAuthService authService,IAdminService adminService)
         {
-            _adminRepo = adminRepo;
-            _passwordHasher = passwordHasher;
-            _authRepo = authRepo;
-            _jwtHelper = jwtHelper;
+             _adminService = adminService;
+            _authService = authService;
         }
 
         [HttpGet]
@@ -30,25 +26,19 @@ namespace FactoriesGateSystem.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> GetAllAdmins()
         {
-            try
-            {
-                var admins = await _adminRepo.GetAllAdminsAsync();
-                return Ok(admins);
-            }
-            catch (Exception) { return StatusCode(500, "Internal Server Error"); }
+            var admins = await _adminService.GetAllAdminsAsync();
+            return Ok(admins);
         }
 
-        [HttpGet("{name}")]
+        [HttpGet("search")]
         [ProducesResponseType(typeof(AdminDTO), 200)]
+        [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> GetAdminName(string name)
+        public async Task<IActionResult> GetAdminName([FromQuery, Required] string name)
         {
-            try
-            {
-                var admins = await _adminRepo.GetAllAdminsAsync(a => a.Name.Contains(name));
-                return Ok(admins);
-            }
-            catch (Exception) { return StatusCode(500, "Internal Server Error"); }
+            var admins = await _adminService.GetAdminNameAsync(name);
+            return Ok(admins);
+             
         }
 
         [HttpPost]
@@ -57,20 +47,11 @@ namespace FactoriesGateSystem.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> AddAdmin([FromBody] RegisterAdminDTO dto)
         {
-            if(string.IsNullOrWhiteSpace(dto.Name) ||
-               string.IsNullOrWhiteSpace(dto.Email) ||
-               string.IsNullOrWhiteSpace(dto.Password))
-                    return BadRequest("Invalid Admin data.");
-            
-            try
-            {
-                var passwordHash = _passwordHasher.Hash(dto.Password);
-                var user = await _authRepo.RegisterAdminAsync(dto, passwordHash);
-                return Ok($"{user.Name} added Successfully");
-            }
-            catch (Exception) { return StatusCode(500, "Internal Server Error"); }
+            if(!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+            await _authService.CreateAdminAsync(dto);
+            return Ok("Admin added successfully.");
         }
-
-
     }
 }
