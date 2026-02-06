@@ -5,10 +5,10 @@ namespace FactoriesGateSystem.Models.DTOs.Admin
     public class ChangePasswordDTO
     {
         [Required, EmailAddress]
-        public required string Email { get; set; }
+        public  string Email { get; set; } = string.Empty;
         [Required]
-        public required string CurrentPassword { get; set; }
+        public  string CurrentPassword { get; set; } = string.Empty;
         [Required, MinLength(8)]
-        public required string NewPassword { get; set; }
+        public  string NewPassword { get; set; } = string.Empty;
     }
 }

@@ -1,11 +1,16 @@
-﻿namespace FactoriesGateSystem.Models.DTOs.VacationDTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace FactoriesGateSystem.Models.DTOs.VacationDTOs
 {
     public class CreateVacationDTO
     {
+        [Required]
         public int EmployeeId { get; set; }
-        public DateTime? FromDate { get; set; }
-        public DateTime? ToDate { get; set; }
-
-        public string? VacationReason { get; set; }
+        [Required]
+        public DateTime FromDate { get; set; }
+        [Required]
+        public DateTime ToDate { get; set; }
+        [Required]
+        public string VacationReason { get; set; } = string.Empty;
     }
 }
