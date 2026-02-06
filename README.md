@@ -45,3 +45,24 @@ Expense | Tracks factory expenses | linked to Factory
 * Manage vacations
 * Manage salaries
 * Manage Expense
+
+### **Admin/Auth APIs**
+![alt text](https://github.com/Ameermialeh/Factories_Gate_System/blob/main/APIs_ScreenShot/Admin_Auth.png)
+
+### **Customer/Employee APIs**
+![alt text](https://github.com/Ameermialeh/Factories_Gate_System/blob/main/APIs_ScreenShot/Customer_Employee.png)
+
+### **Expense/Factory/Invoice APIs**
+![alt text](https://github.com/Ameermialeh/Factories_Gate_System/blob/main/APIs_ScreenShot/Expense_Factory_Invoice.png)
+
+### **Manager/Material APIs**
+![alt text](https://github.com/Ameermialeh/Factories_Gate_System/blob/main/APIs_ScreenShot/Manager_Material.png)
+
+### **Order/Product APIs**
+![alt text](https://github.com/Ameermialeh/Factories_Gate_System/blob/main/APIs_ScreenShot/Order_Product.png)
+
+### **Salary/Supplier APIs**
+![alt text](https://github.com/Ameermialeh/Factories_Gate_System/blob/main/APIs_ScreenShot/Salary_Supplier.png)
+
+### **Vacation APIs**
+![alt text](https://github.com/Ameermialeh/Factories_Gate_System/blob/main/APIs_ScreenShot/Vacation.png)
