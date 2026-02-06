@@ -4,6 +4,10 @@ using FactoriesGateSystem.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using FactoriesGateSystem.Middleware;
+using FactoriesGateSystem.Services;
+using FactoriesGateSystem.Repositories.Interfaces;
+using FactoriesGateSystem.Services.ServiceInterfaces;
 
 namespace FactoriesGateSystem
 {
@@ -24,25 +28,45 @@ namespace FactoriesGateSystem
             .UseMySql(builder.Configuration.GetConnectionString("Connection"),
             new MySqlServerVersion(new Version(8, 2, 12))));
 
-
-            builder.Services.AddScoped<CustomerRepo>();
-            builder.Services.AddScoped<OrderRepo>();
-            builder.Services.AddScoped<ProductRepo>();
-            builder.Services.AddScoped<MaterialRepo>();
-            builder.Services.AddScoped<EmployeeRepo>();
-            builder.Services.AddScoped<SupplierRepo>();
-            builder.Services.AddScoped<AuthRepo>();
-            builder.Services.AddScoped<PasswordHasher>();
-            builder.Services.AddScoped<JwtHelper>();
-            builder.Services.AddScoped<AdminRepo>();
-            builder.Services.AddScoped<FactoryRepo>();
-            builder.Services.AddScoped<VacationRepo>();
-            builder.Services.AddScoped<ExpenseRepo>();
-            builder.Services.AddScoped<SalaryRepo>();
-            builder.Services.AddScoped<InvoiceRepo>();
-            builder.Services.AddScoped<ManagerRepo>();
+            builder.Services.AddHttpContextAccessor(); // For Cookies
 
 
+
+
+            builder.Services.AddScoped<IAdminService, AdminService>();
+            builder.Services.AddScoped<ICookieService, CookieService>();
+            builder.Services.AddScoped<ICustomerService, CustomerService>();
+            builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+            builder.Services.AddScoped<IExpenseService, ExpenseService>();  
+            builder.Services.AddScoped<IFactoryService, FactoryService>();
+            builder.Services.AddScoped<IInvoiceService, InvoiceService>();
+            builder.Services.AddScoped<IManagerService, ManagerService>();
+            builder.Services.AddScoped<IMaterialService, MaterialService>();
+            builder.Services.AddScoped<IOrderService, OrderService>();
+            builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<ISalaryService, SalaryService>();
+            builder.Services.AddScoped<ISupplierService, SupplierService>();
+            builder.Services.AddScoped<IVacationService, VacationService>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
+
+            builder.Services.AddScoped<IAuthRepo, AuthRepo>();
+            builder.Services.AddScoped<IFactoryRepo, FactoryRepo>();
+            builder.Services.AddScoped<IAdminRepo, AdminRepo>();
+            builder.Services.AddScoped<IAuthRepo, AuthRepo>();
+            builder.Services.AddScoped<ICustomerRepo, CustomerRepo>();
+            builder.Services.AddScoped<IEmployeeRepo, EmployeeRepo>();
+            builder.Services.AddScoped<IExpenseRepo, ExpenseRepo>();
+            builder.Services.AddScoped<IInvoiceRepo, InvoiceRepo>();
+            builder.Services.AddScoped<IManagerRepo, ManagerRepo>();
+            builder.Services.AddScoped<IMaterialRepo, MaterialRepo>();
+            builder.Services.AddScoped<IOrderRepo, OrderRepo>();
+            builder.Services.AddScoped<IProductRepo, ProductRepo>();
+            builder.Services.AddScoped<ISalaryRepo, SalaryRepo>();
+            builder.Services.AddScoped<ISupplierRepo, SupplierRepo>();
+            builder.Services.AddScoped<IVacationRepo, VacationRepo>();
+
+            builder.Services.AddScoped<IJwtHelper, JwtHelper>();
+            builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
             // JWT settings
             var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]!);
 
@@ -95,6 +119,9 @@ namespace FactoriesGateSystem
             app.UseAuthorization();
 
             app.UseCors("AllowReact");
+
+            // Global exception handler
+            app.UseMiddleware<ExceptionMiddleware>();
 
             app.MapControllers();
 
