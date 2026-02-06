@@ -1,6 +1,5 @@
-﻿using FactoriesGateSystem.Helpers;
-using FactoriesGateSystem.Models.DTOs.Admin;
-using FactoriesGateSystem.Repositories;
+﻿using FactoriesGateSystem.Models.DTOs.Admin;
+using FactoriesGateSystem.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Mvc;
 using static FactoriesGateSystem.Models.DTOs.AuthDTO;
 
@@ -10,90 +9,39 @@ namespace FactoriesGateSystem.Controllers
     [ApiController]
     public class AuthController : Controller
     {
-        private readonly AuthRepo _authRepo;
-        private readonly FactoryRepo _factoryRepo;
-        private readonly JwtHelper _jwtHelper;
-        private readonly PasswordHasher _passwordHasher;
+        private readonly IAuthService _authService;
 
-        public AuthController(AuthRepo authRepo, JwtHelper jwtHelper, PasswordHasher passwordHasher, FactoryRepo factoryRepo)
+        public AuthController(IAuthService authService)
         {
-            _authRepo = authRepo;
-
-            _jwtHelper = jwtHelper;
-
-            _passwordHasher = passwordHasher;
-            _factoryRepo = factoryRepo;
+            _authService = authService;
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDTO dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.Email) ||
-                string.IsNullOrWhiteSpace(dto.Password) ||
-                string.IsNullOrWhiteSpace(dto.Name)||
-                string.IsNullOrWhiteSpace(dto.FactoryName) ||
-                string.IsNullOrWhiteSpace(dto.Address))
-                    return BadRequest("Invalid data.");
-            try
-            {
-                var passwordHash = _passwordHasher.Hash(dto.Password);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-                var user = await _authRepo.RegisterAsync(dto, passwordHash);
+            await _authService.CreateUserAsync(dto);
 
-                return Ok("Register successfully, Try to login");
-            }
-            catch (Exception) { return StatusCode(500, "Internal server error"); }
+            return Ok(new { message = "Register successfully" });
         }
-
+        
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginDTO dto)
+        public async Task<IActionResult> Login([FromBody] LoginDTO dto)
         {
-            var user = await _authRepo.LoginAsync(dto);
-            if (user == null)
-                return NotFound("User Not Found");
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            if (!_passwordHasher.Verify(dto.Password!, user.PasswordHash))
-                return BadRequest("Password is incorrect");
+            var accessToken = await _authService.LoginUserAsync(dto);
 
-            var accessToken = _jwtHelper.GenerateAccessToken(user);
-            var refreshToken = _jwtHelper.GenerateRefreshToken();
-
-            refreshToken.UserId = user.UserId;
-            await _authRepo.SaveRefreshTokenAsync(refreshToken);
-
-
-            var options = new CookieOptions
-            {
-                Expires = DateTime.UtcNow.AddDays(1),
-                HttpOnly = true,
-                Secure = true
-            };
-
-            Response.Cookies.Append("UserId", $"{user.UserId}", options);
-            if(user.Role == "manager")
-            {
-                var factoryId = await _factoryRepo.GetFactoryId(user.UserId);
-                Response.Cookies.Append("FactoryId", $"{factoryId}", options);
-            }
-
-            return Ok(new
-            {
-                accessToken,
-                refreshToken = refreshToken.Token
-            });
+            return Ok(accessToken);
         }
 
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
-
-            var userId = Request.Cookies["UserId"];
-            if (userId == null)
-                return Unauthorized();
-
-            var done =await _authRepo.LogoutAsync(int.Parse(userId));
-            if (!done) { return BadRequest("Something went wrong"); }
-
+            await _authService.LogoutAsync();
             return Ok(new { message = "Logged out successfully" });
         }
 
@@ -101,24 +49,12 @@ namespace FactoriesGateSystem.Controllers
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh(RefreshTokenDTO dto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            var user = await _authRepo.GetUserByRefreshTokenAsync(dto.RefreshToken!);
-            if (user == null)
-                return Unauthorized();
+            var accessToken = await _authService.RefreshAsync(dto);
 
-            await _authRepo.RevokeRefreshTokenAsync(dto.RefreshToken!);
-
-            var accessToken = _jwtHelper.GenerateAccessToken(user);
-            var newRefreshToken = _jwtHelper.GenerateRefreshToken();
-            newRefreshToken.UserId = user.UserId;
-
-            await _authRepo.SaveRefreshTokenAsync(newRefreshToken);
-
-            return Ok(new
-            {
-                accessToken,
-                refreshToken = newRefreshToken.Token
-            });
+            return Ok(accessToken);
         }
 
         [HttpPost("ChangePassword")]
@@ -128,24 +64,12 @@ namespace FactoriesGateSystem.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.Email) ||
-                string.IsNullOrWhiteSpace(dto.CurrentPassword) ||
-                string.IsNullOrWhiteSpace(dto.NewPassword))
-                return BadRequest("Invalid data.");
-            try
-            {
-                var user = await _authRepo.getAUserByEmailAsync(dto.Email);
-                if (user == null) return NotFound("User not found");
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-                var isValid = _authRepo.PasswordValid(user, dto);
-                if (!isValid)
-                    return BadRequest("Current Password is incorrect");
+            await _authService.ChangePasswordAsync(dto);
 
-                await _authRepo.UpdatePasswordAsync(user, dto);
-                return Ok("Changed password successfully");
-
-            }
-            catch (Exception) { return StatusCode(500, "Internal Server Error"); }
+            return Ok(new { message = "Changed password successfully" });
         }
 
     }
