@@ -1,9 +1,7 @@
-﻿using FactoriesGateSystem.Models;
-using FactoriesGateSystem.Models.DTOs.InvoiceDTOs;
-using FactoriesGateSystem.Repositories;
+﻿using FactoriesGateSystem.Models.DTOs.InvoiceDTOs;
+using FactoriesGateSystem.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static FactoriesGateSystem.Models.DTOs.InvoiceDTOs.UpdateInvoiceDTO;
 
 namespace FactoriesGateSystem.Controllers
 {
@@ -12,11 +10,10 @@ namespace FactoriesGateSystem.Controllers
     [Authorize(Roles = "manager")]
     public class InvoiceController : Controller
     {
-        private readonly InvoiceRepo _invoiceRepo;
-
-        public InvoiceController(InvoiceRepo invoiceRepo)
+        private readonly IInvoiceService _invoiceService;
+        public InvoiceController(IInvoiceService invoiceService)
         {
-            _invoiceRepo = invoiceRepo;
+            _invoiceService = invoiceService;
         }
 
         [HttpGet]
@@ -25,17 +22,13 @@ namespace FactoriesGateSystem.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> GetInvoices([FromQuery] int? orderId)
         {
-            try
+            if (orderId == null)
             {
-                if (orderId == null)
-                {
-                    var invoice = await _invoiceRepo.GetAllInvoicesAsync();
-                    return Ok(invoice);
-                }
-                var filtered = await _invoiceRepo.GetAllInvoicesAsync(i => i.OrderId == orderId);
-                return Ok(filtered);
+                var invoice = await _invoiceService.GetAllInvoicesAsync();
+                return Ok(invoice);
             }
-            catch(Exception) { return StatusCode(500, "Internal server error"); }
+            var filtered = await _invoiceService.GetAllInvoicesWithFilterAsync(orderId.Value);
+            return Ok(filtered);
         }
 
         [HttpGet("{id:int}")]
@@ -47,21 +40,9 @@ namespace FactoriesGateSystem.Controllers
         {
             if (id <= 0)
                 return BadRequest("Invalid invoice id.");
-            try
-            {
-                var invoice = await _invoiceRepo.GetInvoiceByIdAsync(id);
-                if (invoice == null) { return NotFound($"No invoice with id = {id}. "); }
-                var invoiceDto = new InvoiceDTO()
-                {
-                    Id = id,
-                    Total = invoice.Total,
-                    Date = invoice.Date,
-                    OrderId = invoice.OrderId,
 
-                };
-                return Ok(invoiceDto);
-            }
-            catch (Exception) { return StatusCode(500, "Internal server error");  }
+            var invoice = await _invoiceService.GetInvoiceByIdAsync(id);
+            return Ok(invoice);
         }
 
 
@@ -72,19 +53,17 @@ namespace FactoriesGateSystem.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> UpdateInvoice(int id, [FromBody] UpdateInvoiceDTO dto)
         {
-            if (id <= 0) return BadRequest("Invalid Invoice id");
+            if (id <= 0) 
+                return BadRequest("Invalid Invoice id");
+
             if(dto.Date == null && dto.Total == null)
                 return BadRequest("At least one field (Date or Total) must be provided.");
+
             if(dto.Total < 0 )
                 return BadRequest("Total cannot be negative.");
-            try
-            {
-                var invoice = await _invoiceRepo.UpdateInvoiceAsync(id, dto);
-                if (invoice == null) { return NotFound($"No invoice with id = {id}. "); }
 
-                return Ok(invoice);
-            }
-            catch { return StatusCode(500, "Internal server error");  }
+            var invoice = await _invoiceService.UpdateInvoiceAsync(id, dto);
+            return Ok(invoice);
         }
 
         [HttpDelete("{id:int}")]
@@ -95,14 +74,9 @@ namespace FactoriesGateSystem.Controllers
         public async Task<IActionResult> DeleteInvoice(int id) {
             if (id <= 0)
                 return BadRequest("Invalid invoice id.");
-            try
-            {
-                var done = await _invoiceRepo.DeleteIvnoiceAsync(id);
-                if (!done) { return NotFound($"No invoice with id = {id}. "); }
-
-                return Ok($"Invoice with {id} deleted Successfully");
-
-            } catch (Exception) { return StatusCode(500, "Internal server error"); }
+          
+            await _invoiceService.DeleteIvnoiceAsync(id);
+            return Ok($"Invoice with {id} deleted Successfully");
         }
     }
 }
