@@ -1,5 +1,5 @@
 ﻿using FactoriesGateSystem.Models.DTOs.EmployeeDTOs;
-using FactoriesGateSystem.Repositories;
+using FactoriesGateSystem.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,10 +10,10 @@ namespace FactoriesGateSystem.Controllers
     [Authorize(Roles = "manager")]
     public class EmployeeController : Controller
     {
-        private readonly EmployeeRepo _employeeRepo;
-        public EmployeeController(EmployeeRepo employeeRepo)
+        private readonly IEmployeeService _employeeService;
+        public EmployeeController(IEmployeeService employeeService)
         {
-            _employeeRepo = employeeRepo;
+            _employeeService = employeeService;
         }
 
         [HttpGet]
@@ -22,15 +22,9 @@ namespace FactoriesGateSystem.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> GetAllEmployees()
         {
-            try
-            {
-                var employeeDto = await _employeeRepo.GetEmployeesAsync();
-                return Ok(employeeDto);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Internal server error");
-            }
+            var employees = await _employeeService.GetAllEmployeesAsync();
+            return Ok(employees);
+ 
         }
 
         [HttpGet("{id:int}")]
@@ -42,23 +36,10 @@ namespace FactoriesGateSystem.Controllers
         {
             if (id <= 0)
                 return BadRequest("Invalid employee id.");
-            try
-            {
-                var employee = await _employeeRepo.GetEmployeeByIdAsync(id);
-                if (employee == null) { return NotFound($"No employee with id = {id}."); }
 
-                var employeeDto = new EmployeeDTO()
-                {
-                    Id = employee.EmployeeId,
-                    Name = employee.Name,
-                    Phone = employee.Phone,
-                };
-                return Ok(employeeDto);
-            }
-            catch(Exception)
-            {
-                return StatusCode(500, "Internal server error");
-            }
+            var employee = await _employeeService.GetEmployeeByIdAsync(id);
+
+            return Ok(employee);
         }
 
         [HttpGet("{name:alpha}")]
@@ -67,31 +48,20 @@ namespace FactoriesGateSystem.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> GetEmployeeName(string name)
         {
-            try
-            {
-                var employeeDto = await _employeeRepo.GetEmployeesAsync(e => e.Name.Contains(name));
-                return Ok(employeeDto);
-            }
-            catch (Exception) { return StatusCode(500, "Internal server error"); }
+            var employees = await _employeeService.GetEmployeeNameAsync(name);
+            return Ok(employees); 
         }
 
         [HttpPost]
         [ProducesResponseType(typeof(EmployeeDTO), 200)]
         [ProducesResponseType(500)]
         public async Task<IActionResult> CreateEmployee([FromBody] EmployeeDTO dto ) {
-            try
-            {
-                var factoryId = Request.Cookies["FactoryId"];
-                if (factoryId == null)
-                    return Unauthorized();
 
-                var employee = await _employeeRepo.CreateEmployeeAsync(dto,int.Parse(factoryId));
-                return Ok(employee);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Internal server error");
-            }
+            if(!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var employee = await _employeeService.CreateEmployeeAsync(dto);
+            return Ok(employee);
         }
 
         [HttpPut("{id:int}")]
@@ -106,16 +76,9 @@ namespace FactoriesGateSystem.Controllers
             if (dto.Name == null && dto.Phone == null)
                 return BadRequest("At least one field (Name or Phone) must be provided.");
 
-            try
-            {
-                var employee =await _employeeRepo.UpdateEmployeeAsync(id, dto);   
-                if(employee == null) { return NotFound($"No Employee with id: {id}."); }
-                return Ok(employee);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Internal server error");
-            }
+            var employee = await _employeeService.UpdateEmployeeAsync(id, dto);
+            return Ok(employee);
+
         }
 
         [HttpDelete("{id:int}")]
@@ -127,16 +90,9 @@ namespace FactoriesGateSystem.Controllers
         {
             if (id <= 0)
                 return BadRequest("Invalid employee id.");
-            try
-            {
-                var done = await _employeeRepo.DeleteEmployeeAsync(id);
-                if(!done) { return NotFound($"No Employee with id: {id}."); }
-                return Ok("Deleted Employee Successfuly");
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Internal server error");
-            }
+
+            await _employeeService.DeleteEmployeeAsync(id);
+            return Ok("Deleted Employee Successfuly");
         }
     }
 }
