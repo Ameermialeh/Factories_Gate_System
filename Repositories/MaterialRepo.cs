@@ -4,10 +4,11 @@ using System.Linq.Expressions;
 using static FactoriesGateSystem.Models.DTOs.MaterialDTOs.AddMaterialDTO;
 using static FactoriesGateSystem.Models.DTOs.MaterialDTOs.UpdateMaterialDTO;
 using FactoriesGateSystem.Models.DTOs.MaterialDTOs;
+using FactoriesGateSystem.Repositories.Interfaces;
 
 namespace FactoriesGateSystem.Repositories
 {
-    public class MaterialRepo
+    public class MaterialRepo : IMaterialRepo
     {
         private readonly AppDbContext _appDbContext;
 

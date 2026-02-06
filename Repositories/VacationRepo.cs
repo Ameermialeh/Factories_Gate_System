@@ -1,11 +1,12 @@
 ﻿using FactoriesGateSystem.Models;
 using FactoriesGateSystem.Models.DTOs.VacationDTOs;
+using FactoriesGateSystem.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace FactoriesGateSystem.Repositories
 {
-    public class VacationRepo
+    public class VacationRepo : IVacationRepo
     {
         private readonly AppDbContext _appDbContext;
 
@@ -14,7 +15,7 @@ namespace FactoriesGateSystem.Repositories
             _appDbContext = appDbContext;
         }
 
-        public async Task<List<VacationDTO>?> GetAllVacationAsync(Expression<Func<Vacation, bool>>? filter = null)
+        public async Task<List<VacationDTO>> GetAllVacationAsync(Expression<Func<Vacation, bool>>? filter = null)
         {
             IQueryable<Vacation> query = _appDbContext.vacations;
             if (filter != null)
@@ -40,9 +41,9 @@ namespace FactoriesGateSystem.Repositories
             var Vacation = new Vacation()
             {
                 EmployeeId = dto.EmployeeId,
-                FromDate = dto.FromDate!.Value,
-                ToDate = dto.ToDate!.Value,
-                VacationReason = dto.VacationReason!
+                FromDate = dto.FromDate,
+                ToDate = dto.ToDate,
+                VacationReason = dto.VacationReason
             };
 
             await _appDbContext.vacations.AddAsync(Vacation);

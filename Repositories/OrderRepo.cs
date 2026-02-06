@@ -1,11 +1,12 @@
 ﻿using FactoriesGateSystem.Models;
 using FactoriesGateSystem.Models.DTOs.OrderDTOs;
+using FactoriesGateSystem.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace FactoriesGateSystem.Repositories
 {
-    public class OrderRepo
+    public class OrderRepo : IOrderRepo
     {
         private readonly AppDbContext _appDbContext;
 
@@ -28,7 +29,8 @@ namespace FactoriesGateSystem.Repositories
             }).ToListAsync();
         }
 
-        public async Task<Order?> GetOrderByIdAsync(int id) {
+        public async Task<Order?> GetOrderByIdAsync(int id) 
+        {
             return await _appDbContext.orders.FirstOrDefaultAsync(o => o.OrderId == id);
         }
 
@@ -49,8 +51,8 @@ namespace FactoriesGateSystem.Repositories
             Order order = new Order()
             {
                 Name = dto.Name!,
-                OrderDate = dto.OrderDate!.Value,
-                CustomerId = dto.CustomerID!.Value,
+                OrderDate = dto.OrderDate,
+                CustomerId = dto.CustomerID,
                 FactoryId = factoryId
             };
 
@@ -80,7 +82,7 @@ namespace FactoriesGateSystem.Repositories
             Invoice invoice = new Invoice()
             {
                 Total = total,
-                Date = dto.OrderDate!.Value,
+                Date = dto.OrderDate,
                 OrderId = order.OrderId,    
             };
             await _appDbContext.AddAsync(invoice);
@@ -95,7 +97,7 @@ namespace FactoriesGateSystem.Repositories
             };
         }
 
-        public async Task<OrderWithProductsDTO?> UpdateOrderAsync(int id, OrderWithProductsDTO dto)
+        public async Task<OrderWithProductsDTO?> UpdateOrderAsync(int id, UpdateOrderDTO dto)
         {
             var order = await GetOrderByIdAsync(id);
             if (order == null) return null;

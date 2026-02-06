@@ -1,11 +1,12 @@
 ﻿using FactoriesGateSystem.Models;
 using FactoriesGateSystem.Models.DTOs.ProductDTOs;
+using FactoriesGateSystem.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace FactoriesGateSystem.Repositories
 {
-    public class ProductRepo
+    public class ProductRepo : IProductRepo
     {
         private readonly AppDbContext _appDbContext;
 
@@ -39,7 +40,7 @@ namespace FactoriesGateSystem.Repositories
                 }).FirstOrDefaultAsync();
         }
 
-        public async Task<ProductDTO> CreateProductAsync(ProductDTO productdto, int factoryId)
+        public async Task<ProductDTO> CreateProductAsync(CreateProductDTO productdto, int factoryId)
         {
             InventoryProduct inventory = new InventoryProduct
             {
@@ -51,8 +52,8 @@ namespace FactoriesGateSystem.Repositories
 
             Product product = new Product
             {
-                Name = productdto.Name!,
-                NameAr = productdto.NameAr!,
+                Name = productdto.Name,
+                NameAr = productdto.NameAr,
                 Price = productdto.Price,
                 FactoryId = factoryId,
                 InventoryId = inventory.InventoryId,

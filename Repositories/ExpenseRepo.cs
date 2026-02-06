@@ -1,12 +1,13 @@
 ﻿using FactoriesGateSystem.Models;
 using FactoriesGateSystem.Models.DTOs.ExpenseDTOs;
+using FactoriesGateSystem.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using static FactoriesGateSystem.Models.DTOs.ExpenseDTOs.UpdateExpenseDTO;
 
 namespace FactoriesGateSystem.Repositories
 {
-    public class ExpenseRepo
+    public class ExpenseRepo : IExpenseRepo
     {
         private readonly AppDbContext _appDbContext;
 

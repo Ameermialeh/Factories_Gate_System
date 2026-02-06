@@ -1,11 +1,12 @@
 ﻿using FactoriesGateSystem.Models;
 using FactoriesGateSystem.Models.DTOs;
+using FactoriesGateSystem.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace FactoriesGateSystem.Repositories
 {
-    public class ManagerRepo
+    public class ManagerRepo : IManagerRepo
     {
         private readonly AppDbContext _appDbContext;
 

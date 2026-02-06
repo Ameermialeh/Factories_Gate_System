@@ -1,12 +1,13 @@
 ﻿using FactoriesGateSystem.Models;
 using FactoriesGateSystem.Models.DTOs.InvoiceDTOs;
+using FactoriesGateSystem.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using static FactoriesGateSystem.Models.DTOs.InvoiceDTOs.UpdateInvoiceDTO;
 
 namespace FactoriesGateSystem.Repositories
 {
-    public class InvoiceRepo
+    public class InvoiceRepo : IInvoiceRepo
     {
         private readonly AppDbContext _appDbContext;
 

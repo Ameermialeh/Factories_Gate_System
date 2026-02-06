@@ -1,22 +1,23 @@
 ﻿using FactoriesGateSystem.Helpers;
 using FactoriesGateSystem.Models;
 using FactoriesGateSystem.Models.DTOs.Admin;
+using FactoriesGateSystem.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using static FactoriesGateSystem.Models.DTOs.AuthDTO;
 
 namespace FactoriesGateSystem.Repositories
 {
-    public class AuthRepo
+    public class AuthRepo : IAuthRepo
     {
         private readonly AppDbContext _appDbContext;
-        private readonly PasswordHasher _passwordHasher;
-        public AuthRepo(AppDbContext appDbContext, PasswordHasher passwordHasher)
+        private readonly IPasswordHasher _passwordHasher;
+        public AuthRepo(AppDbContext appDbContext, IPasswordHasher passwordHasher) 
         {
             _appDbContext = appDbContext;
             _passwordHasher = passwordHasher;
         }
 
-        public async Task<User> RegisterAsync(RegisterDTO dto, string passwordHash)
+        public async Task RegisterAsync(RegisterDTO dto, string passwordHash)
         {
             var user = new User
             {
@@ -39,7 +40,7 @@ namespace FactoriesGateSystem.Repositories
 
             await _appDbContext.factory.AddAsync(factory);
             await _appDbContext.SaveChangesAsync();
-            return user;
+            await Task.CompletedTask;
         }
 
         public async Task<User?> LoginAsync(LoginDTO dto)
@@ -99,7 +100,7 @@ namespace FactoriesGateSystem.Repositories
 
         public async Task<bool> LogoutAsync(int userId)
         {
-            var refreshToken =await _appDbContext.refreshtokens.Where(rt => rt.UserId == userId).OrderByDescending(rt=> rt.Id).FirstOrDefaultAsync();
+            var refreshToken = await _appDbContext.refreshtokens.Where(rt => rt.UserId == userId).OrderByDescending(rt=> rt.Id).FirstOrDefaultAsync();
             if(refreshToken == null) return false;
 
             refreshToken.IsRevoked = true;
@@ -121,6 +122,19 @@ namespace FactoriesGateSystem.Repositories
         {
             user.PasswordHash = _passwordHasher.Hash(dto.NewPassword!);
             await _appDbContext.SaveChangesAsync();
+        }
+
+        public async Task<bool> EmailExistsAsync(string email)
+        {
+            var user = await _appDbContext.users.FirstOrDefaultAsync(u=>u.Email == email);
+            if(user == null) return false;
+            return true;
+        }
+        public async Task<bool> FactoryNameExistsAsync(string name)
+        {
+            var factory = await _appDbContext.factory.FirstOrDefaultAsync(f => f.Name == name);
+            if (factory == null) return false;
+            return true;
         }
     }
 }

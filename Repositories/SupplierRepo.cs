@@ -1,11 +1,12 @@
 ﻿using FactoriesGateSystem.Models;
 using FactoriesGateSystem.Models.DTOs.SupplierDTOs;
+using FactoriesGateSystem.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace FactoriesGateSystem.Repositories
 {
-    public class SupplierRepo
+    public class SupplierRepo : ISupplierRepo
     {
         private readonly AppDbContext _appDbContext;
 
@@ -34,20 +35,26 @@ namespace FactoriesGateSystem.Repositories
             return await _appDbContext.suppliers.FirstOrDefaultAsync(s => s.SupplierId == id);
         }
 
-        public async Task<SupplierDTO> AddSupplierAsync(SupplierDTO supplierDto, int factoryId)
+        public async Task<SupplierDTO> AddSupplierAsync(CreateSupplierDTO supplierDto, int factoryId)
         {
             var supplier = new Supplier()
             {
                 Name= supplierDto.Name,
-                Address= supplierDto.Address!,
-                Phone = supplierDto.Phone!,
+                Address= supplierDto.Address,
+                Phone = supplierDto.Phone,
                 FactoryId = factoryId
             };
 
             await _appDbContext.suppliers.AddAsync(supplier);
             await _appDbContext.SaveChangesAsync();
-            supplierDto.Id = supplier.SupplierId;
-            return supplierDto;
+
+            return new SupplierDTO
+            {
+                Id = supplier.SupplierId,
+                Name = supplier.Name,
+                Address = supplier.Address,
+                Phone = supplier.Phone,
+            };
         }
 
         public async Task<SupplierDTO?> UpdateSupplierAsync(int id, UpdateSupplierDTO dto)

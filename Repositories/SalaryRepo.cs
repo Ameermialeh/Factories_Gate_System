@@ -1,12 +1,13 @@
 ﻿using FactoriesGateSystem.Models;
 using FactoriesGateSystem.Models.DTOs.SalaryDTOs;
+using FactoriesGateSystem.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using static FactoriesGateSystem.Models.DTOs.SalaryDTOs.UpdateSalaryDTO;
 
 namespace FactoriesGateSystem.Repositories
 {
-    public class SalaryRepo
+    public class SalaryRepo : ISalaryRepo
     {
         private readonly AppDbContext _appDbContext;
 

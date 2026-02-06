@@ -1,21 +1,18 @@
-﻿using FactoriesGateSystem.Helpers;
-using FactoriesGateSystem.Models;
-using FactoriesGateSystem.Models.DTOs;
+﻿using FactoriesGateSystem.Models;
 using FactoriesGateSystem.Models.DTOs.Admin;
+using FactoriesGateSystem.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace FactoriesGateSystem.Repositories
 {
-    public class AdminRepo
+    public class AdminRepo: IAdminRepo
     {
         private readonly AppDbContext _appDbContext;
-        private readonly PasswordHasher _passwordHasher;
 
-        public AdminRepo(AppDbContext appDbContext, PasswordHasher passwordHasher)
+        public AdminRepo(AppDbContext appDbContext)
         {
             _appDbContext = appDbContext;
-            _passwordHasher = passwordHasher;
         }
         public async Task<List<AdminDTO>> GetAllAdminsAsync(Expression<Func<User, bool>>? filter = null)
         {
@@ -31,6 +28,5 @@ namespace FactoriesGateSystem.Repositories
                 CreatedAt = a.CreatedAt,
             }).ToListAsync();
         }
-
     }
 }
