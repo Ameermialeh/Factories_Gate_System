@@ -1,7 +1,5 @@
-﻿using FactoriesGateSystem.Models;
-using FactoriesGateSystem.Models.DTOs.ProductDTOs;
-using FactoriesGateSystem.Models.DTOs.SalaryDTOs;
-using FactoriesGateSystem.Repositories;
+﻿using FactoriesGateSystem.Models.DTOs.SalaryDTOs;
+using FactoriesGateSystem.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,31 +10,27 @@ namespace FactoriesGateSystem.Controllers
     [Authorize(Roles = "manager")]
     public class SalaryController : Controller
     {
-        private readonly SalaryRepo _salaryRepo;
 
-        public SalaryController(SalaryRepo salaryRepo)
+        private readonly ISalaryService _salaryService;
+
+        public SalaryController(ISalaryService salaryService)
         {
-            _salaryRepo = salaryRepo;
+            _salaryService = salaryService;
         }
 
         [HttpGet]
         [ProducesResponseType(typeof(List<SalaryDTO>), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> GetSalary([FromQuery] int?employeeId)
+        public async Task<IActionResult> GetSalary([FromQuery] int? employeeId)
         {
-            try
-            { 
-                if(employeeId == null)
-                {
-                    var salaries = await _salaryRepo.GetAllSalariesAsync();
-                    return Ok(salaries);
-                }
-                var filtered = await _salaryRepo.GetAllSalariesAsync(s => s.EmployeeId == employeeId);
-                if (!filtered.Any()) { return NotFound($"No employee with id = {employeeId}. "); }
-                return Ok(filtered);
+            if(employeeId == null)
+            {
+                var salaries = await _salaryService.GetAllSalariesAsync();
+                return Ok(salaries);
             }
-            catch { return StatusCode(500, "Internal server error"); }
+            var filtered = await _salaryService.GetAllSalariesByEmployeeId(employeeId.Value);
+            return Ok(filtered);
         }
 
 
@@ -49,27 +43,13 @@ namespace FactoriesGateSystem.Controllers
         {
             if (id <= 0)
                 return BadRequest("Invalid salary id.");
-            try
-            {
-                var salary = await _salaryRepo.GetSalaryByIdAsync(id);
-                if (salary == null) { return NotFound($"No salary with id = {id}. "); }
 
-                var salaryDto = new SalaryDTO
-                {
-                     Id = id,
-                     BaseSalary = salary.BaseSalary,
-                     Bonus = salary.Bonus,
-                     Deductions = salary.Deductions,
-                     EmployeeId = salary.EmployeeId,
-                     Date = salary.Date
-                };
-                return Ok(salaryDto);
-            }
-            catch { return StatusCode(500, "Internal server error"); }
+            var salary = await _salaryService.GetSalaryByIdAsync(id);
+            return Ok(salary);
         }
 
         [HttpGet("DateRange")]
-        [ProducesResponseType(typeof(SalaryDTO), 200)]
+        [ProducesResponseType(typeof(List<SalaryDTO>), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
@@ -80,13 +60,9 @@ namespace FactoriesGateSystem.Controllers
             
             if (ToDate <= FromDate)
                 return BadRequest("ToDate must be later than FromDate.");
-            try
-            {
-                var salary = await _salaryRepo.GetAllSalariesAsync(s => FromDate <= s.Date && ToDate >= s.Date && s.EmployeeId == employeeId);
-                if (salary == null) { return NotFound($"No salaries in range {FromDate} - {ToDate}. "); }
-                return Ok(salary);
-            }
-            catch { return StatusCode(500, "Internal server error"); }
+
+            var salary = await _salaryService.GetAllSalariesInDateRangeAsync(employeeId , FromDate, ToDate);
+            return Ok(salary);
         }
 
         [HttpPost]
@@ -95,16 +71,14 @@ namespace FactoriesGateSystem.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> AddSalary([FromBody] AddSalaryDTO dto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             if(dto.EmployeeId <= 0)
                 return BadRequest("Employee Id invalid.");
 
-            try
-            {
-                var salary = await _salaryRepo.AddSalaryForEmployeeAsync(dto);
-                return Ok(salary);
-            }
-            catch { return StatusCode(500, "Internal server error"); }
-
+            var salary = await _salaryService.AddSalaryAsync(dto);
+            return Ok(salary);
         }
 
         [HttpPut("{id:int}")]
@@ -122,13 +96,8 @@ namespace FactoriesGateSystem.Controllers
             if (dto.BaseSalary < 0 || dto.Bonus < 0 || dto.Deductions < 0 )
                 return BadRequest("BaseSalary and Bonus and Deductions cannot be negative.");
 
-            try
-            {
-                var salary = await _salaryRepo.UpdateSalariesAsync(id, dto);
-                if (salary == null) { return NotFound($"No Salary with id = {id}. "); }
-                return Ok(salary);
-            }
-            catch { return StatusCode(500, "Internal server error"); }
+            var salary = await _salaryService.UpdateSalaryAsync(id, dto);
+            return Ok(salary);
         }
 
        
@@ -140,15 +109,9 @@ namespace FactoriesGateSystem.Controllers
         {
             if (id <= 0)
                 return BadRequest("Invalid salary id.");
-            try
-            {
-                var done = await _salaryRepo.DeleteSalaryAsync(id);
-                if (!done) { return NotFound($"No salary with id = {id}. "); }
 
-                return Ok($"Salary with {id} deleted Successfully");
-
-            }
-            catch { return StatusCode(500, "Internal server error"); }
+            await _salaryService.DeleteSalaryAsync(id);
+            return Ok($"Salary with {id} deleted Successfully");
         }
     }
 }
