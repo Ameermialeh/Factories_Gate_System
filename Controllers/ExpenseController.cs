@@ -1,8 +1,7 @@
 ﻿using FactoriesGateSystem.Models.DTOs.ExpenseDTOs;
-using FactoriesGateSystem.Repositories;
+using FactoriesGateSystem.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static FactoriesGateSystem.Models.DTOs.ExpenseDTOs.UpdateExpenseDTO;
 
 
 namespace FactoriesGateSystem.Controllers
@@ -12,11 +11,10 @@ namespace FactoriesGateSystem.Controllers
     [Authorize(Roles = "manager")]
     public class ExpenseController : Controller
     {
-        private readonly ExpenseRepo _expenseRepo;
-
-        public ExpenseController(ExpenseRepo expenseRepo)
+        private readonly IExpenseService _expenseService;
+        public ExpenseController(IExpenseService expenseService)
         {
-            _expenseRepo = expenseRepo;
+            _expenseService = expenseService;
         }
 
         [HttpGet]
@@ -25,17 +23,15 @@ namespace FactoriesGateSystem.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> GetExpense([FromQuery] DateTime? date)
         {
-            try
+
+            if (date == null)
             {
-                if (date == null)
-                {
-                    var Expenses = await _expenseRepo.GetAllExpenseAsync();
-                    return Ok(Expenses);
-                }
-                var filtered = await _expenseRepo.GetAllExpenseAsync(e =>e.Date >= date.Value.Date && e.Date < date.Value.Date.AddDays(1));
-                return Ok(filtered);
+                var Expenses = await _expenseService.GetAllExpenseAsync();
+                return Ok(Expenses);
             }
-            catch { return StatusCode(500, "Internal server error"); }
+            var filtered = await _expenseService.GetExpenseWithDateAsync(date.Value);
+            return Ok(filtered);
+
         }
 
         [HttpGet("{id:int}")]
@@ -47,21 +43,9 @@ namespace FactoriesGateSystem.Controllers
         {
             if (id <= 0)
                 return BadRequest("Invalid expense id.");
-            try
-            {
-                var expense = await _expenseRepo.GetExpenseByIdAsync(id);
-                if (expense == null) { return NotFound($"No expense with id = {id}. "); }
 
-                var expenseDto = new ExpenseDTO
-                {
-                    Id = expense.ExpenseId,
-                    Description = expense.Description,
-                    Date = expense.Date,
-                    Amount = expense.Amount,
-                };
-                return Ok(expenseDto);
-            }
-            catch { return StatusCode(500, "Internal server error"); }
+            var expense = await _expenseService.GetExpenseByIdAsync(id);
+            return Ok(expense);
         }
 
         [HttpPost]
@@ -71,19 +55,11 @@ namespace FactoriesGateSystem.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> AddExpense([FromBody] AddExpenseDTO dto)
         {
-            if (dto.Amount <= 0 || String.IsNullOrWhiteSpace(dto.Description))
-                return BadRequest("Invalid data.");
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            try
-            {
-                var factoryId = Request.Cookies["FactoryId"];
-                if (factoryId == null)
-                    return Unauthorized();
-
-                var expense = await _expenseRepo.AddExpenseAsync(dto,int.Parse(factoryId));
-                return Ok(expense);
-            }
-            catch { return StatusCode(500, "Internal server error"); }
+            var expense = await _expenseService.AddExpenseAsync(dto);
+            return Ok(expense);
         }
 
         [HttpPut("{id:int}")]
@@ -101,13 +77,8 @@ namespace FactoriesGateSystem.Controllers
             if(dto.Amount < 0)
                 return BadRequest("Amount cannot be negative.");
 
-            try
-            {
-                var expense = await _expenseRepo.UpdateExpenseAsync(id, dto);
-                if (expense == null) { return NotFound($"No Expense with id = {id}. "); }
-                return Ok(expense);
-            }
-            catch { return StatusCode(500, "Internal server error"); }
+            var expense = await _expenseService.UpdateExpenseAsync(id, dto);
+            return Ok(expense);
         }
 
 
@@ -119,15 +90,10 @@ namespace FactoriesGateSystem.Controllers
         {
             if (id <= 0)
                 return BadRequest("Invalid expense id.");
-            try
-            {
-                var done = await _expenseRepo.DeleteExpenseAsync(id);
-                if (!done) { return NotFound($"No expense with id = {id}. "); }
 
-                return Ok($"Expense with {id} deleted Successfully");
+            await _expenseService.DeleteExpenseAsync(id);
 
-            }
-            catch { return StatusCode(500, "Internal server error"); }
+            return Ok($"Expense with {id} deleted Successfully");
         }
     }
 }
