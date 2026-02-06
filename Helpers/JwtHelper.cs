@@ -6,7 +6,7 @@ using System.Text;
 
 namespace FactoriesGateSystem.Helpers
 {
-    public class JwtHelper
+    public class JwtHelper : IJwtHelper
     {
         private readonly IConfiguration config;
 
