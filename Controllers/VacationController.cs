@@ -1,9 +1,7 @@
-﻿using FactoriesGateSystem.Models.DTOs.SupplierDTOs;
-using FactoriesGateSystem.Models.DTOs.VacationDTOs;
-using FactoriesGateSystem.Repositories;
+﻿using FactoriesGateSystem.Models.DTOs.VacationDTOs;
+using FactoriesGateSystem.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static FactoriesGateSystem.Models.DTOs.VacationDTOs.UpdateVacationDTO;
 
 namespace FactoriesGateSystem.Controllers
 {
@@ -12,24 +10,21 @@ namespace FactoriesGateSystem.Controllers
     [Authorize(Roles = "manager")]
     public class VacationController : Controller
     {
-        private readonly VacationRepo _vacationRepo;
 
-        public VacationController(VacationRepo vacationRepo)
+        private readonly IVacationService _vacationService;
+        public VacationController(IVacationService vacationService)
         {
-            _vacationRepo = vacationRepo;
+            _vacationService = vacationService;
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(VacationDTO), 200)]
+        [ProducesResponseType(typeof(List<VacationDTO>), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
         public async Task<IActionResult> GetAllVacation()
         {
-            try
-            {
-                var vacations = await _vacationRepo.GetAllVacationAsync();
-                return Ok(vacations);
-            }catch { return StatusCode(500, "Internal server error"); }
+            var vacations = await _vacationService.GetAllVacationAsync();
+            return Ok(vacations);
         }
 
         [HttpGet("{id}")]
@@ -41,21 +36,9 @@ namespace FactoriesGateSystem.Controllers
         {
             if (id <= 0)
                 return BadRequest("Invalid vacation id.");
-            try
-            {
-                var vacation = await _vacationRepo.GetVacationByIdAsync(id);
-                if(vacation == null) { return NotFound($"No vacation with id = {id}. "); }
 
-                var vacationDto = new VacationDTO
-                {
-                    VacationId = vacation.VacationId,
-                    EmployeeId = vacation.EmployeeId,
-                    FromDate = vacation.FromDate,
-                    ToDate = vacation.ToDate,
-                    VacationReason = vacation.VacationReason,
-                };
-                return Ok(vacationDto);
-            }catch { return StatusCode(500, "Internal server error"); }
+            var vacation = await _vacationService.GetVacationByIdAsync(id);
+            return Ok(vacation);
         }
 
         [HttpPost]
@@ -64,17 +47,14 @@ namespace FactoriesGateSystem.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> AddVacation([FromBody] CreateVacationDTO dto)
         {
-            if (dto.EmployeeId <= 0 || String.IsNullOrWhiteSpace(dto.VacationReason))
-                return BadRequest("Invalid data.");
+            if (dto.EmployeeId <= 0)
+                return BadRequest("Invalid employee id.");
 
-            if (dto.FromDate == null || dto.ToDate == null)
-                return BadRequest("Dates are required");
-            try
-            {
-                var vacation = await _vacationRepo.AddVacationToEmployee(dto);
-                return Ok(vacation);
-            }
-            catch(Exception ex) { return StatusCode(500, ex.InnerException?.Message ?? ex.Message); }
+            if(!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var vacation = await _vacationService.AddVacationAsync(dto);
+            return Ok(vacation);
         }
 
 
@@ -95,14 +75,8 @@ namespace FactoriesGateSystem.Controllers
                 if (dto.ToDate.Value <= dto.FromDate.Value)
                     return BadRequest("ToDate must be later than FromDate.");
             }
-
-            try
-            {
-                var vacation = await _vacationRepo.UpdateVacationAsync(id, dto);
-                if (vacation == null) { return NotFound($"No vacation with id = {id}. "); }
-                return Ok(vacation);
-            }
-            catch { return StatusCode(500, "Internal server error"); }
+            var vacation = await _vacationService.UpdateVacationAsync(id, dto);
+            return Ok(vacation);
         }
 
        
@@ -115,13 +89,9 @@ namespace FactoriesGateSystem.Controllers
         {
             if (id <= 0)
                 return BadRequest("Invalid vacation id.");
-            try
-            {
-                var done = await _vacationRepo.DeleteVacationAsync(id);
-                if (!done) { return NotFound($"No vacation with id = {id}. "); }
-                return Ok($"Vacation with {id} deleted Successfully");
 
-            }catch { return StatusCode(500, "Internal server error"); }
+            await _vacationService.DeleteVacationAsync(id);
+            return Ok($"Vacation with {id} deleted Successfully");
         }
     }
 }
