@@ -1,5 +1,5 @@
 ﻿using FactoriesGateSystem.Models.DTOs;
-using FactoriesGateSystem.Repositories;
+using FactoriesGateSystem.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,11 +10,10 @@ namespace FactoriesGateSystem.Controllers
     [Authorize(Roles = "admin")]
     public class ManagerController : Controller
     {
-        private readonly ManagerRepo _managerRepo;
-
-        public ManagerController(ManagerRepo managerRepo)
+        private readonly IManagerService _managerService;
+        public ManagerController(IManagerService managerService)
         {
-            _managerRepo = managerRepo;
+            _managerService = managerService;
         }
 
         [HttpGet]
@@ -23,22 +22,17 @@ namespace FactoriesGateSystem.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> GetAllManagers([FromQuery] string? name)
         {
-            try
+            if(name == null)
             {
-                if(name == null)
-                {
-                    var managers = await _managerRepo.GetManagersAsync();
-                    return Ok(managers);
-                }
-                
-                var filtered = await _managerRepo.GetManagersAsync(m => m.Name.Contains(name));
-                return Ok(filtered);
+                var managers = await _managerService.GetAllManagersAsync();
+                return Ok(managers);
             }
-            catch (Exception) { return StatusCode(500, "Internal Server Error"); }
+            var filtered = await _managerService.GetAllManagersWithNameAsync(name);
+            return Ok(filtered);
         }
 
         [HttpGet("{id:int}")]
-        [ProducesResponseType(typeof(ManagerDTO), 200)]
+        [ProducesResponseType(typeof(List<ManagerDTO>), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
         [ProducesResponseType(400)]
@@ -46,13 +40,9 @@ namespace FactoriesGateSystem.Controllers
         {
             if (id <= 0)
                 return BadRequest("Invalid Manager id.");
-            try
-            {
-                var manager = await _managerRepo.GetManagersAsync(m => m.UserId == id);
-                if (!manager.Any()) { return NotFound("No Manager Found!"); }
-                return Ok(manager);
-            }
-            catch (Exception) { return StatusCode(500, "Internal Server Error"); }
+
+            var manager = await _managerService.GetManagerByIdAsync(id);
+            return Ok(manager);
         }
 
     }
