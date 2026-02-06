@@ -1,5 +1,5 @@
 ﻿using FactoriesGateSystem.Models.DTOs.CustomerDTOs;
-using FactoriesGateSystem.Repositories;
+using FactoriesGateSystem.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,10 +10,10 @@ namespace FactoriesGateSystem.Controllers
     [Authorize(Roles = "manager")]
     public class CustomerController : Controller
     {
-        private readonly CustomerRepo _customerRepo;
-        public CustomerController(CustomerRepo customerRepo)
+        private readonly ICustomerService _customerService;
+        public CustomerController(ICustomerService customerService)
         {
-            _customerRepo = customerRepo;
+            _customerService = customerService;
         }
 
         [HttpGet]
@@ -21,16 +21,8 @@ namespace FactoriesGateSystem.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> GetAllCustomers()
         {
-            try
-            {
-                var customerDto = await _customerRepo.GetCustomersAsync();
-
-                return Ok(customerDto);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Internal server error");
-            }
+            var customerDto = await _customerService.GetAllCustomersAsync(); 
+            return Ok(customerDto);
         }
 
         [HttpGet("{id:int}")]
@@ -42,24 +34,9 @@ namespace FactoriesGateSystem.Controllers
         {
             if (id <= 0)
                 return BadRequest("Invalid customer id.");
-            try
-            {
-                var customer =await _customerRepo.GetCustomerByIdAsync(id);
-                if (customer == null)
-                    return NotFound($"No customer with id = {id}.");
 
-                var customerDto = new CustomerDTO()
-                {
-                    ID = customer.CustomerId,
-                    Name = customer.Name,
-                    Address = customer.Address,
-                    Phone = customer.Phone,
-                };
-                return Ok(customerDto);
-            }
-            catch (Exception) {
-                return StatusCode(500, "Internal server error");
-            }
+            var customerDto = await _customerService.GetCustomerByIdAsync(id);
+            return Ok(customerDto);
         } 
 
         [HttpGet("{name:alpha}")]
@@ -67,38 +44,21 @@ namespace FactoriesGateSystem.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> GetCustomerName(string name)
         {
-            try
-            {
-                var customerDto = await _customerRepo.GetCustomersAsync(c => c.Name.Contains(name));
-                return Ok(customerDto);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Internal server error");
-            }
+            var customers = await _customerService.GetCustomerNameAsync(name);
+            return Ok(customers);
         }
 
         [HttpPost]
         [ProducesResponseType(typeof(CustomerDTO), 200)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> CreateCustomer([FromBody]CustomerDTO customerDto)
+        public async Task<IActionResult> CreateCustomer([FromBody]CustomerDTO dto)
         {
-            if(customerDto.Name == null && customerDto.Address == null && customerDto.Phone == null)
-                return BadRequest("All field (Name and Address and Phone) must be provided.");
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            try
-            {
-                var factoryId = Request.Cookies["FactoryId"];
-                if (factoryId == null)
-                    return Unauthorized();
+            var customer = await _customerService.CreateCustomerAsync(dto);
 
-                var customer = await _customerRepo.AddCustomerAsync(customerDto, int.Parse(factoryId));
-                return Ok(customer);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500,  ex );
-            }
+            return Ok(customer);
         }
 
         [HttpPut("{id:int}")]
@@ -113,14 +73,8 @@ namespace FactoriesGateSystem.Controllers
             if(dto.Name == null && dto.Address == null && dto.Phone == null)
                 return BadRequest("At least one field (Name or Address or Phone) must be provided.");
 
-            try
-            {
-                var customer = await _customerRepo.UpdateCustomerAsync(id, dto);
-                if (customer == null)
-                    return NotFound($"No Customer with id: {id}."); 
-
-                return Ok(customer);
-            } catch(Exception) { return StatusCode(500, "Internal server error");}
+            var customer = await _customerService.UpdateCustomerAsync(id, dto);
+            return Ok(customer);
         }
 
         [HttpDelete("{id:int}")]
@@ -132,18 +86,10 @@ namespace FactoriesGateSystem.Controllers
         {
             if (id <= 0)
                 return BadRequest("Invalid customer id.");
-            try
-            {
-                var done = await _customerRepo.DeleteCustomerAsync(id);
-                if (!done)
-                    return NotFound($"No customer with id = {id}.");
-               
-                return Ok("Customer deleted successfully");
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Internal server error");
-            }
+
+            await _customerService.DeleteCustomerAsync(id);
+
+            return Ok("Customer deleted successfully");          
         }
     }
 }
