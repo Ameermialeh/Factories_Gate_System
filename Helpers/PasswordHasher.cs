@@ -3,7 +3,7 @@ using System.Text;
 
 namespace FactoriesGateSystem.Helpers
 {
-    public class PasswordHasher
+    public class PasswordHasher : IPasswordHasher
     {
         public string Hash(string password)
         {
